@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INIZIO Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.15/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --bg-light: #ffffff;
+            --text-light: #333333;
+            --bg-dark: #121212;
+            --text-dark: #ffffff;
+            --purple-light: #8a3fff;
+            --purple-dark: #ab66ff;
+            --gray-light: #f4f4f4;
+            --gray-dark: #1e1e1e;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.light-mode {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: var(--gray-dark);
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: background-color 0.3s ease;
+            z-index: 10;
+        }
+
+        .light-mode .sidebar {
+            background-color: var(--gray-light);
+            color: var(--text-light);
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: var(--purple-light);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .sidebar-menu-item.active {
+            background-color: var(--purple-light);
+            color: white;
+        }
+
+        .light-mode .sidebar-menu-item.active {
+            background-color: var(--purple-light);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--bg-dark);
+            margin-bottom: 20px;
+        }
+
+        .light-mode .header {
+            background-color: var(--bg-light);
+        }
+
+        .theme-toggle, .pdf-download, .profile-icon {
+            background-color: var(--purple-light);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-icon {
+            background-color: transparent;
+            border: 2px solid var(--purple-light);
+            color: var(--purple-light);
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--purple-light);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-card-icon {
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .stat-card-content {
+            flex-grow: 1;
+        }
+
+        .sales-analysis {
+            background-color: var(--gray-dark);
+            border-radius: 10px;
+            padding: 20px;
+            height: calc(100% - 330px);
+        }
+
+        .light-mode .sales-analysis {
+            background-color: var(--gray-light);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-logo">INIZIO</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item active" data-tab="dashboard">
+                    <a href="/admin" style="color: inherit; text-decoration: none;">
+                    <span class="sidebar-menu-icon">📊</span>
+                    Dashboard
+                </li>
+                <li class="sidebar-menu-item" data-tab="product">
+                    <a href="/admin/Product" style="color: inherit; text-decoration: none;">
+                    <span class="sidebar-menu-icon">📦</span>
+                    Product
+                </li>
+                <li class="sidebar-menu-item" data-tab="orders">
+                    <span class="sidebar-menu-icon">🛒</span>
+                    Orders
+                </li>
+                <li class="sidebar-menu-item" data-tab="users">
+                    <a href="/admin/users" style="color: inherit; text-decoration: none;">
+                    <span class="sidebar-menu-icon">👥</span>
+                    Users
+                </li>
+                <li class="sidebar-menu-item" data-tab="category">
+                    <span class="sidebar-menu-icon">🏷️</span>
+                    Category
+                </li>
+                <li class="sidebar-menu-item" data-tab="offers">
+                    <span class="sidebar-menu-icon">🎁</span>
+                    Offers
+                </li>
+                <li class="sidebar-menu-item" data-tab="settings">
+                    <span class="sidebar-menu-icon">⚙️</span>
+                    Settings
+                </li>
+                <li class="sidebar-menu-item" data-tab="banner">
+                    <span class="sidebar-menu-icon">🖼️</span>
+                    Banner
+                </li>
+                <li class="sidebar-menu-item" data-tab="coupons">
+                    <span class="sidebar-menu-icon">🏷️</span>
+                    Coupons
+                </li>
+                <a href="/admin/logout" style="text-decoration: none;"><li class="sidebar-menu-item" style="color: red;" data-tab="logout">
+                    <span class="sidebar-menu-icon">🚪</span>
+                    Logout
+                </li></a>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-actions">
+                    <!-- <button class="pdf-download">📄</button> -->
+                    <!-- <button class="theme-toggle">🌙</button> -->
+                    <div class="profile-icon">JD</div>
+                </div>
+            </div>
+         

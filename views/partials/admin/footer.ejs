@@ -1,0 +1,106 @@
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.querySelector('.theme-toggle');
+        const pdfDownload = document.querySelector('.pdf-download');
+        const body = document.body;
+        const sidebarMenu = document.querySelector('.sidebar-menu');
+
+        // Theme Toggle
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            themeToggle.textContent = body.classList.contains('light-mode') ? '☀️' : '🌙';
+        });
+
+        // Sidebar Menu Toggle
+        sidebarMenu.addEventListener('click', (e) => {
+            const clickedItem = e.target.closest('.sidebar-menu-item');
+            if (clickedItem) {
+                // Remove active from all items
+                sidebarMenu.querySelectorAll('.sidebar-menu-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Add active to clicked item
+                clickedItem.classList.add('active');
+
+                // Get the active tab
+                const activeTab = clickedItem.dataset.tab;
+                console.log(`Active tab: ${activeTab}`);
+            }
+        });
+
+        // PDF Download
+        pdfDownload.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const currentDate = new Date().toLocaleDateString();
+
+            // Add title
+            doc.setFontSize(18);
+            doc.text(`INIZIO Business Performance Report`, 14, 22);
+            doc.setFontSize(12);
+            doc.text(`Generated on: ${currentDate}`, 14, 30);
+
+            // Stat Cards Data
+            const statCards = document.querySelectorAll('.stat-card');
+            const statData = Array.from(statCards).map(card => {
+                const label = card.querySelector('.stat-card-content div:first-child').textContent;
+                const value = card.querySelector('.stat-card-content div:last-child').textContent;
+                return [label, value];
+            });
+
+            // Add Stat Cards Table
+            doc.autoTable({
+                startY: 40,
+                head: [['Business Metric', 'Value']],
+                body: statData,
+                theme: 'striped'
+            });
+
+            // Sales Chart as Image
+            const salesChart = document.getElementById('salesChart');
+            const chartImage = salesChart.toDataURL('image/png');
+            
+            // Add Chart Image
+            doc.addPage();
+            doc.text('Monthly Sales Analysis', 14, 22);
+            doc.addImage(chartImage, 'PNG', 10, 30, 190, 100);
+
+            // Add footer
+            doc.setFontSize(10);
+            doc.text('Confidential - For Internal Use Only', 14, doc.internal.pageSize.height - 10);
+
+            // Save PDF
+            doc.save(`INIZIO_Business_Report_${currentDate.replace(/\//g, '-')}.pdf`);
+        });
+
+        // Sales Chart
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Sales',
+                data: [40000, 30000, 50000, 45000, 60000, 70000],
+                backgroundColor: 'rgba(138, 63, 255, 0.6)',
+                borderColor: 'rgba(138, 63, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: salesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

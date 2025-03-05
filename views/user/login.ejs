@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+        }
+        
+        .title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .login-btn {
+            padding: 0.8rem;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .login-btn:hover {
+            background-color: #3a7bc8;
+        }
+        
+        .signup-btn {
+            padding: 0.8rem;
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .signup-btn:hover {
+            background-color: #36a420;
+        }
+        .error-message {
+            display: none;
+            color: red;
+            font-size: clamp(10px, 1.5vh, 12px);
+            margin-top: 0.5vh;
+        }
+        .login-link {
+            margin-top: 1.5vh;
+            text-align: center;
+            color: #555;
+            font-size: clamp(12px, 1.8vh, 14px);
+        }
+        .login-link {
+            position: static;
+            text-align: center;
+            margin-top: 1vh;
+        }
+        .login-link a {
+            color: #0072ce;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-container">
+            <!-- Replace with your actual logo -->
+            <img src="/images/Screenshot 2025-03-02 144355.png" alt="Company Logo" class="logo">
+        </div>
+        
+        <h1 class="title">Login Page</h1>
+        
+        <form method="post" action="/login" id="loginForm" onsubmit=" return validateLoginForm()" novalidate>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <div class="error-message" id="error1"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <div class="error-message" id="error2"></div>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" class="login-btn">Login</button>
+            </div>
+            <div class="login-link">
+                 Or <a href="/signup">Sign up</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+<script>
+   
+    document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("loginForm");
+        const emailid = document.getElementById("email");
+        const passid = document.getElementById("password");
+        const error1 = document.getElementById("error1");
+        const error2 = document.getElementById("error2");
+
+        function emailValidateChecking() {
+            const emailval = emailid.value;
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (emailval.trim() === "") {
+                error1.style.display = "block";
+                error1.innerHTML = "Please enter emailId";
+            } else if (!emailPattern.test(emailval)) {
+                error1.style.display = "block";
+                error1.innerHTML = "Invalid emailId";
+            } else {
+                error1.style.display = "none";
+                error1.innerHTML = "";
+            }
+        }
+
+    
+        function passValidateChecking() {
+            const passval = passid.value;
+            const alpha = /[a-zA-Z]/;
+            const digit = /\d/;
+            if (passval === "") {
+                error2.style.display = "block";
+                error2.innerHTML = "Please enter password";
+            } else if (passval.length < 8) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password should contain at least 8 characters";
+            } else if (!alpha.test(passval) || !digit.test(passval)) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password should contain both alphabets and digits";
+            } else {
+                error2.style.display = "none";
+                error2.innerHTML = "";
+            }
+        }
+
+        loginForm.addEventListener("submit", function (e) {
+            e.preventDefault();     
+            emailValidateChecking();
+            passValidateChecking();
+
+            if (error1.innerHTML || error2.innerHTML) {
+                return; 
+            }
+
+            const emailValue = emailid.value;
+            const passwordValue = passid.value;
+
+            $.ajax({
+                type: "POST",
+                url: "/login",
+                data: { email: emailValue, password: passwordValue },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Logged in successfully",
+                            showConfirmButton: false,
+                            timer: 1500,
+                            heightAuto: false, 
+                            scrollbarPadding: false 
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error in login",
+                            text: response.message,
+                            heightAuto: false, 
+                            scrollbarPadding: false 
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = "Please try again.";
+    
+                    // Try to extract the specific error message from the response
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+    
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error in login",
+                        text: errorMessage,
+                        heightAuto: false, 
+                        scrollbarPadding: false 
+                    });
+                }
+            });
+        });
+    });
+
+</script>

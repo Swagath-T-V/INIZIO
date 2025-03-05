@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Fashion Shopping</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            height: 100vh; /* Fixed height to prevent scrolling */
+            overflow: hidden; /* Prevent scrolling */
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: row;
+            width: 90%;
+            max-width: 900px;
+            height: 90vh; /* Use viewport height instead of fixed px */
+            max-height: 700px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            overflow: hidden; /* Prevent container scrolling */
+        }
+        
+        .form-section {
+            flex: 1;
+            padding: 2vh 3vw; /* Use viewport units */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid #eee;
+            overflow-y: auto; /* Allow scrolling if needed */
+        }
+        
+        .image-section {
+            flex: 1;
+            padding: 2vh;
+            background-color: rgb(0, 0, 0);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .form-title {
+            font-size: clamp(18px, 3vh, 24px); /* Responsive font size */
+            margin-bottom: 2vh;
+            color: #333;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5vh;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5vh;
+            color: #555;
+            font-size: clamp(12px, 1.8vh, 14px);
+        }
+        
+        input {
+            width: 100%;
+            padding: 1vh;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: clamp(12px, 1.8vh, 14px);
+            box-sizing: border-box;
+        }
+        
+        .btn-signup {
+            background-color: #0072ce;
+            color: white;
+            border: none;
+            padding: 1vh;
+            width: 100%;
+            max-width: 200px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: clamp(12px, 1.8vh, 14px);
+            margin-top: 1vh;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        
+        .btn-signup:hover {
+            background-color: #005bb5;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5vh 0;
+            color: #777;
+            font-size: clamp(12px, 1.8vh, 14px);
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .divider::before {
+            margin-right: 10px;
+        }
+        
+        .divider::after {
+            margin-left: 10px;
+        }
+        
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1vh;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 1vh;
+            font-size: clamp(12px, 1.8vh, 14px);
+            color: #444;
+        }
+        
+        .google-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .google-icon {
+            margin-right: 10px;
+            display: flex;
+        }
+        
+        .login-link {
+            margin-top: 1.5vh;
+            text-align: center;
+            color: #555;
+            font-size: clamp(12px, 1.8vh, 14px);
+        }
+        
+        .login-link a {
+            color: #0072ce;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .fashion-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .shopping-text {
+            font-family: 'Brush Script MT', cursive;
+            font-size: clamp(18px, 3vh, 24px);
+            margin-bottom: 2vh;
+            color: white;
+            text-align: center;
+        }
+        
+        .image-box {
+            background-color: #04010d;
+            border-radius: 20px;
+            width: min(150px, 30vw);
+            height: min(150px, 30vw);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2vh;
+            position: relative;
+        }
+        
+        .image {
+            max-width: 120%;
+            max-height: 140%;
+            position: absolute;
+        }
+        
+        .error-message {
+            display: none;
+            color: red;
+            font-size: clamp(10px, 1.5vh, 12px);
+            margin-top: 0.5vh;
+        }
+        .alert-danger {
+            margin-top: 15px;
+            text-align: center;
+            color: red;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .container {
+                flex-direction: column-reverse;
+                width: 95%;
+                height: 95vh;
+            }
+            
+            .form-section {
+                border-right: none;
+                padding: 2vh 3vw;
+                flex: 3;
+            }
+            
+            .image-section {
+                flex: 1;
+                padding: 1.5vh;
+                min-height: auto;
+            }
+            
+            .image-box {
+                width: min(120px, 25vw);
+                height: min(120px, 25vw);
+            }
+            
+            .form-title {
+                padding-left: 0;
+                margin-bottom: 1.5vh;
+            }
+            
+            .form-group {
+                margin-bottom: 1vh;
+            }
+            
+            .login-link {
+                position: static;
+                text-align: center;
+                margin-top: 1vh;
+            }
+        }
+        
+        @media only screen and (max-width: 480px) {
+            .container {
+                width: 98%;
+                box-shadow: none;
+                height: 98vh;
+            }
+            
+            .form-section {
+                padding: 1.5vh 2vw;
+                flex: 4;
+            }
+            
+            .image-section {
+                flex: 0.8; /* Image takes even less space */
+                padding: 1vh;
+            }
+            
+            .image-box {
+                width: min(100px, 22vw);
+                height: min(100px, 22vw);
+            }
+            
+            .form-group {
+                margin-bottom: 0.8vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1 class="form-title">Sign Up</h1>
+            
+            <form action="/signup" method="post" id="signform" novalidate>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter Name" >
+                    <div class="error-message" id="error1"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter email" >
+                    <div class="error-message" id="error2"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter phone number">
+                    <div class="error-message" id="error3"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password">
+                
+
+                    <div class="error-message" id="error4"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
+                    <div class="error-message" id="error5"></div>
+                </div>
+                
+                <button type="submit" class="btn-signup">Sign Up</button>
+                
+                <div class="divider">OR</div>
+                
+                <a href="/auth/google" class="google-btn">
+                    <span class="google-icon">
+                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                    </span>
+                    Continue with Google
+                </a>
+            </form>
+            
+            <div class="login-link">
+                Already registered? <a href="/login">Log in</a>
+            </div>
+        </div>
+        
+        <div class="image-section">
+            <div class="fashion-container">
+                <div class="image-box">
+                    <img class="image" src="/images/Screenshot 2025-03-02 144355.png" alt="logo">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.className = 'fa-regular fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.className = 'fa-regular fa-eye';
+            }
+        }
+
+        
+        const nameid = document.getElementById("name")
+        const emailid = document.getElementById("email")
+        const phoneid = document.getElementById("phone")
+            const passid = document.getElementById("password")
+        const cpassid = document.getElementById("confirmPassword")
+        const error1 = document.getElementById("error1")
+        const error2 = document.getElementById("error2")
+        const error3 = document.getElementById("error3")
+        const error4 = document.getElementById("error4")
+        const error5 = document.getElementById("error5")
+        const signform = document.getElementById("signform")
+
+        function nameValidateChecking() {
+            const nameval = nameid.value
+            const namePattern = /^[A-Za-z\s\-']+$/;
+
+            if(nameval.trim() === ""){
+                error1.style.display = "block";
+                error1.innerHTML = "Please enter a valid name";
+            } else if(!namePattern.test(nameval)){
+                error1.style.display = "block";
+                error1.innerHTML = "Name can only contain Alphabets and spaces";
+            } else {
+                error1.style.display = "none";
+                error1.innerHTML = "";
+            }
+        }
+
+        function emailValidateChecking() {
+            const emailval = emailid.value
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+            if(emailval.trim() === ""){
+                error2.style.display = "block";
+                error2.innerHTML = "Please enter emailId";
+            } else if(!emailPattern.test(emailval)){
+                error2.style.display = "block";
+                error2.innerHTML = "Invalid emailId";
+            } else {
+                error2.style.display = "none";
+                error2.innerHTML = "";
+            }
+        }
+
+        function phoneValidateChecking() {
+            const phoneval = phoneid.value
+            const phonePattern = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
+
+            if(phoneval.trim() === ""){
+                error3.style.display = "block";
+                error3.innerHTML = "Please enter phone number";
+            } else if(!phonePattern.test(phoneval)){
+                error3.style.display = "block";
+                error3.innerHTML = "Enter valid phone number";
+            } else {
+                error3.style.display = "none";
+                error3.innerHTML = "";
+            }
+        }
+
+        function passValidateChecking() {
+            const passval = passid.value
+            const cpassval = cpassid.value
+            const alpha = /[a-zA-Z]/;
+            const digit = /\d/;
+
+            if(passval ===""){
+                error4.style.display = "block";
+                error4.innerHTML = "Please enter password";
+            }else if(passval.length < 8){
+                error4.style.display = "block";
+                error4.innerHTML = "Password should contain at least 8 characters";
+            } else if(!alpha.test(passval) || !digit.test(passval)){
+                error4.style.display = "block";
+                error4.innerHTML = "Password should contain both alphabets and digits";
+            } else {
+                error4.style.display = "none";
+                error4.innerHTML = "";
+            }
+
+            if(passval !== cpassval){
+                error5.style.display = "block";
+                error5.innerHTML = "Both passwords should match";
+            } else {
+                error5.style.display = "none";
+                error5.innerHTML = "";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function(){
+            const signform = document.getElementById("signform");
+            
+            signform.addEventListener("submit", function(e){
+                e.preventDefault(); 
+                
+                nameValidateChecking();
+                emailValidateChecking();
+                phoneValidateChecking();
+                passValidateChecking();
+
+                if(error1.style.display === "block" || 
+                error2.style.display === "block" || 
+                error3.style.display === "block" || 
+                error4.style.display === "block" || 
+                error5.style.display === "block") {
+                    return; 
+                }
+
+                const formData = {
+                    name: nameid.value,
+                    email: emailid.value,
+                    phone: phoneid.value,
+                    password: passid.value 
+                };
+
+                // processing
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Please wait while we send an OTP to your email',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: "/signup",
+                    type: "POST",
+                    data: JSON.stringify(formData),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function(response) {
+                        if(response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "Success!",
+                                text: response.message || "Signup successful! OTP has been sent to your email.",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = response.redirectUrl;
+                                // history.replaceState(null,"",response.redirectUrl);
+                                //window.location.replace(response.redirectUrl);
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Signup Failed",
+                                text: response.message || "Something went wrong"
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error("Error:", xhr);
+                        let errorMessage = "Something went wrong";
+
+                        if(xhr.responseJSON && xhr.responseJSON.message){
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Signup Failed',
+                            text: errorMessage
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
