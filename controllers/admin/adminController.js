@@ -4,17 +4,15 @@ const bcrypt = require("bcrypt")
 
 
 const pageerror = async (req,res)=>{
-
     try {
         return res.render("pageerror")
     } catch (error) {
-        return res.redirect("/pageerror")
+        return res.redirect("/admin/pageerror",error)
     }
 
 }
 
 const loadLogin = async(req,res)=>{
-    
     if(req.session.admin){
         return res.redirect("/dashboard")
     }else{
@@ -23,11 +21,9 @@ const loadLogin = async(req,res)=>{
 }
 
 const login = async (req,res)=>{
-
     try {
         
         const {email,password} = req.body
-        
         const admin = await User.findOne({email,isAdmin:true})
         
         if(admin){
@@ -53,30 +49,27 @@ const login = async (req,res)=>{
 
 const loadDashboard = async(req,res)=>{
     try {
-
-        res.render("dashboard")
-
+        res.render("dashboard",{
+            activePage: 'dashboard'
+        })
     } catch (error) {
-
-        res.redirect("/pageerror")
-        
+        res.redirect("/admin/pageerror")
     }
 }
 
 const logout = async(req,res)=>{
     try {
-        
         req.session.destroy((err)=>{
             if(err){
                 console.log("error in destroy",err)
-                return re.redirect("/pageerror")
+                return res.redirect("/admin/pageerror")
             }else{
                 return res.redirect("/admin/login")
             }
         })
     } catch (error) {
         console.log("logout error",err)
-        res.redirect("/pageerror")
+        res.redirect("/admin/pageerror")
     }
 }
 module.exports = {

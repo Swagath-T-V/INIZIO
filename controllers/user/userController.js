@@ -157,7 +157,8 @@ const getOptPage = async (req,res)=>{
 
     } catch (error) {
 
-        res.status(500).send("an error found while rendering otp page")
+        res.status(500).send("An error found while rendering otp page")
+        res.redirect("/pageNotFound")
         
     }
 }
@@ -261,16 +262,7 @@ const login = async (req, res) => {
             return res.status(400).json({ success: false, message: "User is blocked by the Admin" });
         }
 
-        // console.log(findUser.password)
-        
-        // console.log('Input Password:', password);
-        // console.log('Stored Hashed Password:', findUser.password);
-
         const passwordMatch = await bcrypt.compare(password, findUser.password);
-
-        // console.log('Password Match Result:', passwordMatch);
-        // console.log('Password Length:', password.length);
-        // console.log('Stored Password Length:', findUser.password.length);
 
         
         if (!passwordMatch) {

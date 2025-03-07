@@ -21,7 +21,6 @@
             color: #ffffff;
         }
 
-        /* Prevent page shift when SweetAlert is shown */
         body.swal2-shown {
             overflow-y: scroll !important;
             padding-right: 0 !important;
@@ -181,7 +180,7 @@
                 const passval = passid.value;
                 const alpha = /[a-zA-Z]/;
                 const digit = /\d/;
-                const specialChar = /[!@#$%^&*(),.?":{}|<>]/;
+                // const specialChar = /[!@#$%^&*(),.?":{}|<>]/;
                 if (passval === "") {
                     error2.style.display = "block";
                     error2.innerHTML = "Please enter password";

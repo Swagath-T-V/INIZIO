@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.15/jspdf.plugin.autotable.min.js"></script>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -124,7 +130,7 @@
             background-color: var(--bg-light);
         }
 
-        .theme-toggle, .pdf-download, .profile-icon {
+        .theme-toggle, .pdf-download {
             background-color: var(--purple-light);
             color: white;
             border: none;
@@ -142,6 +148,13 @@
             border: 2px solid var(--purple-light);
             color: var(--purple-light);
             font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .header-actions {
@@ -195,6 +208,10 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        .clicked, .active, .selected {
+            background-color: var(--purple-light) !important;
+            color: white !important;
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -208,6 +225,21 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                width: 200px;
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -215,58 +247,77 @@
         <div class="sidebar">
             <div class="sidebar-logo">INIZIO</div>
             <ul class="sidebar-menu">
-                <li class="sidebar-menu-item active" data-tab="dashboard">
+                <li class="sidebar-menu-item <%= activePage === 'dashboard' ? 'active' : '' %>" data-tab="dashboard">
                     <a href="/admin" style="color: inherit; text-decoration: none;">
-                    <span class="sidebar-menu-icon">📊</span>
-                    Dashboard
+                        <span class="sidebar-menu-icon">📊</span>
+                        Dashboard
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="product">
+                <li class="sidebar-menu-item <%= activePage === 'product' ? 'active' : '' %>" data-tab="product">
                     <a href="/admin/Product" style="color: inherit; text-decoration: none;">
-                    <span class="sidebar-menu-icon">📦</span>
-                    Product
+                        <span class="sidebar-menu-icon">📦</span>
+                        Product
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="orders">
-                    <span class="sidebar-menu-icon">🛒</span>
-                    Orders
+                <li class="sidebar-menu-item <%= activePage === 'orders' ? 'active' : '' %>" data-tab="orders">
+                    <a href="#" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🛒</span>
+                        Orders
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="users">
+                <li class="sidebar-menu-item <%= activePage === 'users' ? 'active' : '' %>" data-tab="users">
                     <a href="/admin/users" style="color: inherit; text-decoration: none;">
-                    <span class="sidebar-menu-icon">👥</span>
-                    Users
+                        <span class="sidebar-menu-icon">👥</span>
+                        Users
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="category">
-                    <span class="sidebar-menu-icon">🏷️</span>
-                    Category
+                <li class="sidebar-menu-item <%= activePage === 'category' ? 'active' : '' %>" data-tab="category">
+                    <a href="/admin/category" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🏷️</span>
+                        Category
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="offers">
-                    <span class="sidebar-menu-icon">🎁</span>
-                    Offers
+                <li class="sidebar-menu-item <%= activePage === 'offers' ? 'active' : '' %>" data-tab="offers">
+                    <a href="#" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🎁</span>
+                        Offers
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="settings">
-                    <span class="sidebar-menu-icon">⚙️</span>
-                    Settings
+                <li class="sidebar-menu-item <%= activePage === 'settings' ? 'active' : '' %>" data-tab="settings">
+                    <a href="#" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">⚙️</span>
+                        Settings
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="banner">
-                    <span class="sidebar-menu-icon">🖼️</span>
-                    Banner
+                <li class="sidebar-menu-item <%= activePage === 'banner' ? 'active' : '' %>" data-tab="banner">
+                    <a href="#" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🖼️</span>
+                        Banner
+                    </a>
                 </li>
-                <li class="sidebar-menu-item" data-tab="coupons">
-                    <span class="sidebar-menu-icon">🏷️</span>
-                    Coupons
+                <li class="sidebar-menu-item <%= activePage === 'coupons' ? 'active' : '' %>" data-tab="coupons">
+                    <a href="#" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🏷️</span>
+                        Coupons
+                    </a>
                 </li>
-                <a href="/admin/logout" style="text-decoration: none;"><li class="sidebar-menu-item" style="color: red;" data-tab="logout">
-                    <span class="sidebar-menu-icon">🚪</span>
-                    Logout
-                </li></a>
+                <li class="sidebar-menu-item" style="color: red;" data-tab="logout">
+                    <a href="/admin/logout" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🚪</span>
+                        Logout
+                    </a>
+                </li>
             </ul>
         </div>
 
         <div class="main-content">
             <div class="header">
                 <div class="header-actions">
-                    <!-- <button class="pdf-download">📄</button> -->
-                    <!-- <button class="theme-toggle">🌙</button> -->
+                    <button class="pdf-download">📄</button>
+                    <button id="themeToggleButton" class="theme-toggle">🌙</button>
                     <div class="profile-icon">JD</div>
                 </div>
             </div>
-         
+            
+            <!-- Content area where dynamic content will be injected -->
+            <div id="content">

@@ -6,7 +6,7 @@ const {userAuth,adminAuth} = require("../middlewares/auth")
 
 router.get("/pageNotFound",userController.pageNotFound)
 
-router.get("/",userController.loadHome)
+router.get("/",userAuth,userController.loadHome)
 router.get("/signup",userController.loadSignup)
 router.post("/signup",userController.signup)
 router.get("/verify-otp",userController.getOptPage)
