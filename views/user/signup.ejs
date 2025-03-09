@@ -476,7 +476,6 @@
                     password: passid.value 
                 };
 
-                // processing
                 Swal.fire({
                     title: 'Processing...',
                     text: 'Please wait while we send an OTP to your email',
@@ -502,8 +501,7 @@
                                 showConfirmButton: false
                             }).then(() => {
                                 window.location.href = response.redirectUrl;
-                                // history.replaceState(null,"",response.redirectUrl);
-                                //window.location.replace(response.redirectUrl);
+                                
                             });
                         } else {
                             Swal.fire({

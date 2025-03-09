@@ -252,7 +252,7 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         console.log(password)
         
-        const findUser = await User.findOne({ isAdmin: 0, email: email});
+        const findUser = await User.findOne({ email: email});
         
         if (!findUser) {
             return res.status(400).json({ success: false, message: "User not found" });

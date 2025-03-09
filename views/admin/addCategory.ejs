@@ -1,0 +1,206 @@
+<%- include("../../views/partials/admin/header.ejs") %>
+
+<style>
+    .category-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    .category-actions a, .category-actions button {
+        margin-right: 5px;
+    }
+    .add-category-btn {
+        background-color: var(--purple-light);
+        color: white;
+    }
+    .subcategories-btn {
+        background-color: #4caf50;
+        color: white;
+    }
+    .search-container .search-btn {
+        background-color: var(--purple-light);
+        color: white;
+    }
+    .clear-btn {
+        background-color: #d33;
+        color: white;
+        border: none;
+    }
+
+    .table-dark {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-mode .table-dark {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+    }
+
+    body.light-mode .table-dark thead th {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode .table-dark tbody td {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode h2.text-white {
+        color: var(--text-light) !important;
+    }
+
+    body.light-mode .pagination .page-link {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode .pagination .page-item.active .page-link {
+        background-color: var(--purple-light);
+        color: white;
+        border-color: var(--purple-light);
+    }
+
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="text-white">Add New Category</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <form id="categoryForm" onsubmit="return handleFormSubmit(event)" novalidate>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="error-message" id="name-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <div class="error-message" id="description-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/admin/category" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="background-color: var(--purple-light);">Save Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleFormSubmit(event) {
+    event.preventDefault();  
+
+    clearErrorMessage();
+
+    if (!validateForm()) {
+        return false; 
+    }
+
+    const name = document.getElementById("name").value.trim();
+    const description = document.getElementById("description").value.trim();
+
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = 'Saving...';
+    submitButton.disabled = true;
+
+    fetch("/admin/addCategory", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, description })
+    })
+    .then(response => {
+        return response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to add category");
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: data.message || "Category added successfully",
+        }).then(() => {
+            window.location.href = "/admin/category"; 
+        });
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error.message || "An error occurred while adding the category",
+        });
+    })
+    .finally(() => {
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
+
+    return false;
+}
+
+    function validateForm() {
+        const name = document.getElementById("name").value.trim();
+        const description = document.getElementById("description").value.trim();
+        let isValid = true;
+
+        if (name === "") {
+            displayErrorMessage("name-error", "Please enter a category name");
+            isValid = false;
+        } else if (name.length < 3) {
+            displayErrorMessage("name-error", "Category name should be at least 3 characters long");
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
+            displayErrorMessage("name-error", "Category name should contain only alphanumeric characters");
+            isValid = false;
+        }
+
+        if (description === "") {
+            displayErrorMessage("description-error", "Please enter a description");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+
+    function clearErrorMessage() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+            element.innerText = "";
+            element.style.display = "none";
+        });
+    }
+</script>
+
+<%- include("../../views/partials/admin/footer.ejs") %>

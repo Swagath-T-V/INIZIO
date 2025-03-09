@@ -15,6 +15,10 @@ const categorySchema = new Schema({
         type:Boolean,
         default:true
     },
+    isDelete :{
+        type:Boolean,
+        default:false
+    },
     categoryOffer:{
         type:Number,
         default:0

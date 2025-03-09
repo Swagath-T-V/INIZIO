@@ -6,7 +6,6 @@ const connectDB =async ()=>{
     try {
 
         await mongoose.connect(process.env.MONGODB_URI)
-        // await mongoose.connection.db.collection('users').dropIndex('googleId_1');
         console.log("DB connected");
         
     } catch (error) {

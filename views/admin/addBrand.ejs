@@ -1,0 +1,193 @@
+<%- include("../../views/partials/admin/header.ejs") %>
+
+<style>
+    .brand-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    .brand-actions a, .brand-actions button {
+        margin-right: 5px;
+    }
+    .add-brand-btn {
+        background-color: var(--purple-light);
+        color: white;
+    }
+    .subbrands-btn {
+        background-color: #4caf50;
+        color: white;
+    }
+    .search-container .search-btn {
+        background-color: var(--purple-light);
+        color: white;
+    }
+    .clear-btn {
+        background-color: #d33;
+        color: white;
+        border: none;
+    }
+
+    .table-dark {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-mode .table-dark {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+    }
+
+    body.light-mode .table-dark thead th {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode .table-dark tbody td {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode h2.text-white {
+        color: var(--text-light) !important;
+    }
+
+    body.light-mode .pagination .page-link {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode .pagination .page-item.active .page-link {
+        background-color: var(--purple-light);
+        color: white;
+        border-color: var(--purple-light);
+    }
+
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="text-white">Add New Brand</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <form id="brandForm" onsubmit="return handleFormSubmit(event)">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Brand Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="error-message" id="name-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/admin/brand" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="background-color: var(--purple-light);">Save Brand</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleFormSubmit(event) {
+        event.preventDefault(); 
+
+        clearErrorMessage();
+
+        if (!validateForm()) {
+            return false;  
+        }
+
+        const name = document.getElementById("name").value.trim();
+
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = 'Saving...';
+        submitButton.disabled = true;
+
+        fetch("/admin/addBrand", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name })
+        })
+        .then(response => {
+            return response.json().then(data => {
+                if (!response.ok) {
+                    throw new Error(data.message || "Failed to add brand");
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: data.message || "Brand added successfully",
+            }).then(() => {
+                window.location.href = "/admin/brand";
+            });
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "An error occurred while adding the brand",
+            });
+        })
+        .finally(() => {
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+        });
+
+        return false; 
+    }
+
+    function validateForm() {
+        const name = document.getElementById("name").value.trim();
+        let isValid = true;
+
+        if (name === "") {
+            displayErrorMessage("name-error", "Please enter a brand name");
+            isValid = false;
+        } else if (name.length < 3) {
+            displayErrorMessage("name-error", "Brand name should be at least 3 characters long");
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
+            displayErrorMessage("name-error", "Brand name should contain only alphanumeric characters");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+
+    function clearErrorMessage() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+            element.innerText = "";
+            element.style.display = "none";
+        });
+    }
+</script>
+
+<%- include("../../views/partials/admin/footer.ejs") %>

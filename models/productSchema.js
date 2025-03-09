@@ -8,7 +8,7 @@ const productSchema = new Schema({
     },
     description:{
         type:String,
-        required:true
+        required:false
     },
     brand:{
         type:String,
@@ -16,7 +16,7 @@ const productSchema = new Schema({
     },
     category:{
         type:String,
-        required:true
+        required:false
     },
     regularPrice:{
         type:Number,
@@ -39,7 +39,7 @@ const productSchema = new Schema({
         required:true
     },
     productImage:{
-        type:[string],
+        type:[String],
         required:true
     },
     isBlocked : {

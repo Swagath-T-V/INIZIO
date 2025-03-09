@@ -129,7 +129,6 @@
     </div>
 
     <script>
-        // Global variables for timer
         let timerInterval;
         let seconds = 60;
         let startTimer;
@@ -138,15 +137,12 @@
             let timerElement = document.getElementById('timer');
             let resendButton = document.getElementById('resend-btn');
 
-            // Define startTimer to control the countdown timer
             startTimer = function() {
                 seconds = 60;
                 resendButton.disabled = true;
                 
-                // Clear any existing interval
                 clearInterval(timerInterval);
                 
-                // Start countdown
                 timerInterval = setInterval(function() {
                     seconds--;
                     let mins = Math.floor(seconds / 60);
@@ -155,7 +151,7 @@
                         (mins < 10 ? '0' + mins : mins) + ':' + 
                         (secs < 10 ? '0' + secs : secs);
 
-                    // Enable resend OTP when timer ends
+                    // enable resend otp
                     if (seconds <= 0) {
                         clearInterval(timerInterval);
                         resendButton.disabled = false;
@@ -163,11 +159,9 @@
                 }, 1000);
             }
             
-            // Start the timer immediately
             startTimer();
         });
 
-        // Function to handle OTP resending
         function resendOtp() {
             $.ajax({
                 type: "POST",
@@ -183,7 +177,6 @@
                             scrollbarPadding: false
                         });
                         
-                        // Restart the timer
                         startTimer();
                     } else {
                         Swal.fire({
@@ -207,7 +200,6 @@
             });
         }
 
-        // Function to validate the OTP and submit the form
         function validateOTPForm() {
             let otpInput = document.getElementById('otp').value;
             if (otpInput.length !== 6) {
@@ -259,7 +251,7 @@
                 }
             });
 
-            return false; // Prevent form submission
+            return false; 
         }
     </script>
 </body>

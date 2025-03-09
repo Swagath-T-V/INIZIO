@@ -155,7 +155,6 @@
 <body>
     <div class="login-container">
         <div class="logo-container">
-            <!-- Replace with your actual logo -->
             <img src="/images/Screenshot 2025-03-02 144355.png" alt="Company Logo" class="logo">
         </div>
         
@@ -270,7 +269,6 @@
                 error: function(xhr) {
                     let errorMessage = "Please try again.";
     
-                    // Try to extract the specific error message from the response
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     }

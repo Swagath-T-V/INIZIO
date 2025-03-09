@@ -209,7 +209,7 @@
             }
         }
         .clicked, .active, .selected {
-            background-color: var(--purple-light) !important;
+            /* background-color: var(--purple-light) !important; */
             color: white !important;
         }
 
@@ -253,12 +253,22 @@
                         Dashboard
                     </a>
                 </li>
+
                 <li class="sidebar-menu-item <%= activePage === 'product' ? 'active' : '' %>" data-tab="product">
-                    <a href="/admin/Product" style="color: inherit; text-decoration: none;">
+                    <a href="/admin/product" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">📦</span>
                         Product
                     </a>
                 </li>
+
+                <li class="sidebar-menu-item <%= activePage === 'brands' ? 'active' : '' %>" data-tab="brands">
+                    <a href="/admin/brand" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🏷️</span>
+                        Brands
+                    </a>
+                </li>
+                
+
                 <li class="sidebar-menu-item <%= activePage === 'orders' ? 'active' : '' %>" data-tab="orders">
                     <a href="#" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">🛒</span>

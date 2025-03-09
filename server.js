@@ -31,15 +31,9 @@ app.set("view engine","ejs")
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
 app.use(express.static(path.join(__dirname,"public")))
 
-// app.get("/",(req,res)=>{
-//     res.redirect("/signup")
-// })
-
-// app.get("/admin",(req,res)=>{
-//     res.redirect("/admin/login")
-// })
 app.use("/",userRouter)
 app.use("/admin",adminRouter)
+
 
 
 

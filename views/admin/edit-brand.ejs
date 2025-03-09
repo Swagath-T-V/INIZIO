@@ -1,0 +1,78 @@
+<%- include("../../views/partials/admin/header.ejs") %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 mt-60">
+            <form id="editBrandForm" method="post" action="/admin/editBrand/<%= brand._id %>">
+                <div class="d-grid text-end mt-30 col-md-5">
+                    <button class="btn btn-primary" type="submit">Update Brand</button>
+                </div>
+                <div class="mb-4 mt-30">
+                    <label for="brand_name" class="form-label">Name</label>
+                    <input type="text" name="brandName" value="<%= brand.name %>" class="form-control border" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    $(document).ready(function() {
+        $('#editBrandForm').on('submit', function(e) {
+            e.preventDefault(); 
+
+            var brandName = $("input[name='brandName']").val();
+
+            if (!brandName || brandName.trim() === '') {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Brand name cannot be empty",
+                });
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/admin/editBrand/<%= brand._id %>", 
+                data: {
+                    brandName: brandName
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: response.message, 
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: response.message,
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = "Please try again.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: errorMessage,
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+<%- include("../../views/partials/admin/footer.ejs") %>
