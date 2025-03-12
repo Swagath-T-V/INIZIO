@@ -221,7 +221,7 @@ button,
 [type="button"],
 [type="reset"],
 [type="submit"] {
-  -webkit-appearance: button; }
+-webkit-appearance: button; }
 
 button:not(:disabled),
 [type="button"]:not(:disabled),
@@ -8214,7 +8214,7 @@ h1, h2, h3, h4, h5,
     padding-left: 20px;
     padding-right: 20px;
     font-weight: 400;
-    color: #000000;
+    color: white;
     text-transform: uppercase;
     letter-spacing: 2px;
     opacity: 1 !important; }
@@ -8275,7 +8275,7 @@ h1, h2, h3, h4, h5,
         color: #000000;
         background: #dbcc8f; } }
   .ftco-navbar-light .navbar-nav > .nav-item.active > a {
-    color: #000000; }
+    color: var(--white); }
     @media (max-width: 991.98px) {
       .ftco-navbar-light .navbar-nav > .nav-item.active > a {
         color: #fff; } }
@@ -8520,9 +8520,10 @@ h1, h2, h3, h4, h5,
         background: #b3b3b3; }
   .owl-carousel.home-slider {
     position: relative;
-    height: 750px;
+    object-fit:cover; 
+    width: 100%;
     z-index: 0;
-    background: #dbcc8f; }
+    background: black; }
     .owl-carousel.home-slider .slider-item {
       background-size: cover;
       background-repeat: no-repeat;
@@ -8530,6 +8531,8 @@ h1, h2, h3, h4, h5,
       height: 750px;
       position: relative;
       z-index: 0; }
+
+      
       @media (max-width: 1199.98px) {
         .owl-carousel.home-slider .slider-item {
           background-position: center center !important; } }
@@ -8543,7 +8546,12 @@ h1, h2, h3, h4, h5,
         z-index: -1; }
       .owl-carousel.home-slider .slider-item .slider-text {
         height: 750px;
-        z-index: 0; }
+        
+        z-index: 0;
+        /* background-image: url('/homeImages/main2.jpg'); */
+       
+  
+       }
         @media (max-width: 991.98px) {
           .owl-carousel.home-slider .slider-item .slider-text {
             text-align: center; } }
@@ -8625,7 +8633,7 @@ h1, h2, h3, h4, h5,
           position: relative; }
         .owl-carousel.home-slider .slider-item .slider-text h1 {
           font-size: 44px;
-          color: #000000;
+          color: white;
           line-height: 1.3;
           font-weight: 300;
           text-transform: uppercase; }
@@ -8639,7 +8647,7 @@ h1, h2, h3, h4, h5,
             .owl-carousel.home-slider .slider-item .slider-text h1 {
               font-size: 40px; } }
         .owl-carousel.home-slider .slider-item .slider-text p {
-          color: rgba(0, 0, 0, 0.8);
+          color: white;
           font-weight: 400; }
           @media (max-width: 991.98px) {
             .owl-carousel.home-slider .slider-item .slider-text p {

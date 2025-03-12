@@ -2,7 +2,7 @@ const mongoose =require("mongoose")
 const {Schema} = mongoose
 
 const productSchema = new Schema({
-    productName:{
+    name:{
         type:String,
         required:true
     },
@@ -18,6 +18,11 @@ const productSchema = new Schema({
         type:String,
         required:false
     },
+    subCategory : {
+        type:String,
+        enum:["Men","Women","Kids"],
+        required:true,
+    },
     regularPrice:{
         type:Number,
         required:true
@@ -26,32 +31,32 @@ const productSchema = new Schema({
         type:Number,
         required:true
     },
-    productOffer:{
-        type:Number,
-        default:0
-    },
+    // productOffer:{
+    //     type:Number,
+    //     default:0
+    // },
     quantity:{
         type:Number,
         default:true
     },
-    color:{
-        type:String,
-        required:true
-    },
-    productImage:{
+    Images:{
         type:[String],
         required:true
     },
-    isBlocked : {
+    isDeleted : {
         type:Boolean,
         default:false
     },
     status : {
         type:String,
-        enum:["Available","Out of Stock","Discountinued"],
+        enum:["Available","Out of Stock","Discontinued"],
         required:true,
         default:"Available"
     },
+    createdAt : {
+        type :Date,
+        default:Date.now
+    }
 },{timestamp:true})
 
 const Product = mongoose.model("Product",productSchema)

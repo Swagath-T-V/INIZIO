@@ -6,6 +6,10 @@ const {adminAuth,userAuth}= require("../middlewares/auth")
 const categoryController = require("../controllers/admin/categoryController")
 const brandController = require("../controllers/admin/brandController")
 const productController = require("../controllers/admin/productController")
+const multer = require("multer")
+const storage = require("../helpers/multer")
+const uploads = multer({storage:storage})
+
 
 //adminpage error
 router.get("/pageerror",adminController.pageerror)
@@ -43,8 +47,19 @@ router.patch("/deleteBrand/:brandId",adminAuth,brandController.deleteBrand)
 
 //Product 
 router.get("/product",adminAuth,productController.getProductPage)
-router.get("/addProduct",adminAuth,productController.addProduct)
-
+router.get("/addProduct",adminAuth,productController.addProductPage)
+router.post("/addProduct", adminAuth, uploads.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 }
+]), productController.addProduct)
+router.get("/editProduct",adminAuth,productController.getEditProduct)
+router.post("/editProduct/:id", adminAuth, uploads.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 }
+]), productController.editProduct);
+router.patch("/deleteProduct/:productId",adminAuth,productController.deleteProduct)
 
 
 

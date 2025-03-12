@@ -38,7 +38,6 @@
         border: none;
     }
 
-    /* Table Styling */
     .table {
         border-collapse: separate;
         border-spacing: 0;
@@ -86,7 +85,6 @@
         background-color: var(--bs-table-hover-bg);
     }
 
-    /* Fix for table hover in light mode */
     body.light-mode .table-hover tbody tr:hover {
         background-color: #e0e0e0 !important;
         color: var(--text-light) !important;
@@ -97,12 +95,10 @@
         color: var(--text-light) !important;
     }
 
-    /* Ensure text remains visible during transition */
     .table tbody tr {
         transition: background-color 0.3s ease;
     }
 
-    /* Force text color to remain appropriate for the theme on hover */
     body.light-mode .table tbody tr:hover td,
     body.light-mode .table tbody tr:hover th {
         color: var(--text-light) !important;
@@ -113,14 +109,12 @@
         color: white !important;
     }
 
-    /* Pagination Styling */
     .pagination .page-item.active .page-link {
         background-color: var(--purple-light) !important;
         border-color: var(--purple-light) !important;
         color: white !important;
     }
 
-    /* Search Bar Styling */
     .search-container input.form-control {
         color: rgb(7, 7, 7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -132,7 +126,6 @@
         border: 1px solid #ced4da; 
     }
 
-    /* Text color adaptation based on theme */
     body:not(.light-mode) h2 {
         color: white;
     }
@@ -141,12 +134,10 @@
         color: var(--text-light);
     }
 
-    /* Fix: Override text-white class in light mode */
     body.light-mode .text-white {
         color: var(--text-light) !important;
     }
 
-    /* Search container styles */
     .search-container {
         display: flex;
         justify-content: flex-start;
