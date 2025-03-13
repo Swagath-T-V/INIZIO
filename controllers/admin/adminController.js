@@ -14,7 +14,7 @@ const pageerror = async (req,res)=>{
 
 const loadLogin = async(req,res)=>{
     if(req.session.admin){
-        return res.redirect("/dashboard")
+        return res.redirect("/admin/dashboard")
     }else{
         res.render("admin-login")
     }
@@ -32,7 +32,7 @@ const login = async (req,res)=>{
                 return res.status(400).json({success:false,message:"Incorrect password"})
 
             }else{
-                req.session.user = admin._id;
+                req.session.admin = admin._id;
                 return res.status(200).json({success:true,redirectUrl:"/admin"})
             }
         }else{

@@ -5,6 +5,14 @@ env.config()
 const bcrypt = require("bcrypt")
 
 
+
+const Product = require("../../models/productSchema")
+const Category = require("../../models/categorySchema")
+const Brand = require("../../models/brandSchema")
+
+
+
+
 const pageNotFound =async (req,res)=>{
 
     try {
@@ -24,13 +32,27 @@ const loadHome =async (req,res)=>{
     try {
 
         const userId = req.session.user
+
+        const categories = await Category.find({isListed:true,isDelete:false})
+        let productData = await Product.find({
+            isDeleted:false,
+        })
+
+        productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
+        productData = productData.slice(0,4)
+
         if(userId){
 
-            const userData =await User.findOne({_id:userId})
-            res.render("home",{user:userData})
+            const userData =await User.findOne({_id:userId ,isBlocked:false})
+            res.render("home",{
+                user:userData,
+                product:productData, 
+            })
 
         }else{
-            return res.render("home")
+            return res.render("home",{
+                product:productData
+            })
         }
         
     } catch (error) {
@@ -40,6 +62,8 @@ const loadHome =async (req,res)=>{
 
     }
 }
+
+
 
 const loadSignup =async (req,res)=>{
 
@@ -296,6 +320,10 @@ const logout = async(req,res)=>{
     }
 }
 
+
+
+
+
 module.exports = {
     loadHome,
     pageNotFound,
@@ -306,6 +334,6 @@ module.exports = {
     loadLogin,
     login,
     resentOtp,
-    logout
+    logout,
 
 }

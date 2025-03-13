@@ -23,8 +23,8 @@ const userAuth = (req,res,next)=>{
 
 const adminAuth = (req,res,next)=>{
 
-    if(req.session.user){
-        User.findById(req.session.user)
+    if(req.session.admin){
+        User.findById(req.session.admin)
         .then(data=>{
             if(data && data.isAdmin){
                 return next()
@@ -34,7 +34,7 @@ const adminAuth = (req,res,next)=>{
         })
         .catch(error=>{
             console.log("Error in admin middleware ",error)
-            res.status(500),send("internal error")
+            res.status(500).send("internal error")
         })
     }else{
         return res.redirect("/admin/login")
