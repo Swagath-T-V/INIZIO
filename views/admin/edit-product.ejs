@@ -335,11 +335,11 @@
                         <div class="row">
                            
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">Brand</label>
-                                <select class="form-select" name="brand" id="brand">
-                                    <% for(let i=0; i<brand.length; i++){ %>
-                                    <option value="<%= brand[i].name %>" <%= product.brand === brand[i].name ? 'selected' : '' %>>
-                                        <%= brand[i].name %>
+                                <label class="form-label">subCategory</label>
+                                <select class="form-select" name="subCategory" id="subCategory">
+                                    <% for(let i=0; i<subCategory.length; i++){ %>
+                                    <option value="<%= subCategory[i].name %>" <%= product.subCategory === subCategory[i].name ? 'selected' : '' %>>
+                                        <%= subCategory[i].name %>
                                     </option>
                                     <% } %>
                                 </select>
@@ -358,27 +358,7 @@
                                 <div id="category-error" class="error-message"></div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" name="status" id="status">
-                                    <option value="Available" <%= product.status === 'Available' ? 'selected' : '' %>>Available</option> 
-                                    <option value="Out of Stock" <%= product.status === 'Out of Stock' ? 'selected' : '' %>>Out of Stock</option>                                    
-                                    <option value="Discontinued" <%= product.status === 'Discontinued' ? 'selected' : '' %>>Discontinued</option>                                   
-                                </select>
-                                <div id="status-error" class="error-message"></div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label">SubCategory</label>
-                                <select class="form-select" name="subCategory" id="subCategory">
-                                    <option value="Men" <%= product.subCategory === 'Men' ? 'selected' : '' %>>Men</option>
-                                    <option value="Women" <%= product.subCategory === 'Women' ? 'selected' : '' %>>Women</option>
-                                    <option value="Kids" <%= product.subCategory === 'Kids' ? 'selected' : '' %>>Kids</option>
-                                </select>
-                                <div id="subCategory-error" class="error-message"></div>
-                            </div>
-                        </div>
+                     
 
                         <div class="mb-4">
                             <label class="form-label">Full description</label>
@@ -642,16 +622,35 @@
         
         let isValid = true;
     
-        if (name.trim() === "") {
+        if (name === "") {
             displayErrorMessage('productName-error', 'Please enter a product name.');
             isValid = false;
-        }
-    
-        if (description.trim() === "") {
-            displayErrorMessage('description-error', 'Please enter a product description.');
+        } else if (name.length < 3 || name.length > 50) {
+            displayErrorMessage('productName-error', "Product name must be 3-50 characters.");
+            isValid = false;
+        } else if (!/[a-zA-Z0-9]/.test(name)) {
+            displayErrorMessage('productName-error', 'Product name must contain at least one letter or number.');
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9\s\-_.,;:!?&()'"+%]*$/.test(name)) {
+            displayErrorMessage('productName-error', 'Product name contains invalid characters.');
             isValid = false;
         }
-    
+
+        // Description validation
+        if (description === "") {
+            displayErrorMessage('description-error', 'Please enter a product description.');
+            isValid = false;
+        } else if (description.length < 5 || description.length > 10000) {
+            displayErrorMessage('description-error', 'Description must be 10-10000 characters.');
+            isValid = false;
+        } else if (/(.)\1{10,}/.test(description)) {
+            displayErrorMessage('description-error', 'Description contains excessive repetitive characters.');
+            isValid = false;
+        } else if (!/[a-zA-Z0-9]/.test(description)) {
+            displayErrorMessage('description-error', 'Description must contain actual text content.');
+            isValid = false;
+        }
+
         if (quantity === "" || parseInt(quantity) < 0) {
             displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
             isValid = false;
@@ -667,9 +666,9 @@
             isValid = false;
         }
     
-        if (parseFloat(salePrice) >= parseFloat(regularPrice)) {
-            displayErrorMessage('salePrice-error', 'Sale price should be less than regular price.');
-            isValid = false;
+        if (parseInt(salePrice) > parseInt(regularPrice)) {
+            displayErrorMessage('salePrice-error', 'Sale price cannot be greater than regular price');
+            isValid=false
         }
         
         return isValid;
@@ -697,11 +696,9 @@
         return false;
     }
     
-    // Use FormData to get all form data including files
     const form = document.getElementById('productForm');
     const formData = new FormData(form);
     
-    // Submit the form using fetch
     fetch(form.action, {
         method: 'POST',
         body: formData,
@@ -709,20 +706,17 @@
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success message using SweetAlert2
             Swal.fire({
                 title: 'Success!',
                 text: data.message,
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then((result) => {
-                // Redirect to the product page
                 if (result.isConfirmed || result.isDismissed) {
                     window.location.href = data.redirectUrl;
                 }
             });
         } else {
-            // Show error message
             Swal.fire({
                 title: 'Error!',
                 text: data.message,
@@ -741,7 +735,7 @@
         });
     });
     
-    return false; // Prevent default form submission
+    return false; 
 }
 </script>
 

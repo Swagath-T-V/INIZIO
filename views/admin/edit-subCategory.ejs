@@ -3,13 +3,18 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 mt-60">
-            <form id="editBrandForm" method="post" action="/admin/editBrand/<%= brand._id %>">
+            <form id="editCategoryForm" method="post" action="/admin/editSubCategory/<%= subCategory._id %>">
                 <div class="d-grid text-end mt-30 col-md-5">
-                    <button class="btn btn-primary" type="submit">Update Brand</button>
+                    <button class="btn btn-primary" type="submit">Update category</button>
                 </div>
                 <div class="mb-4 mt-30">
-                    <label for="brand_name" class="form-label">Name</label>
-                    <input type="text" name="brandName" value="<%= brand.name %>" class="form-control border" />
+                    <label for="product_name" class="form-label">Name</label>
+                    <input type="text" name="subCategoryName" value="<%= subCategory.name %>" class="form-control border" />
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control border"><%= subCategory.description %></textarea>
                 </div>
             </form>
         </div>
@@ -20,25 +25,18 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
     $(document).ready(function() {
-        $('#editBrandForm').on('submit', function(e) {
-            e.preventDefault(); 
+        $('#editCategoryForm').on('submit', function(e) {
+            e.preventDefault();  
 
-            var brandName = $("input[name='brandName']").val();
-
-            if (!brandName || brandName.trim() === '') {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Brand name cannot be empty",
-                });
-                return;
-            }
+            var subCategoryName = $("input[name='subCategoryName']").val();
+            var description = $("textarea[name='description']").val();
 
             $.ajax({
                 type: "POST",
-                url: "/admin/editBrand/<%= brand._id %>", 
+                url: "/admin/editSubCategory/<%= subCategory._id %>", 
                 data: {
-                    brandName: brandName
+                    subCategoryName: subCategoryName,
+                    description: description
                 },
                 success: function(response) {
                     if (response.success) {
@@ -48,13 +46,13 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(() => {
-                            window.location.href = response.redirectUrl;
+                            window.location.href = response.redirectUrl; 
                         });
                     } else {
                         Swal.fire({
                             icon: "error",
                             title: "Error",
-                            text: response.message,
+                            text: response.message, 
                         });
                     }
                 },

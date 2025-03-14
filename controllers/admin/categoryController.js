@@ -71,7 +71,9 @@ const addCategory = async (req, res) => {
         res.render("addCategory", {
             activePage: 'category'
         });
+
     } catch (error) {
+        
         console.log("Error in addCategory", error);
         res.status(500).json({ error: "Server error occurred" });
     }
@@ -126,10 +128,12 @@ const editCategory = async (req, res) => {
         const { categoryName, description } = req.body;
         
         const existingCategory = await Category.findOne({ name: categoryName });
+        
         if (existingCategory) {
-            return res.status(400).json({
-                success: false,
-                message: "Category exists, Please choose another name"
+            return res.status(200).json({
+                success: true,
+                message: "Category updated successfully",
+                redirectUrl:"/admin/category"
             });
         }
 

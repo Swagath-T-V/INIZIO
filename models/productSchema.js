@@ -10,17 +10,12 @@ const productSchema = new Schema({
         type:String,
         required:false
     },
-    brand:{
-        type:String,
-        required:true
-    },
     category:{
         type:String,
         required:false
     },
     subCategory : {
         type:String,
-        enum:["Men","Women","Kids"],
         required:true,
     },
     regularPrice:{
@@ -43,21 +38,15 @@ const productSchema = new Schema({
         type:[String],
         required:true
     },
-    isDeleted : {
+    isDelete : {
         type:Boolean,
         default:false
-    },
-    status : {
-        type:String,
-        enum:["Available","Out of Stock","Discontinued"],
-        required:true,
-        default:"Available"
     },
     createdAt : {
         type :Date,
         default:Date.now
     }
-},{timestamp:true})
+},{timestamps:true})
 
 const Product = mongoose.model("Product",productSchema)
 

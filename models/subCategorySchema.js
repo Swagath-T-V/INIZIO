@@ -1,19 +1,16 @@
 const mongoose = require("mongoose")
 const {Schema} = mongoose
 
-const brandSchema = new Schema({
-    name : {
+const subCategorySchema = new Schema({
+    name:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    description:{
         type:String,
         required:true
     },
-    brandImage:{
-        type:[String],
-        required:false
-    },
-    // isBlocked:{
-    //     type:Boolean,
-    //     default:false
-    // },
     isListed:{
         type:Boolean,
         default:true
@@ -22,12 +19,12 @@ const brandSchema = new Schema({
         type:Boolean,
         default:false
     },
-    createdAt :{
+    createdAt:{
         type:Date,
         default:Date.now
     }
 })
 
-const Brand = mongoose.model("Brand",brandSchema)
+const subCategory = mongoose.model("subCategory",subCategorySchema)
 
-module.exports = Brand
+module.exports = subCategory

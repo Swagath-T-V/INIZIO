@@ -4,23 +4,34 @@ const bcrypt = require("bcrypt")
 
 
 const pageerror = async (req,res)=>{
+
     try {
+
         return res.render("pageerror")
+
     } catch (error) {
+
         return res.redirect("/admin/pageerror",error)
+
     }
 
 }
 
 const loadLogin = async(req,res)=>{
+
     if(req.session.admin){
+
         return res.redirect("/admin/dashboard")
+
     }else{
+
         res.render("admin-login")
+
     }
 }
 
 const login = async (req,res)=>{
+
     try {
         
         const {email,password} = req.body
@@ -48,16 +59,23 @@ const login = async (req,res)=>{
 }
 
 const loadDashboard = async(req,res)=>{
+
     try {
+
         res.render("dashboard",{
             activePage: 'dashboard'
+
         })
     } catch (error) {
+
+        console.log("Error in loadDashboard",error)
         res.redirect("/admin/pageerror")
+
     }
 }
 
 const logout = async(req,res)=>{
+
     try {
         req.session.destroy((err)=>{
             if(err){
@@ -72,6 +90,8 @@ const logout = async(req,res)=>{
         res.redirect("/admin/pageerror")
     }
 }
+
+
 module.exports = {
     loadLogin,
     login,

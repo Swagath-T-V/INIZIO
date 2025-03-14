@@ -34,9 +34,6 @@ app.use(express.static(path.join(__dirname,"public")))
 app.use("/",userRouter)
 app.use("/admin",adminRouter)
 
-
-
-
 // const PORT=1111 || process.env.PORT 
 app.listen(1111, ()=>{
     console.log("Server is Running")

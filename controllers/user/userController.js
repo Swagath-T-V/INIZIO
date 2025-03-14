@@ -4,11 +4,8 @@ const env = require("dotenv")
 env.config()
 const bcrypt = require("bcrypt")
 
-
-
 const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
-const Brand = require("../../models/brandSchema")
 
 
 
@@ -35,7 +32,7 @@ const loadHome =async (req,res)=>{
 
         const categories = await Category.find({isListed:true,isDelete:false})
         let productData = await Product.find({
-            isDeleted:false,
+            isDelete:false,
         })
 
         productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
@@ -44,10 +41,13 @@ const loadHome =async (req,res)=>{
         if(userId){
 
             const userData =await User.findOne({_id:userId ,isBlocked:false})
-            res.render("home",{
-                user:userData,
-                product:productData, 
-            })
+            
+            if (userData) {
+                return res.render("home", {
+                  user: userData,
+                  product: productData
+                });
+              }
 
         }else{
             return res.render("home",{
@@ -319,9 +319,6 @@ const logout = async(req,res)=>{
         res.redirect("/pageNotFound")
     }
 }
-
-
-
 
 
 module.exports = {
