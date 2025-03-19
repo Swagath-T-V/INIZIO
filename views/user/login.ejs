@@ -135,6 +135,18 @@
             text-decoration: none;
             font-weight: bold;
         }
+        .forgot-password-link {
+            font-size: 0.875rem;
+            color: #007bff;
+            text-decoration: none;
+            text-align: right;
+        }
+
+        .forgot-password-link:hover {
+            color: #0056B3;
+            text-decoration: underline;
+        }
+
         
         @media (max-width: 480px) {
             .login-container {
@@ -171,6 +183,9 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 <div class="error-message" id="error2"></div>
+            </div>
+            <div class="form-group">
+                <a href="/forgot-password" class="forgot-password-link ms-auto">Forgot Password</a>
             </div>
             
             <div class="button-container">

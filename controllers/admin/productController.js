@@ -19,7 +19,7 @@ const getProductPage = async(req, res) => {
                 { name: { $regex: search, $options: "i" }},
                 { category: { $regex: search, $options: "i" }}
             ],
-        })
+        }).sort({ createdAt: -1 })
           .limit(limit * 1)
           .skip((page - 1) * limit)
           .exec();

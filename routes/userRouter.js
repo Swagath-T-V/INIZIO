@@ -1,10 +1,10 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/user/userController")
-const productController = require("../controllers/user/productController")
 const passport = require("passport")
 const {userAuth,adminAuth} = require("../middlewares/auth")
-
+const profileController = require("../controllers/user/profileController")
+const productController = require("../controllers/user/productControllers")
 
 
 //page error
@@ -27,6 +27,23 @@ router.get("/auth/google/callback",passport.authenticate("google",{failureRedire
     req.session.user = req.user._id;
     res.redirect("/")
 })
+
+// profile 
+router.get("/forgot-password",profileController.getForgotPage)
+router.post("/forgot-email-validate",profileController.forgotEmail)
+router.get("/forgotPass-otp",profileController.getForgotPassOtp)
+router.post("/verify-forgotPass-otp",profileController.verifyForgotPassOtp)
+router.post("/resent-otp",profileController.resentOtp)
+router.get("/reset-password",profileController.getResetPassword)
+router.post("/reset-password",profileController.postnewPassword)
+
+//shop
+router.get("/shop",userController.loadShopPage)
+router.get("/filter",userController.filterProduct)
+
+//products
+router.get("/productDetails",productController.productDetails)
+
 
 
 
