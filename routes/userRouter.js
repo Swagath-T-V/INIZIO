@@ -39,7 +39,6 @@ router.post("/reset-password",profileController.postnewPassword)
 
 //shop
 router.get("/shop",userController.loadShopPage)
-router.get("/filter",userController.filterProduct)
 
 //products
 router.get("/productDetails",productController.productDetails)

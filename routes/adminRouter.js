@@ -66,18 +66,4 @@ router.patch("/deleteProduct/:productId",adminAuth,productController.deleteProdu
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = router

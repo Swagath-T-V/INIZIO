@@ -46,7 +46,7 @@ const customerInfo = async(req,res)=>{
         console.log("Error in customerInfo",error)
         res.redirect("/admin/pageerror")
         
-    }
+    } 
 
 }
 

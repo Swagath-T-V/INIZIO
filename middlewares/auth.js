@@ -46,26 +46,3 @@ module.exports = {
     userAuth
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

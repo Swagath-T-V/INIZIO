@@ -8,8 +8,6 @@ const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
 
 
-
-
 const pageNotFound =async (req,res)=>{
 
     try {
@@ -23,44 +21,34 @@ const pageNotFound =async (req,res)=>{
     }
 }
 
-const loadHome =async (req,res)=>{
 
+const loadHome = async (req, res) => {
     try {
+        const userId = req.session.user;
+        if (userId) {
+            const userData = await User.findOne({ _id: userId }); 
+            if (userData && userData.isBlocked) { 
+                req.session.destroy(); 
+                return res.redirect('/login'); 
+            }
 
-        const userId = req.session.user
+            const categories = await Category.find({ isListed: true, isDelete: false });
+            let productData = await Product.find({ isDelete: false })
+                .sort({ createdAt: -1 }) 
+                .limit(4); 
 
-        const categories = await Category.find({isListed:true,isDelete:false})
-        let productData = await Product.find({
-            isDelete:false,
-        })
-
-        productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
-        productData = productData.slice(0,4)
-
-        if(userId){
-
-            const userData =await User.findOne({_id:userId ,isBlocked:false})
-            
-            if (userData) {
-                return res.render("home", {
-                  user: userData,
-                  product: productData
-                });
-              }
-
-        }else{
-            return res.render("home",{
-                product:productData
-            })
+            return res.render("home", { user: userData, product: productData });
         }
-        
-    } catch (error) {
-        
-        console.log("HOME page not found",error)
-        res.status(500).send("server error")
 
+        const productData = await Product.find({ isDelete: false })
+            .sort({ createdAt: -1 })
+            .limit(4);
+        return res.render("home", { product: productData });
+    } catch (error) {
+        console.log("HOME page error", error);
+        res.status(500).send("server error");
     }
-}
+};
 
 
 
@@ -278,37 +266,30 @@ const loadLogin = async (req,res)=>{
     }
 }
 
+
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(password)
-        
-        const findUser = await User.findOne({ email: email});
-        
-        if (!findUser) {
-            return res.status(400).json({ success: false, message: "User not found" });
-        }
-        
-        if (findUser.isBlocked) {
-            return res.status(400).json({ success: false, message: "User is blocked by the Admin" });
+        const findUser = await User.findOne({ email: email });
+        if (!findUser || findUser.isBlocked) {
+            return res.status(400).json({ 
+                success: false, 
+                message: findUser ? "User is blocked by the Admin" : "User not found" 
+            });
         }
 
         const passwordMatch = await bcrypt.compare(password, findUser.password);
-
-        
         if (!passwordMatch) {
             return res.status(400).json({ success: false, message: "Incorrect password" });
         }
-        
         req.session.user = findUser._id;
-        
         return res.status(200).json({ success: true, redirectUrl: "/" });
-
     } catch (error) {
         console.error("Login error", error);
         return res.status(500).json({ success: false, message: "Login failed, Please try again" });
     }
 };
+
 
 const logout = async(req,res)=>{
     try {
@@ -322,7 +303,7 @@ const logout = async(req,res)=>{
             }
         })
     } catch (error) {
-        console.log("logout error",err)
+        console.log("logout error",error)
         res.redirect("/pageNotFound")
     }
 }
@@ -330,30 +311,59 @@ const logout = async(req,res)=>{
 const loadShopPage = async (req, res) => {
     try {
         const user = req.session.user;
-        const userData = user ? await User.findById(user) : null;
-        const categories = await Category.find({ isListed: true, isDelete: false }).lean();
-        const subCategories = await SubCategory.find({ isDelete: false }).lean();
+        let userData = null;
+        if (user) {
+            userData = await User.findById(user);
+            if (userData && userData.isBlocked) {
+                req.session.destroy();
+                return res.redirect('/login');
+            }
+        }
+
+        const activeCategories = await Category.find({ isListed: true, isDelete: false }).lean();
+        const activeSubCategories = await SubCategory.find({ isListed: true, isDelete: false }).lean();
 
         const { page = 1, query = '', sort, category, subCategory, priceFrom, priceTo, clear } = req.query;
         const limit = 9;
         const skip = (page - 1) * limit;
 
-        let filter = { isDelete: false, quantity: { $gt: 0 } };
+        let filter = {
+            isDelete: false,
+            category: { $in: activeCategories.map(cat => cat.name) },
+            subCategory: { $in: activeSubCategories.map(sub => sub.name) }
+        };
 
         if (clear === 'true') {
             return res.redirect('/shop?page=1');
         }
 
-        if (query) filter.name = { $regex: query, $options: 'i' };
+        if (query) {
+            filter.name = { $regex: query, $options: 'i' };
+        }
 
-        if (category && category !== 'all') {
-            const cat = await Category.findOne({ _id: category, isListed: true, isDelete: false });
-            if (cat) filter.category = cat.name;
+        let selectedCategory = category || 'all';
+        let selectedSubCategory = subCategory || 'all';
+
+        if (selectedCategory && selectedCategory !== 'all') {
+            const cat = await Category.findOne({ _id: selectedCategory, isListed: true, isDelete: false });
+            if (cat) {
+                filter.category = cat.name;
+            } else {
+                selectedCategory = 'all';
+                filter.category = { $in: activeCategories.map(cat => cat.name) };
+            }
         }
-        if (subCategory && subCategory !== 'all') {
-            const sub = await SubCategory.findOne({ _id: subCategory, isDelete: false });
-            if (sub) filter.subCategory = sub.name;
+
+        if (selectedSubCategory && selectedSubCategory !== 'all') {
+            const sub = await SubCategory.findOne({ _id: selectedSubCategory, isListed: true, isDelete: false });
+            if (sub) {
+                filter.subCategory = sub.name;
+            } else {
+                selectedSubCategory = 'all';
+                filter.subCategory = { $in: activeSubCategories.map(sub => sub.name) };
+            }
         }
+
         if (priceFrom || priceTo) {
             filter.salePrice = {};
             if (priceFrom) filter.salePrice.$gte = Number(priceFrom);
@@ -369,16 +379,6 @@ const loadShopPage = async (req, res) => {
         };
         const sortQuery = sortOptions[sort] || { createdAt: -1 };
 
-        if (user && (category || subCategory)) {
-            const searchEntry = {
-                category: category !== 'all' ? category : null,
-                subCategory: subCategory !== 'all' ? subCategory : null,
-                searchedOn: new Date()
-            };
-            userData.searchHistory.push(searchEntry);
-            await userData.save();
-        }
-
         const totalProducts = await Product.countDocuments(filter);
         const products = await Product.find(filter)
             .sort(sortQuery)
@@ -389,16 +389,16 @@ const loadShopPage = async (req, res) => {
         res.render('shop', {
             user: userData,
             products,
-            category: categories,
-            subCategory: subCategories,
+            category: activeCategories,
+            subCategory: activeSubCategories,
             totalPages: Math.ceil(totalProducts / limit),
             currentPage: Number(page),
             query,
             sort,
-            selectedCategory: category,
-            selectedSubCategory: subCategory,
-            priceFrom,
-            priceTo
+            selectedCategory, 
+            selectedSubCategory, 
+            priceFrom: priceFrom || '',
+            priceTo: priceTo || '' 
         });
     } catch (error) {
         console.error('Shop page error:', error);
@@ -406,99 +406,7 @@ const loadShopPage = async (req, res) => {
     }
 };
 
-    const filterProduct = async (req, res) => {
-        try {
-            const user = req.session.user;
-            const userData = user ? await User.findOne({ _id: user }) : null;
-            const { page = 1, query = '', sort, category, subCategory, priceFrom, priceTo } = req.query;
 
-            let filterQuery = { isDelete: false, quantity: { $gt: 0 } };
-
-            if (query) {
-                filterQuery.name = { $regex: query, $options: 'i' };
-            }
-
-            if (category && category !== "all") {
-                const findCategory = await Category.findOne({ _id: category, isListed: true, isDelete: false });
-                if (findCategory) filterQuery.category = findCategory.name;
-            }
-
-            if (subCategory && subCategory !== "all") {
-                const findSubCategory = await SubCategory.findOne({ _id: subCategory, isDelete: false });
-                if (findSubCategory) filterQuery.subCategory = findSubCategory.name;
-            }
-
-            if (priceFrom || priceTo) {
-                filterQuery.salePrice = {};
-                if (priceFrom) filterQuery.salePrice.$gte = Number(priceFrom);
-                if (priceTo) filterQuery.salePrice.$lte = Number(priceTo);
-            }
-
-            let sortQuery = {};
-            switch (sort) {
-                case 'price-low-high':
-                    sortQuery = { salePrice: 1 };
-                    break;
-                case 'price-high-low':
-                    sortQuery = { salePrice: -1 };
-                    break;
-                case 'name-asc':
-                    sortQuery = { name: 1 };
-                    break;
-                case 'name-desc':
-                    sortQuery = { name: -1 };
-                    break;
-                case 'new-arrivals':
-                    sortQuery = { createdAt: -1 };
-                    break;
-                default:
-                    sortQuery = { createdAt: -1 };
-            }
-
-            const categories = await Category.find({ isListed: true, isDelete: false }).lean();
-            const subCategories = await SubCategory.find({ isDelete: false }).lean();
-
-            const itemsPerPage = 9;
-            const skip = (page - 1) * itemsPerPage;
-
-            const totalProducts = await Product.countDocuments(filterQuery);
-            const products = await Product.find(filterQuery)
-                .sort(sortQuery)
-                .skip(skip)
-                .limit(itemsPerPage)
-                .lean();
-
-            const totalPages = Math.ceil(totalProducts / itemsPerPage);
-
-            if (user && (category || subCategory)) {
-                const searchEntry = {
-                    category: category !== "all" ? category : null,
-                    subCategory: subCategory !== "all" ? subCategory : null,
-                    searchedOn: new Date(),
-                };
-                userData.searchHistory.push(searchEntry);
-                await userData.save();
-            }
-
-            res.render("shop", {
-                user: userData || null,
-                products,
-                category: categories,
-                subCategory: subCategories,
-                totalPages,
-                currentPage: parseInt(page),
-                query,
-                sort: sort || null,
-                selectedCategory: category || null,
-                selectedSubCategory: subCategory || null,
-                priceFrom: priceFrom || null,
-                priceTo: priceTo || null,
-            });
-        } catch (error) {
-            console.error("Error in filterProduct:", error);
-            res.redirect("/pageNotFound");
-        }
-    };
 
 module.exports = {
     loadHome,
@@ -512,6 +420,5 @@ module.exports = {
     resentOtp,
     logout,
     loadShopPage,
-    filterProduct
 
 }

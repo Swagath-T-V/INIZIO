@@ -16,9 +16,15 @@
         <div class="row mb-4">
             <div class="col-md-6">
                 <form action="/shop" method="GET" class="search-form d-flex">
+                    <input type="hidden" name="category" value="<%= selectedCategory || 'all' %>">
+                    <input type="hidden" name="subCategory" value="<%= selectedSubCategory || 'all' %>">
+                    <input type="hidden" name="priceFrom" value="<%= priceFrom || '' %>">
+                    <input type="hidden" name="priceTo" value="<%= priceTo || '' %>">
+                    <input type="hidden" name="sort" value="<%= sort || '' %>">
+
                     <input type="text" name="query" class="form-control" placeholder="Search products..." value="<%= query || '' %>">
                     <button type="submit" class="btn btn-primary mx-2">Search</button>
-                    <% if (query || selectedCategory || selectedSubCategory || priceFrom || priceTo || sort) { %>
+                    <% if (query || selectedCategory !== 'all' || selectedSubCategory !== 'all' || priceFrom || priceTo || sort) { %>
                         <a href="/shop?clear=true" class="btn btn-secondary">Clear</a>
                     <% } %>
                 </form>
@@ -97,7 +103,11 @@
 
             <div class="col-md-4 col-lg-2">
                 <div class="sidebar">
-                    <form id="filterForm" action="/filter" method="GET">
+                    <form id="filterForm" action="/shop" method="GET">
+
+                        <input type="hidden" name="query" value="<%= query || '' %>">
+                        <input type="hidden" name="sort" value="<%= sort || '' %>">
+
                         <div class="sidebar-box-2">
                             <h2 class="heading" style="color: black;">Categories</h2>
                             <div class="fancy-collapse-panel">
@@ -108,7 +118,7 @@
                                                 <input type="radio" 
                                                        name="category" 
                                                        value="all" 
-                                                       <%= !selectedCategory ? 'checked' : '' %>
+                                                       <%= selectedCategory === 'all' || !selectedCategory ? 'checked' : '' %>
                                                        onchange="this.form.submit()">
                                                 All
                                             </label>
@@ -141,7 +151,7 @@
                                                 <input type="radio" 
                                                        name="subCategory" 
                                                        value="all" 
-                                                       <%= !selectedSubCategory ? 'checked' : '' %>
+                                                       <%= selectedSubCategory === 'all' || !selectedSubCategory ? 'checked' : '' %>
                                                        onchange="this.form.submit()">
                                                 All
                                             </label>
@@ -164,6 +174,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="sidebar-box-2">
                             <h2 class="heading" style="color: black;">Price Range</h2>
                             <div class="colorlib-form-2" style="color: black;">
@@ -207,63 +218,6 @@
         </div>
     </div>
 </section>
-
-<!-- <section class="ftco-gallery">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 heading-section text-center mb-4 ftco-animate">
-                <h2 class="mb-4">Follow Us On Instagram</h2>
-                <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in</p>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid px-0">
-        <div class="row no-gutters">
-            <div class="col-md-4 col-lg-2 ftco-animate">
-                <a href="images/gallery-1.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-1.jpg);">
-                    <div class="icon mb-4 d-flex align-items-center justify-content-center">
-                        <span class="icon-instagram"></span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-2 ftco-animate">
-                <a href="images/gallery-2.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-2.jpg);">
-                    <div class="icon mb-4 d-flex align-items-center justify-content-center">
-                        <span class="icon-instagram"></span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-2 ftco-animate">
-                <a href="images/gallery-3.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-3.jpg);">
-                    <div class="icon mb-4 d-flex align-items-center justify-content-center">
-                        <span class="icon-instagram"></span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-2 ftco-animate">
-                <a href="images/gallery-4.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-4.jpg);">
-                    <div class="icon mb-4 d-flex align-items-center justify-content-center">
-                        <span class="icon-instagram"></span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-2 ftco-animate">
-                <a href="images/gallery-5.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-5.jpg);">
-                    <div class="icon mb-4 d-flex align-items-center justify-content-center">
-                        <span class="icon-instagram"></span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 col-lg-2 ftco-animate">
-                <a href="images/gallery-6.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-6.jpg);">
-                    <div class="icon mb-4 d-flex align-items-center justify-content-center">
-                        <span class="icon-instagram"></span>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-</section> -->
 
 <script>
     function applySort(element) {

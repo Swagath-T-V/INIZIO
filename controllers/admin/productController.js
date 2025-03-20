@@ -1,4 +1,3 @@
-// Controller (backend) - Keep this mostly the same but ensure proper JSON responses
 const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
@@ -75,7 +74,6 @@ const addProduct = async(req, res) => {
             const existingProduct = await Product.findOne({ name: productName });
 
             if (existingProduct && existingProduct.isDelete === true) {
-                // Restore soft-deleted product
                 existingProduct.isDelete = false;
                 existingProduct.category = category;
                 existingProduct.subCategory = subCategory;
