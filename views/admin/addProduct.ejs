@@ -3,6 +3,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
 <style>
+    /* ... (previous styles remain unchanged) */
     * {
         margin: 0;
         padding: 0;
@@ -312,6 +313,7 @@
             grid-template-columns: 1fr;
         }
     }
+
 </style>
 
 <section class="content-main">
@@ -325,7 +327,6 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <form method="POST" id="Form" action="/admin/addProduct" enctype="multipart/form-data">
-                        <!-- Keep all your form fields the same -->
                         <div class="mb-4">
                             <label for="product_name" class="form-label">Product Name</label>
                             <input type="text" placeholder="Type here" name="productName" class="form-control" id="productName">
@@ -334,32 +335,58 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">subCategory</label>
-                                <select class="form-select" name="subCategory" id="brand">
-                                    <%for(let i=0;i<subCategory.length;i++){%>
-                                    <option value="<%=subCategory[i].name%>">
-                                        <%=subCategory[i].name%>
+                                <label class="form-label">Subcategory</label>
+                                <select class="form-select" name="subCategory" id="subCategory">
+                                    <% for(let i=0; i<subCategory.length; i++) { %>
+                                    <option value="<%= subCategory[i].name %>">
+                                        <%= subCategory[i].name %>
                                     </option>
-                                    <%}%>
+                                    <% } %>
                                 </select>
-                                <div id="brand-error" class="error-message"></div>
+                                <div id="subCategory-error" class="error-message"></div>
                             </div>
                             
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Category</label>
                                 <select class="form-select" name="category" id="category">
-                                    <%for(let i=0;i<cat.length;i++){%>
-                                    <option value="<%=cat[i].name%>">
-                                        <%=cat[i].name%>
+                                    <% for(let i=0; i<cat.length; i++) { %>
+                                    <option value="<%= cat[i].name %>">
+                                        <%= cat[i].name %>
                                     </option>
-                                    <%}%>
+                                    <% } %>
                                 </select>
                                 <div id="category-error" class="error-message"></div>
                             </div>
                         </div>
 
+                        <!-- New Fields: Brand, Material, Dimensions, Weight -->
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Brand</label>
+                                <input type="text" placeholder="Enter brand" name="brand" class="form-control" id="brand" value="">
+                                <div id="brand-error" class="error-message"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Material</label>
+                                <input type="text" placeholder="Enter material" name="material" class="form-control" id="material" value="">
+                                <div id="material-error" class="error-message"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Dimensions</label>
+                                <input type="text" placeholder="e.g., 10x20x30 cm" name="dimensions" class="form-control" id="dimensions" value="">
+                                <div id="dimensions-error" class="error-message"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Weight</label>
+                                <input type="text" placeholder="e.g., 500g" name="weight" class="form-control" id="weight" value="">
+                                <div id="weight-error" class="error-message"></div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
-                            <label class="form-label">Full description</label>
+                            <label class="form-label">Full Description</label>
                             <textarea placeholder="Type here" id="descriptionId" name="description" class="form-control" rows="4"></textarea>
                             <div id="description-error" class="error-message"></div>
                         </div>
@@ -367,14 +394,14 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-4">
-                                    <label class="form-label">Regular price</label>
+                                    <label class="form-label">Regular Price</label>
                                     <input placeholder="$" name="regularPrice" type="text" class="form-control" id="regularPrice">
                                     <div id="regularPrice-error" class="error-message"></div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-4">
-                                    <label class="form-label">Sale price</label>
+                                    <label class="form-label">Sale Price</label>
                                     <input placeholder="$" name="salePrice" type="text" class="form-control" id="salePrice">
                                     <div id="salePrice-error" class="error-message"></div>
                                 </div>
@@ -505,7 +532,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     confirmButtonText: 'OK',
                     allowOutsideClick: false,
                     allowEscapeKey: false
-                    
                 }).then(() => {
                     if (result.redirectUrl) {
                         window.location.href = result.redirectUrl;
@@ -664,6 +690,10 @@ function validateForm() {
     const regularPrice = document.getElementById("regularPrice").value;
     const salePrice = document.getElementById("salePrice").value;
     const quantity = document.getElementById("quantity").value;
+    const brand = document.getElementById("brand").value.trim();
+    const material = document.getElementById("material").value.trim();
+    const dimensions = document.getElementById("dimensions").value.trim();
+    const weight = document.getElementById("weight").value.trim();
     
     const image1 = document.getElementById('image1').files.length > 0;
     const image2 = document.getElementById('image2').files.length > 0;
@@ -671,6 +701,7 @@ function validateForm() {
     
     let isValid = true;
 
+    // Product Name Validation
     if (name === "") {
         displayErrorMessage('productName-error', 'Please enter a product name.');
         isValid = false;
@@ -685,6 +716,43 @@ function validateForm() {
         isValid = false;
     }
 
+    // Brand Validation
+    if (brand === "") {
+        displayErrorMessage('brand-error', 'Please enter a brand name.');
+        isValid = false;
+    } else if (brand.length > 50) {
+        displayErrorMessage('brand-error', 'Brand name must be less than 50 characters.');
+        isValid = false;
+    }
+
+    // Material Validation
+    if (material === "") {
+        displayErrorMessage('material-error', 'Please enter the material.');
+        isValid = false;
+    } else if (material.length > 100) {
+        displayErrorMessage('material-error', 'Material must be less than 100 characters.');
+        isValid = false;
+    }
+
+    // Dimensions Validation
+    if (dimensions === "") {
+        displayErrorMessage('dimensions-error', 'Please enter the dimensions.');
+        isValid = false;
+    } else if (dimensions.length > 50) {
+        displayErrorMessage('dimensions-error', 'Dimensions must be less than 50 characters.');
+        isValid = false;
+    }
+
+    // Weight Validation
+    if (weight === "") {
+        displayErrorMessage('weight-error', 'Please enter the weight.');
+        isValid = false;
+    } else if (weight.length > 50) {
+        displayErrorMessage('weight-error', 'Weight must be less than 50 characters.');
+        isValid = false;
+    }
+
+    // Description Validation
     if (description === "") {
         displayErrorMessage('description-error', 'Please enter a product description.');
         isValid = false;
@@ -699,11 +767,13 @@ function validateForm() {
         isValid = false;
     }
 
+    // Quantity Validation
     if (quantity === "" || parseInt(quantity) < 0) {
         displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
         isValid = false;
     }
 
+    // Price Validations
     if (!regularPrice || !/^\d+(\.\d{1,2})?$/.test(regularPrice) || parseFloat(regularPrice) < 0) {
         displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
         isValid = false;
@@ -714,11 +784,12 @@ function validateForm() {
         isValid = false;
     }
 
-    if (parseInt(salePrice) > parseInt(regularPrice)) {
+    if (parseFloat(salePrice) > parseFloat(regularPrice)) {
         displayErrorMessage('salePrice-error', 'Sale price cannot be greater than regular price');
-        isValid=false
+        isValid = false;
     }
 
+    // Image Validation
     if (!image1 && !image2 && !image3) {
         displayErrorMessage("images-error", 'Please select at least one image.');
         isValid = false;
@@ -741,9 +812,6 @@ function clearErrorMessages() {
         element.innerText = '';
     });
 }
-
-
-
 </script>
 
 <%- include("../../views/partials/admin/footer.ejs") %>

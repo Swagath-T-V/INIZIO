@@ -34,6 +34,10 @@ const productSchema = new Schema({
         type:Number,
         default:true
     },
+    isListed:{
+        type:Boolean,
+        default:true
+    },
     Images:{
         type:[String],
         required:true
@@ -45,6 +49,24 @@ const productSchema = new Schema({
     createdAt : {
         type :Date,
         default:Date.now
+    },
+
+
+    brand: {
+        type: String,
+        default: "Generic"
+    },
+    material: {
+        type: String,
+        default: "N/A"
+    },
+    dimensions: {
+        type: String,
+        default: "N/A"
+    },
+    weight: {
+        type: String,
+        default: "N/A"
     }
 },{timestamps:true})
 

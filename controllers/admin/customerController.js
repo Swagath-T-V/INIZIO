@@ -51,6 +51,7 @@ const customerInfo = async(req,res)=>{
 }
 
 const transporter =nodemailer.createTransport({
+
     service:"gmail",
     port:587,
     secure:false,
@@ -63,6 +64,7 @@ const transporter =nodemailer.createTransport({
 
 async function sendMail({to,subject,text,html}){
     try{
+
         const info = await transporter.sendMail({
             from:process.env.NODEMAILER_EMAIL,
             to,
@@ -71,17 +73,23 @@ async function sendMail({to,subject,text,html}){
             html
         })
         return info.accepted.length>0
+
     }catch(error){
+
         console.log("Error in sending mail in customer",error)
         return false
     }
 } 
 
 const customerBlocked = async(req,res)=>{
+
     try {
+
         const id = req.query.id
         const user = await User.findById(id)
+
         if(!user){
+
             return res.json({success:false,message:"user not found"})
         }
 
@@ -93,9 +101,13 @@ const customerBlocked = async(req,res)=>{
         const emailSent = await sendMail({ to: user.email, subject: emailSubject, text: emailText, html: emailHtml });
 
         if(emailSent){
+
             return res.json({success:true})
+
         }else{
+
             return res.json({success:false,message:"Failed in sending mail"})
+
         }
 
     } catch (error) {
@@ -106,12 +118,18 @@ const customerBlocked = async(req,res)=>{
 }
 
 const customerunBlocked = async(req,res)=>{
+
     try {
+
         const id =req.query.id
         const user = await User.findById(id)
+
         if(!user){
+
             return res.json({success:false,message:"user not found"})
+
         }
+
         await User.updateOne({_id:id},{$set:{isBlocked:false}})
         const emailSubject = "Your account has been unblocked";
         const emailText = "Dear User, your account has been unblocked. You can now access your account again.";
@@ -119,9 +137,13 @@ const customerunBlocked = async(req,res)=>{
         const emailSent = await sendMail({ to: user.email, subject: emailSubject, text: emailText, html: emailHtml });
 
         if(emailSent){
+
             return res.json({success:true})
+
         }else{
+
             return res.json({success:false,message:"Failed in sending mail"})
+            
         }
 
     } catch (error) {

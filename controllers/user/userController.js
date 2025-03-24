@@ -26,27 +26,38 @@ const loadHome = async (req, res) => {
     try {
         const userId = req.session.user;
         if (userId) {
+
             const userData = await User.findOne({ _id: userId }); 
+
             if (userData && userData.isBlocked) { 
                 req.session.destroy(); 
                 return res.redirect('/login'); 
             }
 
             const categories = await Category.find({ isListed: true, isDelete: false });
+
             let productData = await Product.find({ isDelete: false })
                 .sort({ createdAt: -1 }) 
                 .limit(4); 
 
-            return res.render("home", { user: userData, product: productData });
+            return res.render("home", { 
+                user: userData,
+                product: productData
+
+            });
         }
 
         const productData = await Product.find({ isDelete: false })
             .sort({ createdAt: -1 })
             .limit(4);
+
         return res.render("home", { product: productData });
+
     } catch (error) {
+
         console.log("HOME page error", error);
         res.status(500).send("server error");
+
     }
 };
 
@@ -70,7 +81,7 @@ function generateOtp(){
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiryTime = Date.now() + 60000;
-    return { otp, expiryTime };
+    return { otp, expiryTime }; 
 
 }
 
@@ -117,7 +128,7 @@ const signup = async (req, res) => {
     try {
 
         const { name, email, phone, password } = req.body;
-        console.log(name, email, phone, password);
+        // console.log(name, email, phone, password);
         
         const findUser = await User.findOne({ email });
         if (findUser) {
@@ -176,6 +187,7 @@ const getOptPage = async (req,res)=>{
 }
 
 const resentOtp = async (req, res) => {
+
     try {
         const { email } = req.session.userData;
         
@@ -188,23 +200,31 @@ const resentOtp = async (req, res) => {
         req.session.userOtp = { otp, expiryTime }
 
         const emailSent = await sendVerificationEmail(email, otp);
-        console.log('this is email from resend',emailSent)
+        // console.log('this is email from resend',emailSent)
         
         if (emailSent) {
+
             console.log("Resend OTP = ", otp);
             return res.status(200).json({ success: true, message: "OTP resent successfully" });
+
         } else {
+
             return res.status(500).json({ success: false, message: "Failed to resend OTP, please try again" });
+
         }
     } catch (error) {
+
         console.error("Error resending OTP:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
+
     }
 }
 
 
 const verifyOtp = async (req, res) => {
+
     try {
+
         const { otp } = req.body;
         const userOtp = req.session.userOtp;
         const currentTime = Date.now();
@@ -217,6 +237,7 @@ const verifyOtp = async (req, res) => {
         }
 
         if (otp === userOtp.otp) {
+
             const user = req.session.userData;
             const passwordHash = await bcrypt.hash(user.password, 10);
 
@@ -236,15 +257,20 @@ const verifyOtp = async (req, res) => {
                 message: "OTP verified successfully",
                 redirectUrl: "/",
             });
+
         } else {
+
             res.status(400).json({
                 success: false,
                 message: "Invalid OTP, please try again.",
             });
         }
+
     } catch (error) {
+
         console.error("Error verifying OTP:", error);
         res.status(500).json({ success: false, message: "An error occurred." });
+
     }
 };
 
@@ -253,9 +279,13 @@ const loadLogin = async (req,res)=>{
     try {
         
         if(!req.session.user){
+
             res.render("login")
+
         }else{
+
             res.redirect("/")
+
         }
 
     } catch (error) {
@@ -268,10 +298,14 @@ const loadLogin = async (req,res)=>{
 
 
 const login = async (req, res) => {
+
     try {
+
         const { email, password } = req.body;
         const findUser = await User.findOne({ email: email });
+
         if (!findUser || findUser.isBlocked) {
+
             return res.status(400).json({ 
                 success: false, 
                 message: findUser ? "User is blocked by the Admin" : "User not found" 
@@ -279,41 +313,59 @@ const login = async (req, res) => {
         }
 
         const passwordMatch = await bcrypt.compare(password, findUser.password);
+
         if (!passwordMatch) {
+
             return res.status(400).json({ success: false, message: "Incorrect password" });
         }
+
         req.session.user = findUser._id;
+
         return res.status(200).json({ success: true, redirectUrl: "/" });
+
     } catch (error) {
+
         console.error("Login error", error);
         return res.status(500).json({ success: false, message: "Login failed, Please try again" });
+
     }
 };
 
 
 const logout = async(req,res)=>{
+
     try {
         
         req.session.destroy((err)=>{
+
             if(err){
                 console.log("error in destroy",err)
                 return re.redirect("/pageNotFound")
             }else{
                 return res.redirect("/")
             }
+
         })
+
     } catch (error) {
+
         console.log("logout error",error)
         res.redirect("/pageNotFound")
+
     }
 }
 
 const loadShopPage = async (req, res) => {
+
     try {
+
         const user = req.session.user;
         let userData = null;
+
         if (user) {
+
             userData = await User.findById(user);
+
             if (userData && userData.isBlocked) {
                 req.session.destroy();
                 return res.redirect('/login');
@@ -329,6 +381,7 @@ const loadShopPage = async (req, res) => {
 
         let filter = {
             isDelete: false,
+            isListed: true,
             category: { $in: activeCategories.map(cat => cat.name) },
             subCategory: { $in: activeSubCategories.map(sub => sub.name) }
         };
@@ -345,7 +398,9 @@ const loadShopPage = async (req, res) => {
         let selectedSubCategory = subCategory || 'all';
 
         if (selectedCategory && selectedCategory !== 'all') {
+
             const cat = await Category.findOne({ _id: selectedCategory, isListed: true, isDelete: false });
+
             if (cat) {
                 filter.category = cat.name;
             } else {
@@ -355,7 +410,9 @@ const loadShopPage = async (req, res) => {
         }
 
         if (selectedSubCategory && selectedSubCategory !== 'all') {
+
             const sub = await SubCategory.findOne({ _id: selectedSubCategory, isListed: true, isDelete: false });
+
             if (sub) {
                 filter.subCategory = sub.name;
             } else {
@@ -365,6 +422,7 @@ const loadShopPage = async (req, res) => {
         }
 
         if (priceFrom || priceTo) {
+
             filter.salePrice = {};
             if (priceFrom) filter.salePrice.$gte = Number(priceFrom);
             if (priceTo) filter.salePrice.$lte = Number(priceTo);
@@ -380,6 +438,7 @@ const loadShopPage = async (req, res) => {
         const sortQuery = sortOptions[sort] || { createdAt: -1 };
 
         const totalProducts = await Product.countDocuments(filter);
+
         const products = await Product.find(filter)
             .sort(sortQuery)
             .skip(skip)
@@ -400,11 +459,16 @@ const loadShopPage = async (req, res) => {
             priceFrom: priceFrom || '',
             priceTo: priceTo || '' 
         });
+
     } catch (error) {
+
         console.error('Shop page error:', error);
         res.redirect('/pageNotFound');
+        
     }
 };
+
+
 
 
 
@@ -420,5 +484,6 @@ module.exports = {
     resentOtp,
     logout,
     loadShopPage,
+    
 
 }

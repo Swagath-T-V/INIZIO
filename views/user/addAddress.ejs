@@ -1,0 +1,157 @@
+<%- include("../../views/partials/userProfile/header.ejs") %>
+
+<style>
+    .error-input {
+        border-color: red !important;
+    }
+    .error-message {
+        color: red;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+    </style>
+
+
+        <!-- Main Content -->
+        <div class="up_main-content">
+            <div class="up_card">
+                <div class="up_card-header">
+                    <h2 class="up_card-title">Add New Address</h2>
+                </div>
+                <div class="up_card-body">
+                    <form id="add-address-form" action="/addAddress" method="POST" novalidate>
+                        <!-- Address Type -->
+                        <!-- Update each input field to include an error message div -->
+                        <div class="up_info-group">
+                            <label for="addressType" class="up_info-label">Address Type</label>
+                            <select id="addressType" name="addressType" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" required>
+                                <option value="" disabled selected>Select Address Type</option>
+                                <option value="Home">Home</option>
+                                <option value="Work">Work</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div id="addressType-error" class="error-message"></div>
+                        </div>
+
+                        <div class="up_info-group">
+                            <label for="name" class="up_info-label">Full Name</label>
+                            <input type="text" id="name" name="name" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" placeholder="Enter your full name" required>
+                            <div id="name-error" class="error-message"></div>
+                        </div>
+
+                        <div class="up_info-group">
+                            <label for="city" class="up_info-label">City</label>
+                            <input type="text" id="city" name="city" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" placeholder="Enter your city" required>
+                            <div id="city-error" class="error-message"></div>
+                        </div>
+
+                        <div class="up_info-group">
+                            <label for="landMark" class="up_info-label">Landmark</label>
+                            <input type="text" id="landMark" name="landMark" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" placeholder="Enter a nearby landmark" required>
+                            <div id="landMark-error" class="error-message"></div>
+                        </div>
+
+                        <div class="up_info-group">
+                            <label for="state" class="up_info-label">State</label>
+                            <input type="text" id="state" name="state" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" placeholder="Enter your state" required>
+                            <div id="state-error" class="error-message"></div>
+                        </div>
+
+                        <div class="up_info-group">
+                            <label for="pincode" class="up_info-label">Pincode</label>
+                            <input type="number" id="pincode" name="pincode" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" placeholder="Enter your pincode" required>
+                            <div id="pincode-error" class="error-message"></div>
+                        </div>
+
+                        <div class="up_info-group">
+                            <label for="phone" class="up_info-label">Phone Number</label>
+                            <input type="text" id="phone" name="phone" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" placeholder="Enter your phone number" required>
+                            <div id="phone-error" class="error-message"></div>
+                        </div>
+                        <!-- Submit Button -->
+                        <div class="up_info-group">
+                            <button type="submit" class="up_btn" style="background-color: var(--up-primary-color); color: white;">Save Address</button>
+                            <a href="/addressPage" class="up_btn up_btn-outline" style="margin-left: 10px;">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        document.getElementById('add-address-form').addEventListener('submit', function (event) {
+            const addressType = document.getElementById('addressType');
+            const name = document.getElementById('name');
+            const city = document.getElementById('city');
+            const landMark = document.getElementById('landMark');
+            const state = document.getElementById('state');
+            const pincode = document.getElementById('pincode');
+            const phone = document.getElementById('phone');
+            const pincodeError = document.getElementById('pincode-error');
+            const phoneError = document.getElementById('phone-error');
+            let hasError = false;
+        
+            // Reset error states
+            [addressType, name, city, landMark, state, pincode, phone].forEach(field => {
+                field.classList.remove('error-input');
+            });
+            pincodeError.textContent = '';
+            phoneError.textContent = '';
+        
+            // Validate Address Type
+            if (!addressType.value) {
+                addressType.classList.add('error-input');
+                hasError = true;
+            }
+        
+            // Validate Name (at least 2 characters, only letters and spaces)
+            if (!/^[a-zA-Z\s]{2,}$/.test(name.value)) {
+                name.classList.add('error-input');
+                name.nextElementSibling.textContent = 'Name must be at least 2 characters long and contain only letters and spaces.';
+                hasError = true;
+            }
+        
+            // Validate City (at least 2 characters, only letters and spaces)
+            if (!/^[a-zA-Z\s]{2,}$/.test(city.value)) {
+                city.classList.add('error-input');
+                city.nextElementSibling.textContent = 'City must be at least 2 characters long and contain only letters and spaces.';
+                hasError = true;
+            }
+        
+            // Validate Landmark (at least 3 characters)
+            if (landMark.value.length < 3) {
+                landMark.classList.add('error-input');
+                landMark.nextElementSibling.textContent = 'Landmark must be at least 3 characters long.';
+                hasError = true;
+            }
+        
+            // Validate State (at least 2 characters, only letters and spaces)
+            if (!/^[a-zA-Z\s]{2,}$/.test(state.value)) {
+                state.classList.add('error-input');
+                state.nextElementSibling.textContent = 'State must be at least 2 characters long and contain only letters and spaces.';
+                hasError = true;
+            }
+        
+            // Validate Pincode (exactly 6 digits)
+            if (!/^\d{6}$/.test(pincode.value)) {
+                pincode.classList.add('error-input');
+                pincodeError.textContent = 'Pincode must be exactly 6 digits.';
+                hasError = true;
+            }
+        
+            // Validate Phone (exactly 10 digits)
+            if (!/^\d{10}$/.test(phone.value)) {
+                phone.classList.add('error-input');
+                phoneError.textContent = 'Phone number must be exactly 10 digits.';
+                hasError = true;
+            }
+        
+            if (hasError) {
+                event.preventDefault();
+            }
+        });
+        </script>
+   
+<%- include("../../views/partials/userProfile/footer.ejs") %>

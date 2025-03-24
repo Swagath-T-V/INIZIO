@@ -1,0 +1,364 @@
+<%- include("../../views/partials/userProfile/header.ejs") %>
+<style>
+    /* Edit Profile Tab Styles */
+    .up_tab-content {
+        display: none;
+    }
+
+    .up_tab-content.active {
+        display: block;
+    }
+
+    .up_card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid var(--up-border);
+    }
+
+    .up_card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--up-border);
+    }
+
+    .up_card-title {
+        font-size: 19px;
+        font-weight: 600;
+        color: var(--up-dark-text);
+    }
+
+    .up_card-body {
+        padding: 0;
+    }
+
+    .up_profile-avatar {
+        position: relative;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        margin-bottom: 15px;
+        border: 3px solid var(--up-primary-color);
+    }
+
+    .up_default-avatar {
+        width: 100%;
+        height: 100%;
+        background-color: #e8ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+        color: var(--up-secondary-color);
+    }
+
+    .up_profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+
+    .up_profile-avatar input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .up_change-image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--up-primary-color);
+        text-align: center;
+        padding: 6px 0;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 1px solid var(--up-border);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .up_profile-avatar:hover .up_change-image-overlay {
+        opacity: 1;
+    }
+
+    /* Form Styles */
+    .up_form-group {
+        margin-bottom: 25px;
+    }
+
+    .up_form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--up-dark-text);
+    }
+
+    .up_form-control {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid var(--up-border);
+        border-radius: 6px;
+        font-size: 15px;
+        transition: border-color 0.3s ease;
+    }
+
+    .up_form-control:focus {
+        outline: none;
+        border-color: var(--up-primary-color);
+        box-shadow: 0 0 0 3px rgba(90, 115, 248, 0.15);
+    }
+
+    /* Button Styles */
+    .up_btn {
+        padding: 9px 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .up_btn-primary {
+        background-color: var(--up-primary-color);
+        color: white;
+    }
+
+    .up_btn-primary:hover {
+        background-color: #4862e8;
+        box-shadow: 0 2px 8px rgba(90, 115, 248, 0.3);
+    }
+
+    .up_btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        margin-left: 10px;
+    }
+
+    .up_btn-secondary:hover {
+        background-color: #5a6268;
+        box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+    }
+
+    /* Change Password Link */
+    .up_change-password {
+        color: var(--up-primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .up_change-password:hover {
+        text-decoration: underline;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .up_form-group {
+            margin-bottom: 20px;
+        }
+        .up_form-control {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<!-- Main Content -->
+<div class="up_main-content">
+    <!-- Edit Profile Tab -->
+    <div id="edit-profile" class="up_tab-content active">
+        <h1>Edit Profile</h1>
+        <div class="up_card">
+            <div class="up_card-header">
+                <h2 class="up_card-title">Profile Information</h2>
+            </div>
+            <div class="up_card-body">
+                <form id="profile-form" action="/change-profile" method="post" novalidate>
+                    <div class="up_form-group">
+                        <label for="profile-image" class="up_form-label">Profile Image</label>
+                        <div class="up_profile-avatar">
+                            <div class="up_default-avatar" id="default-avatar-edit">
+                                <span>👤</span>
+                            </div>
+                            <img id="profile-image-preview" src="default-profile.jpg" alt="Profile Image">
+                            <div class="up_change-image-overlay">Change Image</div>
+                            <input type="file" id="profile-image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="up_form-group">
+                        <label for="first-name" class="up_form-label">Full Name</label>
+                        <input type="text" id="first-name" name="name" class="up_form-control" value="<%= user.name %>">
+                    </div>
+                    <div class="up_form-group">
+                        <label for="phone" class="up_form-label">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="up_form-control" value="<%= user.phone %>">
+                    </div>
+                    <div class="up_form-group">
+                        <label for="email" class="up_form-label">Email Address</label>
+                        <input type="email" id="email" class="up_form-control" name="email" value="<%= user.email %>">
+                        <small style="display: block; margin-top: 5px; color: var(--up-secondary-color);">Changing email will require verification</small>
+                    </div>
+                    <button type="submit" class="up_btn up_btn-primary" id="update-profile">Update Profile</button>
+                    <button type="button" class="up_btn up_btn-secondary" id="cancel-update"><a href="/userProfile">Cancel</a></button>
+                </form>
+                
+                <div style="margin-top: 20px">
+                    <button class="up_btn up_btn-primary"><a href="/forgot-password">Change Password</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('profile-form');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); 
+
+        const name = document.getElementById('first-name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        if (!name) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Full Name is required.',
+                heightAuto: false,
+                scrollbarPadding: false
+            });
+            return;
+        }
+
+        if (name.length < 2) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Full Name must be at least 2 characters long.',
+                heightAuto: false,
+                scrollbarPadding: false
+            });
+            return;
+        }
+
+        const phoneRegex = /^\d{10}$/;
+        if (!phone) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Phone Number is required.',
+                heightAuto: false,
+                scrollbarPadding: false
+            });
+            return;
+        }
+
+        if (!phoneRegex.test(phone)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Phone Number must be a valid 10-digit number.',
+                heightAuto: false,
+                scrollbarPadding: false
+            });
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Email Address is required.',
+                heightAuto: false,
+                scrollbarPadding: false
+            });
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please enter a valid Email Address.',
+                heightAuto: false,
+                scrollbarPadding: false
+            });
+            return;
+        }
+
+        $.ajax({
+            url: '/change-profile',
+            type: 'POST',
+            data: $(form).serialize(), 
+            success: function (response) {
+                if (response.requiresOTP) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Email Verification',
+                        text: response.message,
+                        heightAuto: false,
+                        scrollbarPadding: false
+                    }).then(() => {
+                        window.location.href = response.redirectUrl;
+                    });
+                } else if (response.redirectUrl) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Profile Updated',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500,
+                            heightAuto: false,
+                            scrollbarPadding: false
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        });
+                    } else {
+                        window.location.href = response.redirectUrl;
+                    }
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'An error occurred while updating your profile.';
+                try {
+                    const response = xhr.responseJSON || {};
+                    errorMessage = response.message || errorMessage;
+                } catch (e) {
+                    console.error('Error parsing error response:', e);
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    heightAuto: false,
+                    scrollbarPadding: false
+                });
+            }
+        });
+    });
+});
+</script>
+
+<%- include("../../views/partials/userProfile/footer.ejs") %>

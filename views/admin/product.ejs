@@ -189,59 +189,43 @@
                     <th>SUBCATEGORY</th>
                     <th>CATEGORY</th>
                     <th>SALE PRICE</th>
-                    <!-- <th>OFFER PRICE</th> -->
-                    <!-- <th>OFFER</th> -->
                     <th>QUANTITY</th>
+                    <th>List/Unlist</th>
                     <th>ACTIONS</th>
                 </tr>
             </thead>
             <tbody id="productTableBody">
-                <%for(let i = 0; i < data.length; i++){%>
-
+                <% for(let i = 0; i < data.length; i++) { %>
                 <tr>
-                    <td><%=data[i].name%></td>
+                    <td><%= data[i].name %></td>
                     <td>
-                        <img src="/uploads/product-image/<%=data[i].Images[0]%>" alt="" class="product-image">
+                        <img src="/uploads/product-image/<%= data[i].Images[0] %>" alt="" class="product-image">
                     </td>
-                    <td><%=data[i].subCategory%></td>
-                    <td><%=data[i].category%></td>
-                    <td><%=data[i].salePrice%></td>
-                    <!-- <td></td> -->
-                    <!-- <td>
-                        <button class="btn btn-sm btn-danger" onclick="confirmRemoveOffer('')">
-                            <i class="bi bi-dash-circle"></i> Remove
+                    <td><%= data[i].subCategory %></td>
+                    <td><%= data[i].category %></td>
+                    <td><%= data[i].salePrice %></td>
+                    <td><%= data[i].quantity %></td>
+                    <td class="text-start">
+                        <% if(data[i].isListed) { %>
+                        <button class="btn btn-success" style="width: 70px" onclick="confirmUnlistProduct('<%= data[i]._id %>')">
+                            List
                         </button>
-                        
-                        <button class="btn btn-sm btn-success" onclick="addOffer('')">
-                            <i class="bi bi-plus-circle"></i> Add
+                        <% } else { %>
+                        <button class="btn btn-danger" style="width: 70px" onclick="confirmListProduct('<%= data[i]._id %>')">
+                            UnList
                         </button>
-                    </td> -->
-                    <td><%=data[i].quantity%></td>
-
-
-                   
-                    <!-- <td class="product-actions">
-                        <a href="" class="btn btn-sm btn-primary">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <button class="btn btn-sm btn-success" onclick="confirmUnblockProduct('>')">
-                            <i class="bi bi-unlock"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="confirmBlockProduct('')">
-                            <i class="bi bi-lock"></i>
-                        </button>
-                    </td> -->
+                        <% } %>
+                    </td>
                     <td class="brand-actions">
-                        <a href="/admin/editProduct?id=<%=data[i]._id%>" class="btn btn-sm btn-primary">
+                        <a href="/admin/editProduct?id=<%= data[i]._id %>" class="btn btn-sm btn-primary">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <button class="btn btn-sm btn-danger" onclick="confirmDeleteProduct('<%=data[i]._id%>')">
+                        <button class="btn btn-sm btn-danger" onclick="confirmDeleteProduct('<%= data[i]._id %>')">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>
-               
-                <%}%>
+                <% } %>
             </tbody>
         </table>
 
@@ -263,33 +247,28 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <script>
+function confirmListProduct(productId) {
+    const isDarkMode = !document.body.classList.contains('light-mode');
 
-
-     function confirmDeleteProduct(productId) {
-
-// Check if dark mode is active
-const isDarkMode = !document.body.classList.contains('light-mode');
-
-Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!',
-
-    // Add these properties for dark mode support
-    background: isDarkMode ? '#2c2c2c' : '#fff',
-    color: isDarkMode ? '#ffffff' : '#000000'
-
-}).then((result) => {
-    if (result.isConfirmed) {
-        fetch(`/admin/deleteProduct/${productId}`, { method: 'PATCH' })
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to list this product. This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, list it!',
+        background: isDarkMode ? '#2c2c2c' : '#fff',
+        color: isDarkMode ? '#ffffff' : '#000000'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/listProduct?id=${productId}`, {
+                method: 'GET'
+            })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Deleted!', 'The product has been soft deleted.', 'success')
+                    Swal.fire('Listed!', 'The product has been listed.', 'success')
                         .then(() => location.reload());
                 } else {
                     Swal.fire('Error!', data.message || 'Something went wrong!', 'error');
@@ -297,10 +276,78 @@ Swal.fire({
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error!', 'Failed to delete the product.', 'error');
+                Swal.fire('Error!', 'Failed to list the product.', 'error');
             });
-    }
-});
+        }
+    });
+}
+
+function confirmUnlistProduct(productId) {
+    const isDarkMode = !document.body.classList.contains('light-mode');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to unlist this product. This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, unlist it!',
+        background: isDarkMode ? '#2c2c2c' : '#fff',
+        color: isDarkMode ? '#ffffff' : '#000000'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/unlistProduct?id=${productId}`, {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Unlisted!', 'The product has been unlisted.', 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', data.message || 'Something went wrong!', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'Failed to unlist the product.', 'error');
+            });
+        }
+    });
+}
+
+function confirmDeleteProduct(productId) {
+    const isDarkMode = !document.body.classList.contains('light-mode');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        background: isDarkMode ? '#2c2c2c' : '#fff',
+        color: isDarkMode ? '#ffffff' : '#000000'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/deleteProduct/${productId}`, { method: 'PATCH' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Deleted!', 'The product has been soft deleted.', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error!', data.message || 'Something went wrong!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error!', 'Failed to delete the product.', 'error');
+                });
+        }
+    });
 }
 </script>
 

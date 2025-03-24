@@ -19,6 +19,7 @@ const subCategoryInfo =async(req,res)=>{
 
         const totalSubCategory = await SubCategory.countDocuments({ isDelete: false})
         const totalPages = Math.ceil(totalSubCategory/limit)
+
         res.render("subCategory",{
             cat:subCategoryData,
             currentPage:page,
@@ -37,6 +38,7 @@ const subCategoryInfo =async(req,res)=>{
 }
 
 const addSubCategory = async (req, res) => {
+
     try {
         if (req.method === 'POST') {
             const { name, description } = req.body;
@@ -44,17 +46,20 @@ const addSubCategory = async (req, res) => {
             const existingSubCategory = await SubCategory.findOne({ name });
 
             if (existingSubCategory && existingSubCategory.isDelete === true) {
+
                 existingSubCategory.isDelete = false; 
                 existingSubCategory.description = description; 
                 existingSubCategory.isListed = true; 
                 await existingSubCategory.save();
                 
                 return res.json({ success: true, message: 'SubCategory restored successfully' });
-            }
-            else if (existingSubCategory && existingSubCategory.isDelete === false) {
-                return res.status(400).json({ success: false, message: 'SubCategory name already exists' });
-            }
 
+            }else if (existingSubCategory && existingSubCategory.isDelete === false) {
+
+                return res.status(400).json({ success: false, message: 'SubCategory name already exists' });
+
+            }
+            
             const newSubCategory = new SubCategory({
                 name,
                 description,
@@ -81,22 +86,32 @@ const addSubCategory = async (req, res) => {
 
 
 const getListSubCategory = async (req, res) => {
+
     try {
+
         let id = req.query.id;
         await SubCategory.updateOne({ _id: id }, { $set: { isListed: false } });
         res.json({ success: true, message: 'SubCategory has been unlisted.' });
+
     } catch (error) {
+
         res.status(500).json({ success: false, message: 'Failed to unlist the subCategory.' });
+
     }
 };
 
 const getUnlistSubCategory = async (req, res) => {
+
     try {
+
         let id = req.query.id;
         await SubCategory.updateOne({ _id: id }, { $set: { isListed: true } });
         res.json({ success: true, message: 'SubCategory has been listed.' });
+
     } catch (error) {
+
         res.status(500).json({ success: false, message: 'Failed to list the subCategory.' });
+
     }
 };
 
@@ -108,6 +123,7 @@ const getEditSubCategory = async(req,res)=>{
 
         const id = req.query.id
         const subCategory = await SubCategory.findOne({_id:id})
+
         res.render("edit-subCategory",{
             subCategory:subCategory,
             activePage: 'subCategory'
@@ -123,7 +139,9 @@ const getEditSubCategory = async(req,res)=>{
 }
 
 const editSubCategory = async (req, res) => {
+
     try {
+
         const id = req.params.id;
         const { subCategoryName, description } = req.body;
 
@@ -150,22 +168,29 @@ const editSubCategory = async (req, res) => {
                 message: "SubCategory updated successfully",
                 redirectUrl: "/admin/subCategory" 
             });
+
         } else {
+
             return res.status(400).json({
                 success: false,
                 message: "SubCategory not found"
             });
         }
+
     } catch (error) {
+
         return res.status(500).json({
             success: false,
             message: "Internal server error"
         });
+
     }
 };
 
 const deleteSubCategory = async(req,res)=> {
+
     try {
+
         const { subCategoryId } = req.params;
         const updatedSubCategory = await SubCategory.findByIdAndUpdate(
             subCategoryId,
@@ -174,13 +199,19 @@ const deleteSubCategory = async(req,res)=> {
         );
 
         if (updatedSubCategory) {
+
             res.status(200).json({ success: true, message: "SubCategory soft deleted successfully" });
+            
         } else {
+
             res.status(404).json({ success: false, message: "SubCategory not found" });
+
         }
     } catch (error) {
+
         console.error("Error in softDeleteSubCategory", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+        
     }
 }
 

@@ -7,7 +7,9 @@ const path = require("path")
 const sharp = require("sharp")
 
 const getProductPage = async(req, res) => {
+
     try {
+
         const search = req.query.search || ""
         const page = parseInt(req.query.page) || 1
         const limit = 4
@@ -35,6 +37,7 @@ const getProductPage = async(req, res) => {
         const subCategory = await SubCategory.find({ isListed: true, isDelete: false })
 
         if (category && subCategory) {
+
             res.render('product', {
                 data: productData,
                 currentPage: page,
@@ -43,37 +46,51 @@ const getProductPage = async(req, res) => {
                 subCategory: subCategory,
                 activePage: "product"
             })
+
         } else {
-            res.render('page-404')
+
+            res.render('pageerror')
+
         }
     } catch (error) {
+
         res.redirect('/admin/pageerror')
+
     }
 }
 
 const addProductPage = async(req, res) => {
+
     try {
+
         const category = await Category.find({ isListed: true, isDelete: false })
         const subCategory = await SubCategory.find({ isListed: true, isDelete: false })
+
         res.render("addProduct", {
             cat: category,
             subCategory: subCategory,
             activePage: "product"
         })
+
     } catch (error) {
+
         console.log("Error in addProduct", error)
         res.redirect("/admin/pageerror")
+
     }
 }
 
 const addProduct = async(req, res) => {
+
     try {
         if (req.method === 'POST') {
-            const { productName, category, subCategory, regularPrice, salePrice, quantity, description } = req.body;
+
+            const { productName, category, subCategory, regularPrice, salePrice, quantity, description,brand,dimensions,material,weight } = req.body;
 
             const existingProduct = await Product.findOne({ name: productName });
 
             if (existingProduct && existingProduct.isDelete === true) {
+
                 existingProduct.isDelete = false;
                 existingProduct.category = category;
                 existingProduct.subCategory = subCategory;
@@ -81,11 +98,16 @@ const addProduct = async(req, res) => {
                 existingProduct.salePrice = parseInt(salePrice);
                 existingProduct.quantity = quantity;
                 existingProduct.description = description;
+                existingProduct.brand = brand || "Generic"; // Fallback to schema default if not provided
+                existingProduct.material = material || "N/A";
+                existingProduct.dimensions = dimensions || "N/A";
+                existingProduct.weight = weight || "N/A";
 
                 const images = [];
                 const imageFields = ['image1', 'image2', 'image3'];
 
                 for (const field of imageFields) {
+
                     if (req.files && req.files[field] && req.files[field][0]) {
                         const file = req.files[field][0];
                         const originalImagePath = file.path;
@@ -110,7 +132,9 @@ const addProduct = async(req, res) => {
                     message: 'Product restored successfully',
                     redirectUrl: "/admin/product"
                 });
+
             } else if (existingProduct && existingProduct.isDelete === false) {
+
                 return res.json({ 
                     success: false, 
                     message: 'Product name already exists' 
@@ -121,6 +145,7 @@ const addProduct = async(req, res) => {
             const imageFields = ['image1', 'image2', 'image3'];
 
             for (const field of imageFields) {
+
                 if (req.files && req.files[field] && req.files[field][0]) {
                     const file = req.files[field][0];
                     const originalImagePath = file.path;
@@ -135,6 +160,7 @@ const addProduct = async(req, res) => {
             }
 
             const categoryId = await Category.findOne({ name: category });
+
             if (!categoryId) {
                 return res.json({ 
                     success: false,
@@ -151,6 +177,10 @@ const addProduct = async(req, res) => {
                 quantity,
                 description,
                 Images: images,
+                brand: brand || "Generic",
+                material: material || "N/A",
+                dimensions: dimensions || "N/A",
+                weight: weight || "N/A"
             });
 
             await newProduct.save();
@@ -162,7 +192,9 @@ const addProduct = async(req, res) => {
             });
         }
     } catch (error) {
+
         console.log("Error in saving the Product", error)
+
         return res.json({
             success: false,
             message: "Error adding product: " + error.message
@@ -171,26 +203,32 @@ const addProduct = async(req, res) => {
 }
 
 const getEditProduct = async(req, res) => {
+
     try {
         const id = req.query.id
         const product = await Product.findOne({ _id: id })
         const category = await Category.find({})
         const subCategory = await SubCategory.find({})
+
         res.render("edit-product", {
             product: product,
             cat: category,
             subCategory: subCategory,
             activePage: "product"
         })
+
     } catch (error) {
+
         console.log("Error in getting the edit product page", error)
         res.redirect("/admin/pageerror")
     }
 }
 
 const deleteProduct = async(req, res) => {
+
     try {
         const { productId } = req.params;
+
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
             { $set: { isDelete: true } },
@@ -208,7 +246,9 @@ const deleteProduct = async(req, res) => {
                 message: "Product not found" 
             });
         }
+
     } catch (error) {
+
         console.error("Error in softDeleteProduct", error);
         return res.json({ 
             success: false, 
@@ -218,14 +258,16 @@ const deleteProduct = async(req, res) => {
 }
 
 const editProduct = async (req, res) => {
+
     try {
         const id = req.params.id;
-        const { productName, brand, category, status, subCategory, regularPrice, salePrice, quantity, description } = req.body;
+        const { productName, category, subCategory, regularPrice, salePrice, quantity, description, brand, material, dimensions, weight } = req.body;
 
         let images = [];
         const imageFields = ['image1', 'image2', 'image3'];
 
         for (const field of imageFields) {
+
             if (req.files && req.files[field] && req.files[field][0]) {
                 const file = req.files[field][0];
                 const originalImagePath = file.path;
@@ -257,7 +299,11 @@ const editProduct = async (req, res) => {
                 salePrice: parseInt(salePrice),
                 quantity: parseInt(quantity),
                 Images: images,
-                updatedAt: Date.now()
+                updatedAt: Date.now(),
+                brand: brand || "Generic",
+                material: material || "N/A",
+                dimensions: dimensions || "N/A",
+                weight: weight || "N/A"
             },
             { new: true }
         );
@@ -274,7 +320,9 @@ const editProduct = async (req, res) => {
             message: "Product updated successfully",
             redirectUrl: "/admin/product"
         });
+
     } catch (error) {
+        
         console.error("Error updating product:", error);
         return res.json({
             success: false,
@@ -282,6 +330,46 @@ const editProduct = async (req, res) => {
         });
     }
 };
+const getListProduct = async (req, res) => {
+    try {
+        const productId = req.query.id;
+        const product = await Product.findByIdAndUpdate(
+            productId,
+            { $set: { isListed: true } },
+            { new: true }
+        );
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found." });
+        }
+
+        res.json({ success: true, message: "Product has been listed." });
+    } catch (error) {
+        console.error("Error in getListProduct:", error);
+        res.status(500).json({ success: false, message: "Failed to list the product." });
+    }
+};
+
+const getUnlistProduct = async (req, res) => {
+    try {
+        const productId = req.query.id;
+        const product = await Product.findByIdAndUpdate(
+            productId,
+            { $set: { isListed: false } },
+            { new: true }
+        );
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found." });
+        }
+
+        res.json({ success: true, message: "Product has been unlisted." });
+    } catch (error) {
+        console.error("Error in getUnlistProduct:", error);
+        res.status(500).json({ success: false, message: "Failed to unlist the product." });
+    }
+};
+
 
 module.exports = {
     getProductPage,
@@ -289,5 +377,7 @@ module.exports = {
     addProduct,
     getEditProduct,
     deleteProduct,
-    editProduct
+    editProduct,
+    getUnlistProduct,
+    getListProduct
 }

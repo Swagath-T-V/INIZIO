@@ -28,7 +28,7 @@ router.get("/auth/google/callback",passport.authenticate("google",{failureRedire
     res.redirect("/")
 })
 
-// profile 
+//login profile 
 router.get("/forgot-password",profileController.getForgotPage)
 router.post("/forgot-email-validate",profileController.forgotEmail)
 router.get("/forgotPass-otp",profileController.getForgotPassOtp)
@@ -36,6 +36,23 @@ router.post("/verify-forgotPass-otp",profileController.verifyForgotPassOtp)
 router.post("/resent-otp",profileController.resentOtp)
 router.get("/reset-password",profileController.getResetPassword)
 router.post("/reset-password",profileController.postnewPassword)
+
+//userProfile
+router.get("/userProfile",userAuth,profileController.userProfile)
+router.get("/editUserProfile",userAuth,profileController.loadEditProfile)
+router.post("/change-profile",userAuth,profileController.changeUserProfile)
+router.get('/userVerifyOtp', userAuth,profileController.getUserVerifyOtp);
+router.post("/verifyUserOtp",userAuth,profileController.verifyUserOtp)
+router.post("/resendUserOtp", userAuth, profileController.resendUserOtp)
+
+//address
+router.get("/addressPage",userAuth,profileController.getAddressPage)
+router.get("/addAddress",userAuth,profileController.getAddAddress)
+router.post("/addAddress",userAuth,profileController.addAddress)
+router.get("/editAddress",userAuth,profileController.getEditAddress)
+router.post("/editAddress",userAuth,profileController.postEditAddress)
+router.get("/deleteAddress",userAuth,profileController.deleteAddress)
+
 
 //shop
 router.get("/shop",userController.loadShopPage)

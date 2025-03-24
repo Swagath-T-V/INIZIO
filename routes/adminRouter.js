@@ -60,7 +60,8 @@ router.post("/editProduct/:id", adminAuth, uploads.fields([
     { name: 'image3', maxCount: 1 }
 ]), productController.editProduct);
 router.patch("/deleteProduct/:productId",adminAuth,productController.deleteProduct)
-
+router.get("/listProduct", adminAuth, productController.getListProduct); 
+router.get("/unlistProduct", adminAuth, productController.getUnlistProduct);
 
 
 

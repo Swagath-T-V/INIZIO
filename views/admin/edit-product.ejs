@@ -357,6 +357,30 @@
                                 <div id="category-error" class="error-message"></div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Brand</label>
+                                <input type="text" placeholder="Enter brand" name="brand" class="form-control" id="brand" value="<%= product.brand || 'Generic' %>">
+                                <div id="brand-error" class="error-message"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Material</label>
+                                <input type="text" placeholder="Enter material" name="material" class="form-control" id="material" value="<%= product.material || 'N/A' %>">
+                                <div id="material-error" class="error-message"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Dimensions</label>
+                                <input type="text" placeholder="e.g., 10x20x30 cm" name="dimensions" class="form-control" id="dimensions" value="<%= product.dimensions || 'N/A' %>">
+                                <div id="dimensions-error" class="error-message"></div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">Weight</label>
+                                <input type="text" placeholder="e.g., 500g" name="weight" class="form-control" id="weight" value="<%= product.weight || 'N/A' %>">
+                                <div id="weight-error" class="error-message"></div>
+                            </div>
+                        </div>
                      
 
                         <div class="mb-4">

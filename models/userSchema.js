@@ -15,8 +15,8 @@ const userSchema = new Schema({
         type:String,
         required:false,
         unique:true,
-        sparse:true,
-        default:null
+        // sparse:true,
+        // default:null
     },
     googleId:{
         type:String,
@@ -39,7 +39,11 @@ const userSchema = new Schema({
     createdOn : {
         type:Date,
         default:Date.now,
-    }
+    },
+    profileImage:{
+        type:String,
+        required:false,
+    },
 })
 
 const User=mongoose.model("User",userSchema)

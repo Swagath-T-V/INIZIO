@@ -11,6 +11,7 @@ const pageerror = async (req,res)=>{
 
     } catch (error) {
 
+        console.log("error in the page error",error)
         return res.redirect("/admin/pageerror",error)
 
     }
@@ -19,14 +20,23 @@ const pageerror = async (req,res)=>{
 
 const loadLogin = async(req,res)=>{
 
-    if(req.session.admin){
+    try {
+        
+        if(req.session.admin){
 
-        return res.redirect("/admin/dashboard")
+            return res.redirect("/admin/dashboard")
+    
+        }else{
+    
+            res.render("admin-login")
+    
+        }
 
-    }else{
+    } catch (error) {
 
-        res.render("admin-login")
-
+        console.log("error in the loadLogin",error)
+        req.redirect("/admin.pageeeror")
+        
     }
 }
 
@@ -38,16 +48,24 @@ const login = async (req,res)=>{
         const admin = await User.findOne({email,isAdmin:true})
         
         if(admin){
+
             const passwordMatch = await bcrypt.compare(password,admin.password)
+
             if(!passwordMatch){
+
                 return res.status(400).json({success:false,message:"Incorrect password"})
 
             }else{
+
                 req.session.admin = admin._id;
                 return res.status(200).json({success:true,redirectUrl:"/admin"})
+
             }
+
         }else{
+
             return res.status(400).json({success:false,message:"Admin not found,please login as admin"})
+
         }
 
     } catch (error) {
@@ -63,9 +81,11 @@ const loadDashboard = async(req,res)=>{
     try {
 
         res.render("dashboard",{
+
             activePage: 'dashboard'
 
         })
+
     } catch (error) {
 
         console.log("Error in loadDashboard",error)
@@ -77,15 +97,21 @@ const loadDashboard = async(req,res)=>{
 const logout = async(req,res)=>{
 
     try {
+
         req.session.destroy((err)=>{
             if(err){
+
                 console.log("error in destroy",err)
                 return res.redirect("/admin/pageerror")
+
             }else{
+                
                 return res.redirect("/admin/login")
             }
         })
+
     } catch (error) {
+
         console.log("logout error",error)
         res.redirect("/admin/pageerror")
     }
