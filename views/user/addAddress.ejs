@@ -21,7 +21,6 @@
                 <div class="up_card-body">
                     <form id="add-address-form" action="/addAddress" method="POST" novalidate>
                         <!-- Address Type -->
-                        <!-- Update each input field to include an error message div -->
                         <div class="up_info-group">
                             <label for="addressType" class="up_info-label">Address Type</label>
                             <select id="addressType" name="addressType" class="up_info-value" style="width: 100%; padding: 8px; border: 1px solid var(--up-border); border-radius: 6px;" required>
@@ -100,48 +99,41 @@
             pincodeError.textContent = '';
             phoneError.textContent = '';
         
-            // Validate Address Type
             if (!addressType.value) {
                 addressType.classList.add('error-input');
                 hasError = true;
             }
         
-            // Validate Name (at least 2 characters, only letters and spaces)
             if (!/^[a-zA-Z\s]{2,}$/.test(name.value)) {
                 name.classList.add('error-input');
                 name.nextElementSibling.textContent = 'Name must be at least 2 characters long and contain only letters and spaces.';
                 hasError = true;
             }
         
-            // Validate City (at least 2 characters, only letters and spaces)
             if (!/^[a-zA-Z\s]{2,}$/.test(city.value)) {
                 city.classList.add('error-input');
                 city.nextElementSibling.textContent = 'City must be at least 2 characters long and contain only letters and spaces.';
                 hasError = true;
             }
         
-            // Validate Landmark (at least 3 characters)
             if (landMark.value.length < 3) {
                 landMark.classList.add('error-input');
                 landMark.nextElementSibling.textContent = 'Landmark must be at least 3 characters long.';
                 hasError = true;
             }
         
-            // Validate State (at least 2 characters, only letters and spaces)
             if (!/^[a-zA-Z\s]{2,}$/.test(state.value)) {
                 state.classList.add('error-input');
                 state.nextElementSibling.textContent = 'State must be at least 2 characters long and contain only letters and spaces.';
                 hasError = true;
             }
         
-            // Validate Pincode (exactly 6 digits)
             if (!/^\d{6}$/.test(pincode.value)) {
                 pincode.classList.add('error-input');
                 pincodeError.textContent = 'Pincode must be exactly 6 digits.';
                 hasError = true;
             }
         
-            // Validate Phone (exactly 10 digits)
             if (!/^\d{10}$/.test(phone.value)) {
                 phone.classList.add('error-input');
                 phoneError.textContent = 'Phone number must be exactly 10 digits.';

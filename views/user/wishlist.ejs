@@ -1,4 +1,5 @@
 <%- include("../../views/partials/user/header.ejs") %>
+
 <style>
   .circular-btn {
     width: 100px;
@@ -11,6 +12,14 @@
     padding: 0;
     line-height: 1.2;
     font-size: 14px;
+  }
+  
+  .prod-listing-img-box img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover; 
+    display: block;
+    margin: 0 auto;
   }
 </style>
 
@@ -34,29 +43,50 @@
             <thead class="thead-primary">
               <tr class="text-center">
                 <th> </th>
-                <th>Image</th> <!-- Added "Image" header -->
+                <th>Image</th>
                 <th>Product</th>
                 <th>Price</th>
                 <th> </th>
               </tr>
             </thead>
             <tbody>
-              <!-- Single completed product row -->
-              <tr class="text-center">
-                <td class="product-remove"><a href="/wishlist/remove/123"><span class="ion-ios-close"></span></a></td>
-                <td class="image-prod"><div class="img" style="background-image:url('/images/product-1.jpg');"></div></td>
-                <td class="product-name">
-                  <h3>Adidas Ultraboost 2023</h3>
-                  <p>Lightweight running shoes with responsive cushioning for ultimate comfort.</p>
-                </td>
-                <td class="price">$89.99</td>
-                <td>
-                  <form action="/cart/add" method="POST">
-                    <input type="hidden" name="productId" value="123">
-                    <button type="submit" class="btn btn-primary circular-btn">Add to Cart</button>
-                  </form>
-                </td>
-              </tr>
+              <% if (wishlistItems && wishlistItems.length > 0) { %>
+                <% wishlistItems.forEach(item => { %>
+                  <tr class="text-center">
+                    <td class="product-remove">
+                      <a href="/deleteWishlist?productId=<%= item.productId._id %>">
+                        <span class="ion-ios-close"></span>
+                      </a>
+                    </td>
+                    <td class="prod-listing-table-cell prod-listing-img-box">
+                      <img src="/uploads/product-image/<%= item.productId.Images[0] %>" 
+                           alt="<%= item.productId.name %>">
+                    </td>
+                    <td class="product-name">
+                      <h3><%= item.productId.name %></h3>
+                      <p><%= item.productId.description || 'No description available' %></p>
+                    </td>
+                    <td class="price">₹<%= item.productId.salePrice?.toFixed(2) || 'N/A' %></td>
+                    <td>
+                      <!-- <form class="add-to-cart-form" action="/cartAdd" method="POST">
+                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                        <button type="submit" class="btn btn-primary circular-btn">Add to Cart</button>
+                      </form> -->
+                      <form class="add-to-cart-form" action="/cartAdd" method="POST">
+                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                        <button type="submit" class="btn btn-primary circular-btn">Add to Cart</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="5" class="empty-wishlist">
+                    <h3>Your wishlist is empty</h3>
+                    <p><a href="/shop" class="btn btn-primary">Start Shopping</a></p>
+                  </td>
+                </tr>
+              <% } %>
             </tbody>
           </table>
         </div>
@@ -68,3 +98,7 @@
 
 
 <%- include("../../views/partials/user/footer.ejs") %>
+
+
+
+

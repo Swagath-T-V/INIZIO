@@ -1,7 +1,7 @@
 
 <%- include("../../views/partials/user/header.ejs") %>
+
 <style>
-    /* Product Detail Page Styling */
     .product-detail {
         background-color: #fff;
         border-radius: 10px;
@@ -13,7 +13,6 @@
         position: relative;
     }
 
-    /* Zoom Styles */
     .zoom-container {
         position: relative;
         display: inline-block;
@@ -41,7 +40,6 @@
         opacity: 1;
     }
 
-    /* Adjust product image slider for zoom */
     .product-image-slider {
         position: relative;
         overflow: hidden;
@@ -249,7 +247,6 @@
         margin-right: 5px;
     }
 
-    /* Breadcrumb Styling */
     .breadcrumb-wrap {
         padding: 15px 0;
         background-color: #f8f8f8;
@@ -284,7 +281,6 @@
         font-weight: 500;
     }
 
-    /* Stock Status Styling */
     .stock-status {
         margin: 15px 0;
         padding: 10px;
@@ -310,7 +306,6 @@
         pointer-events: none;
     }
 
-    /* Related Products Styling */
     .related-products-section {
         margin-top: 40px;
         padding-top: 30px;
@@ -381,7 +376,6 @@
         display: inline-block;
     }
 
-    /* Highlights/Specifications Styling */
     .product-specifications {
         margin: 30px 0;
         padding: 20px;
@@ -430,20 +424,20 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-left: 10px; /* Space from Buy Now button */
-        display: inline-flex; /* Changed to inline-flex to contain content */
+        margin-left: 10px; 
+        display: inline-flex; 
         align-items: center;
-        justify-content: center; /* Centers content horizontally */
-        gap: 8px; /* Increased gap between icon and text */
-        min-width: 140px; /* Ensures button has enough width for text */
-        height: 40px; /* Matches height with other buttons */
+        justify-content: center;
+        gap: 8px; 
+        min-width: 140px; 
+        height: 40px; 
         text-align: center;
-        white-space: nowrap; /* Prevents text wrapping */
+        white-space: nowrap; 
     }
 
     .wishlist-btn i {
         font-size: 16px;
-        line-height: 1; /* Ensures icon aligns properly */
+        line-height: 1;
     }
 
     .wishlist-btn:hover:not(.disabled-btn) {
@@ -598,17 +592,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- <div class="cart-action d-flex flex-column mt-30">
-                                        <div class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
-                                            <button class="quantity-button decrease">-</button>
-                                            <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="<%= product.quantity %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>
-                                            <button class="quantity-button increase">+</button>
-                                        </div>
-                                        <div class="product-buttons">
-                                            <button type="button" class="btn btn-primary add-to-cart <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>Add to Cart</button>
-                                            <button type="button" class="btn btn-danger buy-now <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>Buy Now</button>
-                                        </div>
-                                    </div> -->
+                                   
                                     <div class="cart-action d-flex flex-column mt-30">
                                         <div class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
                                           <button class="quantity-button decrease">-</button>
@@ -665,124 +649,165 @@
 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Quantity Selector Logic
-        const decreaseBtn = document.querySelector('.quantity-button.decrease');
-        const increaseBtn = document.querySelector('.quantity-button.increase');
-        const quantityInput = document.querySelector('.quantity-input');
-        const maxQuantity = parseInt('<%= product.quantity %>');
-        const isStockAvailable = '<%= stockStatus === "in-stock" ? true : false %>';
+document.addEventListener('DOMContentLoaded', () => {
+    const decreaseBtn = document.querySelector('.quantity-button.decrease');
+    const increaseBtn = document.querySelector('.quantity-button.increase');
+    const quantityInput = document.querySelector('.quantity-input');
+    const addToCartBtn = document.querySelector('.add-to-cart');
+    const mainImage = document.getElementById('mainImage');
+    const thumbnails = document.querySelectorAll('.thumbnail-item img');
+    const maxQuantity = parseInt('<%= product.quantity %>');
+    const isStockAvailable = '<%= stockStatus === "in-stock" %>' === 'true';
 
-        if (isStockAvailable) {
-            decreaseBtn.addEventListener('click', function() {
-                let currentValue = parseInt(quantityInput.value);
-                if (currentValue > 1) {
-                    quantityInput.value = currentValue - 1;
-                }
-            });
-
-            increaseBtn.addEventListener('click', function() {
-                let currentValue = parseInt(quantityInput.value);
-                if (currentValue < maxQuantity) {
-                    quantityInput.value = currentValue + 1;
-                } else {
-                    alert(`Stock Limit Reached: Only ${maxQuantity} items are available in stock.`);
-                }
-            });
-
-            quantityInput.addEventListener('input', function() {
-                let value = parseInt(this.value);
-                if (isNaN(value) || value < 1) {
-                    this.value = 1;
-                } else if (value > maxQuantity) {
-                    this.value = maxQuantity;
-                    alert(`Stock Limit Reached: Only ${maxQuantity} items are available in stock.`);
-                }
-            });
-        }
-
-        const addToCartBtn = document.querySelector('.add-to-cart');
-        if (addToCartBtn) {
-            addToCartBtn.addEventListener('click', function() {
-                if (this.classList.contains('disabled-btn')) return;
-
-                const productId = this.getAttribute('data-product-id');
-                const quantity = parseInt(quantityInput.value);
-
-                if (quantity > maxQuantity) {
-                    alert(`Stock Exceeded: Only ${maxQuantity} items are available in stock.`);
-                    return;
-                }
-
-                this.classList.add('loading');
-                this.textContent = 'Adding...';
-
-                $.ajax({
-                    url: '/cartAdd',
-                    method: 'POST',
-                    data: { productId, quantity },
-                    success: function(response) {
-                        addToCartBtn.classList.remove('loading');
-                        addToCartBtn.textContent = 'Add to Cart';
-                        window.location.href = '/cart'; 
-                    },
-                    error: function(err) {
-                        addToCartBtn.classList.remove('loading');
-                        addToCartBtn.textContent = 'Add to Cart';
-                        alert('Failed to add to cart. Please try again.');
-                    }
-                });
-            });
-        }
-
-        
-
-        // Zoom Functionality
-        document.querySelectorAll('.zoom-container').forEach(container => {
-            const img = container.querySelector('.zoom-image');
-            const lens = container.querySelector('.zoom-lens');
-
-            container.addEventListener('mousemove', (e) => {
-                const { left, top, width, height } = container.getBoundingClientRect();
-                const posX = e.clientX - left;
-                const posY = e.clientY - top;
-                const lensX = posX - (lens.offsetWidth / 2);
-                const lensY = posY - (lens.offsetHeight / 2);
-                const maxX = width - lens.offsetWidth;
-                const maxY = height - lens.offsetHeight;
-                const finalX = Math.max(0, Math.min(lensX, maxX));
-                const finalY = Math.max(0, Math.min(lensY, maxY));
-                lens.style.left = `${finalX}px`;
-                lens.style.top = `${finalY}px`;
-                const zoomedImgUrl = img.src;
-                lens.style.backgroundImage = `url(${zoomedImgUrl})`;
-                lens.style.backgroundSize = `${img.width * 2}px ${img.height * 2}px`;
-                lens.style.backgroundPosition = `-${posX * 2}px -${posY * 2}px`;
-            });
-
-            container.addEventListener('mouseenter', () => {
-                lens.style.opacity = '1';
-            });
-
-            container.addEventListener('mouseleave', () => {
-                lens.style.opacity = '0';
-            });
+    // Quantity Selector Logic
+    if (isStockAvailable) {
+        decreaseBtn.addEventListener('click', () => {
+            const value = Math.max(1, parseInt(quantityInput.value) - 1);
+            quantityInput.value = value;
         });
 
-        // Thumbnail Click to Change Main Image
-        const thumbnails = document.querySelectorAll('.thumbnail-item img');
-        const mainImage = document.getElementById('mainImage');
-        thumbnails.forEach(thumbnail => {
-            thumbnail.addEventListener('click', function() {
-                mainImage.src = this.src;
+        increaseBtn.addEventListener('click', () => {
+            const value = parseInt(quantityInput.value) + 1;
+            if (value <= maxQuantity) {
+                quantityInput.value = value;
+            } else {
+                Swal.fire('Stock Limit', `Only ${maxQuantity} items available.`, 'warning');
+            }
+        });
+
+        quantityInput.addEventListener('input', () => {
+            let value = parseInt(quantityInput.value);
+            if (isNaN(value) || value < 1) value = 1;
+            if (value > maxQuantity) {
+                value = maxQuantity;
+                Swal.fire('Stock Limit', `Only ${maxQuantity} items available.`, 'warning');
+            }
+            quantityInput.value = value;
+        });
+    }
+
+    // Add to Cart Logic
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+            if (addToCartBtn.classList.contains('disabled-btn')) return;
+
+            const productId = addToCartBtn.dataset.productId;
+            const quantity = parseInt(quantityInput.value);
+
+            if (quantity > maxQuantity) {
+                Swal.fire('Stock Exceeded', `Only ${maxQuantity} items available.`, 'error');
+                return;
+            }
+
+            addToCartBtn.classList.add('loading');
+            addToCartBtn.textContent = 'Adding...';
+
+            $.ajax({
+                url: '/cartAdd',
+                method: 'POST',
+                data: { productId, quantity },
+                success: () => {
+                    addToCartBtn.classList.remove('loading');
+                    addToCartBtn.textContent = 'Add to Cart';
+                    window.location.href = '/cart';
+                },
+                error: () => {
+                    addToCartBtn.classList.remove('loading');
+                    addToCartBtn.textContent = 'Add to Cart';
+                    Swal.fire('Error', 'Failed to add to cart. Try again.', 'error');
+                }
             });
         });
+    }
+
+    const wishlistBtn = document.querySelector('.wishlist-btn');
+
+  if (wishlistBtn) {
+    wishlistBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent any default link behavior
+
+      if (wishlistBtn.classList.contains('disabled-btn')) return;
+
+      const productId = wishlistBtn.dataset.productId;
+      const isAdded = wishlistBtn.classList.contains('added');
+
+      wishlistBtn.classList.add('loading');
+      wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Adding...';
+
+      $.ajax({
+        url: '/addWishlist',
+        method: 'POST',
+        data: { productId },
+        success: (response) => {
+          wishlistBtn.classList.remove('loading');
+          if (response.message === "Product added to wishlist") {
+            wishlistBtn.classList.add('added');
+            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Added';
+            Swal.fire('Success', 'Added to wishlist!', 'success');
+          } else if (response.message === "Product already in wishlist") {
+            wishlistBtn.classList.add('added');
+            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Added';
+            Swal.fire('Info', 'This product is already in your wishlist.', 'info');
+          }
+        },
+        error: (xhr) => {
+          wishlistBtn.classList.remove('loading');
+          wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
+          Swal.fire('Error', 'Failed to add to wishlist. Try again.', 'error');
+          console.error('AJAX Error:', xhr.responseText);
+        },
+      });
     });
-</script>
 
+    // Check initial wishlist state
+    const productId = wishlistBtn.dataset.productId;
+    $.ajax({
+      url: '/checkWishlist',
+      method: 'GET',
+      data: { productId },
+      success: (response) => {
+        if (response.inWishlist) {
+          wishlistBtn.classList.add('added');
+          wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Added';
+        } else {
+          wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
+        }
+      },
+      error: (xhr) => {
+        console.error('Check Wishlist Error:', xhr.responseText);
+      },
+    });
+  }
+
+    // Zoom Functionality (Simplified)
+    document.querySelectorAll('.zoom-container').forEach(container => {
+        const img = container.querySelector('.zoom-image');
+        const lens = container.querySelector('.zoom-lens');
+
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            const posX = e.clientX - rect.left - lens.offsetWidth / 2;
+            const posY = e.clientY - rect.top - lens.offsetHeight / 2;
+            const maxX = rect.width - lens.offsetWidth;
+            const maxY = rect.height - lens.offsetHeight;
+            lens.style.left = `${Math.max(0, Math.min(posX, maxX))}px`;
+            lens.style.top = `${Math.max(0, Math.min(posY, maxY))}px`;
+            lens.style.background = `url(${img.src}) no-repeat ${-posX * 2}px ${-posY * 2}px / ${img.width * 2}px ${img.height * 2}px`;
+        });
+
+        container.addEventListener('mouseenter', () => lens.style.opacity = '1');
+        container.addEventListener('mouseleave', () => lens.style.opacity = '0');
+    });
+
+    // Thumbnail Click Logic
+    thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', () => mainImage.src = thumbnail.src);
+    });
+});
+</script>
 
 <%- include("../../views/partials/user/footer.ejs") %>

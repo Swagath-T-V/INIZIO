@@ -344,7 +344,9 @@
                       <input type="text" class="quantity-input" value="<%= item.quantity %>" readonly>
                       <button class="quantity-btn plus" data-product-id="<%= item.productId._id %>">+</button>
                     </div>
-                    <a href="#" class="action-link remove" data-product-id="<%= item.productId._id %>">Remove</a>
+                    <a href="/deleteCart?productId=<%= item.productId._id %>" class="action-link remove" >Remove</a>
+
+
                   </div>
                 </div>
               </div>
@@ -433,30 +435,6 @@
       });
     });
   
-    // Remove Item from Cart
-    document.querySelectorAll('.action-link.remove').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const productId = this.getAttribute('data-product-id');
-  
-        $.ajax({
-          url: '/deleteCart',
-          method: 'POST',
-          data: { productId },
-          success: function(response) {
-            location.reload();
-          },
-          error: function(err) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Failed to remove item from cart',
-              confirmButtonColor: '#ff7f50'
-            });
-          }
-        });
-      });
-    });
   
     // Validate Cart Before Checkout
     document.querySelector('.place-order-btn').addEventListener('click', function() {
@@ -472,7 +450,10 @@
             icon: 'error',
             title: 'Error',
             text: err.responseJSON.message,
-            confirmButtonColor: '#ff7f50'
+            confirmButtonColor: '#ff7f50',
+            didClose: () => {
+              window.location.reload(); 
+            }
           });
         }
       });

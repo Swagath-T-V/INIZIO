@@ -63,14 +63,15 @@ router.get("/productDetails",productController.productDetails)
 
 //cart 
 router.get("/cart",userAuth,cartController.getCartPage)
-router.post("/cartAdd",userAuth, cartController.addToCart);
+router.post("/cartAdd",userAuth, cartController.addCart);
 router.post("/cartQuantity", userAuth, cartController.cartQuantity);
-router.post("/deleteCart", userAuth, cartController.deleteCart);
+router.get("/deleteCart", userAuth, cartController.deleteCart);
 router.post("/cartCheckout", userAuth, cartController.cartCheckout);
 
 //wishlist
 router.get("/wishlist",userAuth,cartController.getWishlist)
 router.post("/addWishlist",userAuth,cartController.addWishlist)
+router.get("/deleteWishlist",userAuth,cartController.deleteWishlist)
 
 
 
