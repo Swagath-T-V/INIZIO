@@ -98,7 +98,7 @@ const addProduct = async(req, res) => {
                 existingProduct.salePrice = parseInt(salePrice);
                 existingProduct.quantity = quantity;
                 existingProduct.description = description;
-                existingProduct.brand = brand || "Generic"; // Fallback to schema default if not provided
+                existingProduct.brand = brand || "Generic"; 
                 existingProduct.material = material || "N/A";
                 existingProduct.dimensions = dimensions || "N/A";
                 existingProduct.weight = weight || "N/A";

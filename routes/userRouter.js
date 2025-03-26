@@ -5,6 +5,7 @@ const passport = require("passport")
 const {userAuth,adminAuth} = require("../middlewares/auth")
 const profileController = require("../controllers/user/profileController")
 const productController = require("../controllers/user/productControllers")
+const cartController = require("../controllers/user/cartController")
 
 
 //page error
@@ -56,9 +57,23 @@ router.get("/deleteAddress",userAuth,profileController.deleteAddress)
 
 //shop
 router.get("/shop",userController.loadShopPage)
-
 //products
 router.get("/productDetails",productController.productDetails)
+
+
+//cart 
+router.get("/cart",userAuth,cartController.getCartPage)
+router.post("/cartAdd",userAuth, cartController.addToCart);
+router.post("/cartQuantity", userAuth, cartController.cartQuantity);
+router.post("/deleteCart", userAuth, cartController.deleteCart);
+router.post("/cartCheckout", userAuth, cartController.cartCheckout);
+
+//wishlist
+router.get("/wishlist",userAuth,cartController.getWishlist)
+router.post("/addWishlist",userAuth,cartController.addWishlist)
+
+
+
 
 
 

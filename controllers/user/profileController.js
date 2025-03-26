@@ -151,7 +151,6 @@ const resentOtp = async (req, res) => {
         req.session.userOtp = otp;
         req.session.otpExpiry = expiryTime;
 
-        // console.log("resend otp");
 
         const emailSent = await sendVerificationEmail(email, otp);
         console.log('this is email from resend', emailSent);
@@ -185,10 +184,6 @@ const verifyForgotPassOtp = async(req,res)=>{
         const otpExpiry = req.session.otpExpiry;
         const currentTime = Date.now();
 
-        // console.log("Current Time", currentTime);
-        // console.log("OTP Expiry", otpExpiry);
-        // console.log("Time Difference (ms):", otpExpiry - currentTime);
-
         if (currentTime > otpExpiry) {
             return res.status(400).json({
                 success: false,
@@ -196,8 +191,6 @@ const verifyForgotPassOtp = async(req,res)=>{
             });
         }
 
-        // console.log("Received OTP:", otp, "Type:", typeof otp);
-        // console.log("Stored OTP:", userOtp, "Type:", typeof userOtp);
 
         if(String(otp) === String(userOtp)){
            
@@ -485,6 +478,7 @@ const resendUserOtp = async (req, res) => {
 };
 
 //////////////////////////////////////////address//////////////////////////////////////////////////////////////////
+
 const getAddressPage = async(req,res)=>{
     try {
         
@@ -608,7 +602,7 @@ const getEditAddress = async (req, res) => {
 const postEditAddress = async(req,res)=>{
     try {
 
-        const addressId = req.body.addressId; // Get addressId from form body
+        const addressId = req.body.addressId;
         const userId = req.session.user;
 
         const { addressType, name, city, landMark, state, pincode, phone } = req.body;

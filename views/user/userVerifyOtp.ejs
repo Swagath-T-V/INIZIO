@@ -163,7 +163,7 @@
         function resendOtp() {
             $.ajax({
                 type: "POST",
-                url: "/resendUserOtp", // Or "/resentUserOtp" depending on your route
+                url: "/resendUserOtp",
                 data: {},
                 success: function(response) {
                     console.log("Resend response:", response);
@@ -271,7 +271,7 @@
                 },
             });
 
-            return false; // Prevent form submission
+            return false;
         }
     </script>
 </body>

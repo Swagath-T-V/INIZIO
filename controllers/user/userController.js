@@ -470,8 +470,6 @@ const loadShopPage = async (req, res) => {
 
 
 
-
-
 module.exports = {
     loadHome,
     pageNotFound,
@@ -484,6 +482,6 @@ module.exports = {
     resentOtp,
     logout,
     loadShopPage,
-    
+   
 
 }
