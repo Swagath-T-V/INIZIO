@@ -71,9 +71,11 @@ router.post("/cartCheckout", userAuth, cartController.cartCheckout);
 //wishlist
 router.get("/wishlist",userAuth,cartController.getWishlist)
 router.post("/addWishlist",userAuth,cartController.addWishlist)
+router.get('/checkWishlist',userAuth,cartController.checkWishlist);
 router.get("/deleteWishlist",userAuth,cartController.deleteWishlist)
 
-
+//chekOut 
+router.get("/checkOut",userAuth,cartController.checkOut)
 
 
 

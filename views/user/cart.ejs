@@ -282,6 +282,7 @@
     padding: 0;
     font-size: 14px;
   }
+ 
 </style>
 
 <div class="hero-wrap hero-bread">
@@ -302,7 +303,7 @@
         <div class="cart-list">
           <% if (cartItems && cartItems.length > 0) { %>
             <% cartItems.forEach(item => { %>
-              <div class="cart-item">
+              <div class="cart-item" data-product-id="<%= item.productId._id %>">
                 <div class="cart-item-image">
                   <img src="/uploads/product-image/<%= item.productId.Images[0] || 'default.jpg' %>" alt="<%= item.productId.name %>">
                 </div>
@@ -314,7 +315,7 @@
                   <% 
                   let stockStatus = 'in-stock';
                   let stockMessage = `In Stock (${item.productId.quantity} available)`;
-                  if (!item.productId.isListed || item.productId.isDelete) { // Check if unlisted or deleted
+                  if (!item.productId.isListed || item.productId.isDelete) {
                     stockStatus = 'out-of-stock';
                     stockMessage = 'Out of Stock';
                   } else if (item.productId.quantity <= 0) {
@@ -327,9 +328,8 @@
                     stockStatus = 'unavailable';
                     stockMessage = 'Currently Unavailable';
                   }
-                %>
-              
-                <p class="<%= stockStatus === 'in-stock' ? 'text-success' : 'text-danger' %> stock"><%= stockMessage %></p>
+                  %>
+                  <p class="<%= stockStatus === 'in-stock' ? 'text-success' : 'text-danger' %> stock"><%= stockMessage %></p>
                   <div class="price-details">
                     <span class="current-price">₹<%= item.price %></span>
                     <span class="original-price">₹<%= item.productId.regularPrice %></span>
@@ -344,9 +344,7 @@
                       <input type="text" class="quantity-input" value="<%= item.quantity %>" readonly>
                       <button class="quantity-btn plus" data-product-id="<%= item.productId._id %>">+</button>
                     </div>
-                    <a href="/deleteCart?productId=<%= item.productId._id %>" class="action-link remove" >Remove</a>
-
-
+                    <a href="/deleteCart?productId=<%= item.productId._id %>" class="action-link remove">Remove</a>
                   </div>
                 </div>
               </div>
@@ -367,12 +365,12 @@
           <hr>
           <% if (cartItems && cartItems.length > 0) { %>
             <div class="price-row">
-              <span>Price (<%= cartItems.length %> items)</span>
-              <span>₹<%= total %></span>
+              <span>Price (<span id="item-count"><%= cartItems.length %></span> items)</span>
+              <span id="subtotal">₹<%= total %></span>
             </div>
             <div class="price-row">
               <span>Discount</span>
-              <span class="text-success">
+              <span class="text-success" id="discount-amount">
                 <% let totalDiscount = 0; %>
                 <% cartItems.forEach(item => { %>
                   <% totalDiscount += (item.productId.regularPrice - item.price) * item.quantity; %>
@@ -384,19 +382,19 @@
               <span>Delivery Charges</span>
               <span>Free</span>
             </div>
-            
             <hr>
             <div class="price-row total">
               <span>Total Amount</span>
-              <span>₹<%= total %></span>
+              <span id="cart-total">₹<%= total %></span>
             </div>
-            <p class="savings">You will save ₹<%= totalDiscount %> on this order</p>
+            <!-- <p class="savings">You will save ₹<span id="savings-amount"><%= totalDiscount %></span> on this order</p> -->
             <p class="guarantee">Safe & Secure Payments. Easy returns. 100% Authentic products.</p>
+            
             <button class="place-order-btn">Place Order</button>
           <% } else { %>
             <div class="price-row total">
               <span>Total Amount</span>
-              <span>₹0</span>
+              <span id="cart-total">₹0</span>
             </div>
             <p class="guarantee">Safe & Secure Payments. Easy returns. 100% Authentic products.</p>
             <button class="place-order-btn" disabled>Place Order</button>
@@ -408,22 +406,44 @@
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    function updateQuantityUI(productId, quantity) {
+      const item = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+      const quantityInput = item.querySelector('.quantity-input');
+      quantityInput.value = quantity;
+    }
+
+    function updateCartTotals(data) {
+      document.querySelector('#item-count').textContent = data.cartItems.length;
+      document.querySelector('#subtotal').textContent = `₹${data.originalTotal}`; 
+      document.querySelector('#discount-amount').textContent = `-₹${data.totalDiscount}`;
+      document.querySelector('#cart-total').textContent = `₹${data.total}`; 
+      // document.querySelector('#savings-amount').textContent = data.totalDiscount;
+    }
+
     // Increment/Decrement Quantity
     document.querySelectorAll('.quantity-btn').forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
         const productId = this.getAttribute('data-product-id');
         const action = this.classList.contains('plus') ? 'increment' : 'decrement';
-  
+        this.disabled = true; 
+
         $.ajax({
           url: '/cartQuantity',
           method: 'POST',
           data: { productId, action },
-          success: function(response) {
-            location.reload();
+          success: (response) => {
+            if (response.success) {
+              updateQuantityUI(productId, response.quantity);
+              updateCartTotals(response);
+              this.disabled = false; 
+            }
           },
-          error: function(err) {
+          error: (err) => {
+            this.disabled = false; 
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -434,25 +454,50 @@
         });
       });
     });
-  
-  
-    // Validate Cart Before Checkout
+
+    document.querySelectorAll('.action-link.remove').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.getAttribute('href').split('=')[1];
+
+        this.textContent = 'Removing...';
+
+        $.ajax({
+          url: `/deleteCart?productId=${productId}`,
+          method: 'GET',
+          success: () => {
+            location.reload();
+          },
+          error: (err) => {
+            this.textContent = 'Remove';
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to remove item from cart',
+              confirmButtonColor: '#ff7f50'
+            });
+          }
+        });
+      });
+    });
+
     document.querySelector('.place-order-btn').addEventListener('click', function() {
       if (this.disabled) return;
+
       $.ajax({
         url: '/cartCheckout',
         method: 'POST',
-        success: function(response) {
-          window.location.href = '/checkout';
+        success: () => {
+          window.location.href = '/checkOut';
         },
-        error: function(err) {
+        error: (err) => {
           Swal.fire({
             icon: 'error',
             title: 'Error',
             text: err.responseJSON.message,
             confirmButtonColor: '#ff7f50',
             didClose: () => {
-              window.location.reload(); 
+              window.location.reload();
             }
           });
         }

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="https://code.jquery.com/jquery-3.6.0.min.js">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    .payment-section {
+  flex: 1;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.payment-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.payment-option {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.payment-option.selected {
+  border-color: #16a085;
+  background: #f0f8f5;
+}
+
+.payment-option input[type="radio"] {
+  margin-right: 10px;
+}
+    .checkout-container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      display: flex;
+      gap: 30px;
+    }
+
+    .address-section, .order-summary {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .address-section {
+      flex: 1;
+    }
+
+    .order-summary {
+      flex: 1;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .section-header {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .address-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .address-card {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+      transition: border-color 0.3s ease;
+    }
+
+    .address-card.selected {
+      border-color: #16a085;
+      background: #f0f8f5;
+    }
+
+    .address-card input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    .address-actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-edit, .btn-delete {
+      background: none;
+      border: none;
+      color: #16a085;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-delete {
+      color: #e74c3c;
+    }
+
+    .btn-add-address {
+      background: #16a085;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn-add-address:hover {
+      background: #138a72;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .product-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 5px;
+    }
+
+    .product-details {
+      flex: 1;
+    }
+
+    .product-name {
+      font-size: 16px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .product-quantity {
+      color: #777;
+    }
+
+    .product-total {
+      font-size: 16px;
+      font-weight: 600;
+      color: #16a085;
+    }
+
+    .summary-details {
+      margin-top: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .summary-label {
+      color: #555;
+    }
+
+    .summary-value {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .final-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: #16a085;
+    }
+
+    .btn-place-order {
+      width: 100%;
+      background: #16a085;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .btn-place-order:hover {
+      background: #138a72;
+    }
+
+    .btn-place-order.loading {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <!-- Include your header here -->
+  <!-- <header> ... </header> -->
+
+  <main class="main">
+    <div class="checkout-container">
+      <!-- Address Section (unchanged) -->
+      <div class="address-section">
+        <h2 class="section-header">Delivery Address</h2>
+        <div class="address-list">
+          <div class="address-card selected">
+            <label>
+              <input type="radio" name="selectedAddress" value="address1_id" checked>
+              <strong>John Doe</strong><br>
+              123 Main St, Apt 4B<br>
+              New York, NY - 10001<br>
+              Phone: 123-456-7890
+            </label>
+            <div class="address-actions">
+              <button class="btn-edit" onclick="window.location.href='/editAddress?id=address1_id'">Edit</button>
+              <button class="btn-delete" data-id="address1_id">Delete</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-add-address" onclick="window.location.href='/addAddress'">Add New Address</button>
+      </div>
+
+      <!-- New Payment Method Section -->
+      <div class="payment-section">
+        <h2 class="section-header">Payment Method</h2>
+        <div class="payment-list">
+          <div class="payment-option">
+            <label>
+              <input type="radio" name="paymentMethod" value="cod" checked>
+              Cash on Delivery (COD)
+            </label>
+          </div>
+          <div class="payment-option">
+            <label>
+              <input type="radio" name="paymentMethod" value="credit_card">
+              Credit/Debit Card
+            </label>
+          </div>
+          <div class="payment-option">
+            <label>
+              <input type="radio" name="paymentMethod" value="upi">
+              UPI
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary Section (unchanged structure) -->
+      <div class="order-summary">
+        <h2 class="section-header">Order Summary</h2>
+        <div class="product-item">
+          <img src="/uploads/product-image/sample-image.jpg" alt="Product Name" class="product-image">
+          <div class="product-details">
+            <div class="product-name">Sample Product</div>
+            <div class="product-quantity">Qty: 2</div>
+          </div>
+          <div class="product-total">₹ 2000.00</div>
+        </div>
+        <div class="summary-details">
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">₹ 2000.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Discount</span>
+            <span class="summary-value">- ₹ 200.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Shipping</span>
+            <span class="summary-value">₹ 50</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Tax</span>
+            <span class="summary-value">₹ 100.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label final-price">Total</span>
+            <span class="summary-value final-price">₹ 1950.00</span>
+          </div>
+        </div>
+        <button class="btn-place-order" id="placeOrderBtn">Place Order</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Handle address selection (unchanged)
+      const addressRadios = document.querySelectorAll('input[name="selectedAddress"]');
+      addressRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+          radio.closest('.address-card').classList.add('selected');
+        });
+      });
+
+      // Handle payment method selection
+      const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+      paymentRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          document.querySelectorAll('.payment-option').forEach(option => option.classList.remove('selected'));
+          radio.closest('.payment-option').classList.add('selected');
+        });
+      });
+
+      // Handle address deletion (unchanged)
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const addressId = btn.dataset.id;
+          Swal.fire({
+            title: 'Are you sure?',
+            text: 'This address will be deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+          }).then(result => {
+            if (result.isConfirmed) {
+              $.ajax({
+                url: '/deleteAddress',
+                method: 'GET',
+                data: { id: addressId },
+                success: () => window.location.reload(),
+                error: () => Swal.fire('Error', 'Failed to delete address.', 'error'),
+              });
+            }
+          });
+        });
+      });
+
+      // Handle place order (modified to include payment method)
+      const placeOrderBtn = document.getElementById('placeOrderBtn');
+      if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', () => {
+          const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+          const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+
+          if (!selectedAddress) {
+            Swal.fire('Error', 'Please select a delivery address.', 'error');
+            return;
+          }
+
+          if (!selectedPayment) {
+            Swal.fire('Error', 'Please select a payment method.', 'error');
+            return;
+          }
+
+          placeOrderBtn.classList.add('loading');
+          placeOrderBtn.textContent = 'Processing...';
+
+          const orderData = {
+            addressId: selectedAddress.value,
+            paymentMethod: selectedPayment.value,
+            cartId: 'sample_cart_id', // Replace with actual cart ID
+          };
+
+          $.ajax({
+            url: '/placeOrder',
+            method: 'POST',
+            data: orderData,
+            success: response => {
+              Swal.fire('Success', 'Order placed successfully!', 'success').then(() => {
+                window.location.href = '/orderConfirmation';
+              });
+            },
+            error: () => {
+              placeOrderBtn.classList.remove('loading');
+              placeOrderBtn.textContent = 'Place Order';
+              Swal.fire('Error', 'Failed to place order. Try again.', 'error');
+            },
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

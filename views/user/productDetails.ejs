@@ -653,7 +653,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
     const decreaseBtn = document.querySelector('.quantity-button.decrease');
     const increaseBtn = document.querySelector('.quantity-button.increase');
     const quantityInput = document.querySelector('.quantity-input');
@@ -690,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add to Cart Logic
     if (addToCartBtn) {
         addToCartBtn.addEventListener('click', () => {
             if (addToCartBtn.classList.contains('disabled-btn')) return;
@@ -724,11 +723,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const wishlistBtn = document.querySelector('.wishlist-btn');
+
+  const wishlistBtn = document.querySelector('.wishlist-btn');
 
   if (wishlistBtn) {
     wishlistBtn.addEventListener('click', (e) => {
-      e.preventDefault(); // Prevent any default link behavior
+      e.preventDefault(); 
 
       if (wishlistBtn.classList.contains('disabled-btn')) return;
 
@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isAdded = wishlistBtn.classList.contains('added');
 
       wishlistBtn.classList.add('loading');
-      wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Adding...';
+      wishlistBtn.innerHTML = `<i class="fas fa-heart"></i> ${isAdded ? 'Removing...' : 'Adding...'}`;
 
       $.ajax({
         url: '/addWishlist',
@@ -744,26 +744,27 @@ document.addEventListener('DOMContentLoaded', () => {
         data: { productId },
         success: (response) => {
           wishlistBtn.classList.remove('loading');
-          if (response.message === "Product added to wishlist") {
+          if (response.added) {
+            // Product was added
             wishlistBtn.classList.add('added');
             wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Added';
             Swal.fire('Success', 'Added to wishlist!', 'success');
-          } else if (response.message === "Product already in wishlist") {
-            wishlistBtn.classList.add('added');
-            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Added';
-            Swal.fire('Info', 'This product is already in your wishlist.', 'info');
+          } else {
+            // Product was removed
+            wishlistBtn.classList.remove('added');
+            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
+            Swal.fire('Success', 'Removed from wishlist!', 'success');
           }
         },
         error: (xhr) => {
           wishlistBtn.classList.remove('loading');
-          wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
-          Swal.fire('Error', 'Failed to add to wishlist. Try again.', 'error');
+          wishlistBtn.innerHTML = `<i class="fas fa-heart"></i> ${isAdded ? 'Added' : 'Add to Wishlist'}`;
+          Swal.fire('Error', 'Failed to update wishlist. Try again.', 'error');
           console.error('AJAX Error:', xhr.responseText);
         },
       });
     });
 
-    // Check initial wishlist state
     const productId = wishlistBtn.dataset.productId;
     $.ajax({
       url: '/checkWishlist',
@@ -779,12 +780,13 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       error: (xhr) => {
         console.error('Check Wishlist Error:', xhr.responseText);
+        wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
       },
     });
   }
 
-    // Zoom Functionality (Simplified)
-    document.querySelectorAll('.zoom-container').forEach(container => {
+   // Zoom Functionality (Simplified)
+   document.querySelectorAll('.zoom-container').forEach(container => {
         const img = container.querySelector('.zoom-image');
         const lens = container.querySelector('.zoom-lens');
 
@@ -807,7 +809,11 @@ document.addEventListener('DOMContentLoaded', () => {
     thumbnails.forEach(thumbnail => {
         thumbnail.addEventListener('click', () => mainImage.src = thumbnail.src);
     });
+
 });
 </script>
 
+
 <%- include("../../views/partials/user/footer.ejs") %>
+
+
