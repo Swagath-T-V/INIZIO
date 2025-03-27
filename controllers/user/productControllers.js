@@ -1,24 +1,24 @@
-const Product = require("../../models/productSchema");
-const Category = require("../../models/categorySchema");
-const User = require("../../models/userSchema");
+const Product = require("../../models/productSchema")
+const Category = require("../../models/categorySchema")
+const User = require("../../models/userSchema")
 
 const productDetails = async (req, res) => {
 
     try {
 
-        const userId = req.session.user;
-        const userData = await User.findById(userId);
-        const productId = req.query.id;
-        const product = await Product.findOne({_id:productId,isDelete:false,isListed:true});
+        const userId = req.session.user
+        const userData = await User.findById(userId)
+        const productId = req.query.id
+        const product = await Product.findOne({_id:productId,isDelete:false,isListed:true})
         
         if (!product ) {
-            return res.redirect("/shop");
+            return res.redirect("/shop")
         }
 
-        const findCategory = await Category.findOne({ name: product.category, isListed: true });
+        const findCategory = await Category.findOne({ name: product.category, isListed: true })
         
         if (!findCategory) {
-            return res.redirect("/shop");
+            return res.redirect("/shop")
         }
         
         const relatedProducts = await Product.find({
@@ -32,12 +32,12 @@ const productDetails = async (req, res) => {
             product,
             user: userData,
             products: relatedProducts
-        });
+        })
         
     } catch (error) {
         
-        console.log("Error in productDetails:", error);
-        res.redirect("/pageNotFound");
+        console.log("Error in productDetails:", error)
+        res.redirect("/pageNotFound")
     }
 };
 

@@ -1,8 +1,9 @@
-const Category = require("../../models/categorySchema");
-const Product = require("../../models/productSchema");
-const User = require("../../models/userSchema");
-const Wishlist = require("../../models/wishlistSchema");
-const Cart = require("../../models/cartSchema");
+const Category = require("../../models/categorySchema")
+const Product = require("../../models/productSchema")
+const User = require("../../models/userSchema")
+const Wishlist = require("../../models/wishlistSchema")
+const Cart = require("../../models/cartSchema")
+const Address = require("../../models/addressSchema")
 
 
 const getCartPage = async (req, res) => {
@@ -136,14 +137,10 @@ const cartQuantity = async (req, res) => {
     const { productId, action } = req.body
 
     const cart = await Cart.findOne({ userId })
-    
-
     const product = await Product.findById(productId)
     
-
     const itemIndex = cart.items.findIndex((item) => item.productId.toString() === productId)
     
-
     let newQuantity = cart.items[itemIndex].quantity
 
     if (action === "increment") {
@@ -410,19 +407,153 @@ const deleteWishlist = async (req, res) => {
 
 //////////////////////////////////////////////////// CHEKOUT //////////////////////////////////////////////////////////////
 
-const checkOut = async(req,res)=>{
+const checkOut = async (req, res) => {
+
+  try {
+    const userId = req.session.user
+    const user = await User.findById(userId)
+
+    if (!user) {
+      return res.redirect("/login")
+    }
+
+    const addressDocument = await Address.findOne({ userId })
+    const addresses = addressDocument ? addressDocument.address : []
+    
+    const cart = await Cart.findOne({ userId }).populate('items.productId')
+    
+    const totalAmount = cart.items.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0)
+    const Discount = cart.items.reduce((sum, item) => sum + ((item.productId.regularPrice - item.productId.salePrice) * item.quantity), 0)
+
+    return res.render("checkOut", {
+      user,
+      cart,
+      address: addresses,
+      totalAmount,
+      Discount
+    });
+
+  } catch (error) {
+
+    console.error("Error in addCheckoutAddress:", error)
+    res.redirect("/pageNotFound")
+
+  }
+};
+
+const editCheckoutAddress = async (req, res) => {
 
   try {
 
-    res.render("checkOut")
-    
+    const addressId = req.body.addressId
+    const userId = req.session.user
+    const { addressType, name, city, landMark, state, pincode, phone, isDefault } = req.body
+
+    const findAddress = await Address.findOne({ "address._id": addressId })
+    if (!findAddress) {
+      return res.redirect("/pageNotFound")
+    }
+
+    if (isDefault === 'on') {
+      await Address.updateMany(
+        { userId, "address.isDefault": true },
+        { $set: { "address.$[].isDefault": false } }
+      )
+    }
+
+    await Address.updateOne(
+      { "address._id": addressId },
+      {
+        $set: {
+          "address.$.addressType": addressType,
+          "address.$.name": name,
+          "address.$.city": city,
+          "address.$.landMark": landMark,
+          "address.$.state": state,
+          "address.$.pincode": pincode,
+          "address.$.phone": phone,
+          "address.$.isDefault": isDefault === 'on'
+        }
+      }
+    );
+
+    return res.redirect("/checkOut")
+
   } catch (error) {
 
+    console.log("error in editCheckoutAddress", error)
+    return res.redirect("/pageNotFound")
+
+  }
+};
+
+
+const addCheckoutAddress = async (req, res) => {
+
+  try {
+
+    const userId = req.session.user
+    const userData = await User.findOne({ _id: userId })
+    const { addressType, name, city, landMark, state, pincode, phone, isDefault } = req.body
+
+    const isDefaultBool = isDefault === 'on'
+
+    let userAddress = await Address.findOne({ userId: userData._id })
+
+    if (!userAddress) {
+      const newAddress = new Address({
+        userId: userData._id,
+        address: [
+          {
+            addressType,
+            name,
+            city,
+            landMark,
+            state,
+            pincode,
+            phone,
+            isDefault: isDefaultBool,
+          },
+        ],
+      })
+
+      await newAddress.save()
+
+    } else {
+
+      if (isDefaultBool) {
+        await Address.updateOne(
+          { userId: userData._id },
+          { $set: { "address.$[].isDefault": false } }
+        )
+      }
+
+      userAddress.address.push({
+        addressType,
+        name,
+        city,
+        landMark,
+        state,
+        pincode,
+        phone,
+        isDefault: isDefaultBool,
+      })
+
+      await userAddress.save()
+
+    }
+
+    res.redirect("/checkOut")
+
+  } catch (error) {
+
+    console.log("Error in addCheckoutAddress:", error)
     res.redirect("/pageNotFound")
     
   }
+};
 
-}
+
 
 module.exports = {
   
@@ -435,7 +566,8 @@ module.exports = {
   addWishlist,
   checkWishlist,
   deleteWishlist,
-
   checkOut,
+  editCheckoutAddress,
+  addCheckoutAddress
 
-};
+}

@@ -1,250 +1,412 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checkout</title>
-  <link rel="stylesheet" href="https://code.jquery.com/jquery-3.6.0.min.js">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-  <style>
-    .payment-section {
-  flex: 1;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
+<%- include("../../views/partials/user/header.ejs") %>
 
-.payment-list {
-  max-height: 400px;
-  overflow-y: auto;
-}
+<style>
+  .payment-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 30px;
+  }
 
-.payment-option {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 15px;
-  margin-bottom: 15px;
-  transition: border-color 0.3s ease, background 0.3s ease;
-}
+  .payment-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
 
-.payment-option.selected {
-  border-color: #16a085;
-  background: #f0f8f5;
-}
+  .payment-option {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
 
-.payment-option input[type="radio"] {
-  margin-right: 10px;
-}
-    .checkout-container {
-      max-width: 1200px;
-      margin: 50px auto;
-      padding: 20px;
-      display: flex;
-      gap: 30px;
-    }
+  .payment-option.selected {
+    border-color: #16a085;
+    background: #f0f8f5;
+  }
 
-    .address-section, .order-summary {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
+  .payment-option input[type="radio"] {
+    margin-right: 10px;
+  }
 
-    .address-section {
-      flex: 1;
-    }
+  .checkout-container {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    display: flex;
+    gap: 30px;
+  }
 
-    .order-summary {
-      flex: 1;
-      position: sticky;
-      top: 20px;
-      height: fit-content;
-    }
+  .left-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .section-header {
-      font-size: 22px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 20px;
-    }
+  .address-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
 
-    .address-list {
-      max-height: 400px;
-      overflow-y: auto;
-    }
+  .order-summary {
+    flex: 1;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
 
-    .address-card {
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 15px;
-      position: relative;
-      transition: border-color 0.3s ease;
-    }
+  .section-header {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+  }
 
-    .address-card.selected {
-      border-color: #16a085;
-      background: #f0f8f5;
-    }
+  .address-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .address-card input[type="radio"] {
-      margin-right: 10px;
-    }
+  .address-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    transition: border-color 0.3s ease;
+  }
 
-    .address-actions {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      display: flex;
-      gap: 10px;
-    }
+  .address-card.selected {
+    border-color: #16a085;
+    background: #f0f8f5;
+  }
 
-    .btn-edit, .btn-delete {
-      background: none;
-      border: none;
-      color: #16a085;
-      cursor: pointer;
-      font-size: 14px;
-    }
+  .address-card.default {
+    border-color: #16a085;
+    background: #f0f8f5;
+    order: -1;
+  }
 
-    .btn-delete {
-      color: #e74c3c;
-    }
+  .default-label {
+    color: #16a085;
+    font-weight: bold;
+    margin-left: 10px;
+  }
 
-    .btn-add-address {
-      background: #16a085;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+  .address-card input[type="radio"] {
+    margin-right: 10px;
+  }
 
-    .btn-add-address:hover {
-      background: #138a72;
-    }
+  .address-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+  }
 
-    .product-item {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 15px 0;
-      border-bottom: 1px solid #eee;
-    }
+  .btn-edit,
+  .btn-delete {
+    background: none;
+    border: none;
+    color: #16a085;
+    cursor: pointer;
+    font-size: 14px;
+  }
 
-    .product-image {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      border-radius: 5px;
-    }
+  .btn-delete {
+    color: #e74c3c;
+  }
 
-    .product-details {
-      flex: 1;
-    }
+  .btn-add-address {
+    background: #16a085;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
 
-    .product-name {
-      font-size: 16px;
-      color: #333;
-      font-weight: 500;
-    }
+  .btn-add-address:hover {
+    background: #138a72;
+  }
 
-    .product-quantity {
-      color: #777;
-    }
+  .product-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+  }
 
-    .product-total {
-      font-size: 16px;
-      font-weight: 600;
-      color: #16a085;
-    }
+  .product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 5px;
+  }
 
-    .summary-details {
-      margin-top: 20px;
-    }
+  .product-details {
+    flex: 1;
+  }
 
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
+  .product-name {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+  }
 
-    .summary-label {
-      color: #555;
-    }
+  .product-quantity {
+    color: #777;
+  }
 
-    .summary-value {
-      font-weight: 500;
-      color: #333;
-    }
+  .product-total {
+    font-size: 16px;
+    font-weight: 600;
+    color: #16a085;
+  }
 
-    .final-price {
-      font-size: 20px;
-      font-weight: 700;
-      color: #16a085;
-    }
+  .summary-details {
+    margin-top: 20px;
+  }
 
-    .btn-place-order {
-      width: 100%;
-      background: #16a085;
-      color: white;
-      border: none;
-      padding: 15px;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 20px;
-    }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
 
-    .btn-place-order:hover {
-      background: #138a72;
-    }
+  .summary-label {
+    color: #555;
+  }
 
-    .btn-place-order.loading {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  </style>
-</head>
-<body>
-  <!-- Include your header here -->
-  <!-- <header> ... </header> -->
+  .summary-value {
+    font-weight: 500;
+    color: #333;
+  }
 
-  <main class="main">
-    <div class="checkout-container">
-      <!-- Address Section (unchanged) -->
+  .final-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #16a085;
+  }
+
+  .btn-place-order {
+    width: 100%;
+    background: #16a085;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 20px;
+  }
+
+  .btn-place-order:hover {
+    background: #138a72;
+  }
+
+  .btn-place-order.loading {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .modal-content {
+    background: #fff;
+    margin: 50px auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+    position: relative;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .modal-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .modal-form input,
+  .modal-form select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  .modal-form button[type="submit"] {
+    background: #16a085;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .modal-form button[type="submit"]:hover {
+    background: #138a72;
+  }
+
+  .modal-form label {
+    position: relative;
+  }
+
+  .modal-form input:invalid,
+  .modal-form select:invalid {
+    border-color: #e74c3c;
+  }
+
+  .modal-form input:valid,
+  .modal-form select:valid {
+    border-color: #16a085;
+  }
+
+  .error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+
+  .error-input {
+    border-color: #e74c3c !important;
+  }
+
+  #editAddressModal .modal-form .checkbox-container,
+  #addAddressModal .modal-form .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+  }
+
+  #editAddressModal .modal-form .checkbox-container label,
+  #addAddressModal .modal-form .checkbox-container label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600; 
+    text-transform: uppercase; 
+    cursor: pointer;
+  }
+
+  #editAddressModal .modal-form .checkbox-container input[type="checkbox"],
+  #addAddressModal .modal-form .checkbox-container input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0; 
+    cursor: pointer;
+    appearance: auto !important; 
+    border: 1px solid #333;
+  }
+
+  #editAddressModal .modal-form .checkbox-container label span,
+  #addAddressModal .modal-form .checkbox-container label span {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #333;
+  }
+</style>
+
+<div class="hero-wrap hero-bread" style="background-image: url('/homeImages/banner.avif');">
+  <div class="container">
+    <div class="row no-gutters slider-text align-items-center justify-content-center">
+      <div class="col-md-9 ftco-animate text-center">
+        <p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>DETAILS</span></p>
+        <h1 class="mb-0 bread">CHECKOUT</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <div class="checkout-container">
+    <div class="left-column">
+      <!-- Address Section -->
       <div class="address-section">
         <h2 class="section-header">Delivery Address</h2>
         <div class="address-list">
-          <div class="address-card selected">
-            <label>
-              <input type="radio" name="selectedAddress" value="address1_id" checked>
-              <strong>John Doe</strong><br>
-              123 Main St, Apt 4B<br>
-              New York, NY - 10001<br>
-              Phone: 123-456-7890
-            </label>
-            <div class="address-actions">
-              <button class="btn-edit" onclick="window.location.href='/editAddress?id=address1_id'">Edit</button>
-              <button class="btn-delete" data-id="address1_id">Delete</button>
-            </div>
-          </div>
+          <% if (address && address.length > 0) { %>
+            <% address.sort((a, b) => b.isDefault - a.isDefault).forEach((addr) => { %>
+              <div class="address-card <%= addr.isDefault ? 'default' : '' %>">
+                <label>
+                  <input type="radio" name="selectedAddress" value="<%= addr._id %>" <%= addr.isDefault ? 'checked' : '' %>>
+                  <strong><%= addr.name %></strong> <br>
+                  <%= addr.addressType %><br>
+                  <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %><br>
+                  Landmark: <%= addr.landMark %><br>
+                  Phone: <%= addr.phone %>
+                </label>
+                <div class="address-actions">
+                  <p class="default-label"><%= addr.isDefault ? '[Default]' : '' %></p>
+                  <button class="btn-edit" data-address='<%= JSON.stringify(addr) %>'>Edit</button>
+                  <button class="btn-delete" data-id="<%= addr._id %>">Delete</button>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p>No addresses found. Please add one.</p>
+          <% } %>
         </div>
-        <button class="btn-add-address" onclick="window.location.href='/addAddress'">Add New Address</button>
+        <button class="btn-add-address" id="openAddAddressModal">Add New Address</button>
       </div>
 
-      <!-- New Payment Method Section -->
+      <!-- Payment Method Section -->
       <div class="payment-section">
         <h2 class="section-header">Payment Method</h2>
         <div class="payment-list">
           <div class="payment-option">
             <label>
-              <input type="radio" name="paymentMethod" value="cod" checked>
+              <input type="radio" name="paymentMethod" value="cod">
               Cash on Delivery (COD)
             </label>
           </div>
@@ -262,135 +424,401 @@
           </div>
         </div>
       </div>
-
-      <!-- Order Summary Section (unchanged structure) -->
-      <div class="order-summary">
-        <h2 class="section-header">Order Summary</h2>
-        <div class="product-item">
-          <img src="/uploads/product-image/sample-image.jpg" alt="Product Name" class="product-image">
-          <div class="product-details">
-            <div class="product-name">Sample Product</div>
-            <div class="product-quantity">Qty: 2</div>
-          </div>
-          <div class="product-total">₹ 2000.00</div>
-        </div>
-        <div class="summary-details">
-          <div class="summary-row">
-            <span class="summary-label">Subtotal</span>
-            <span class="summary-value">₹ 2000.00</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label">Discount</span>
-            <span class="summary-value">- ₹ 200.00</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label">Shipping</span>
-            <span class="summary-value">₹ 50</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label">Tax</span>
-            <span class="summary-value">₹ 100.00</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label final-price">Total</span>
-            <span class="summary-value final-price">₹ 1950.00</span>
-          </div>
-        </div>
-        <button class="btn-place-order" id="placeOrderBtn">Place Order</button>
-      </div>
     </div>
-  </main>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Handle address selection (unchanged)
-      const addressRadios = document.querySelectorAll('input[name="selectedAddress"]');
-      addressRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-          document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
-          radio.closest('.address-card').classList.add('selected');
-        });
-      });
+    <!-- Order Summary Section -->
+    <div class="order-summary">
+      <h2 class="section-header">Order Summary</h2>
+      <% if (cart && cart.items && cart.items.length > 0) { %>
+        <% cart.items.forEach(item => { %>
+          <div class="product-item">
+            <img src="/uploads/product-image/<%= item.productId.Images[0] || 'default.jpg' %>" alt="<%= item.productId.name %>" class="product-image">
+            <div class="product-details">
+              <div class="product-name"><%= item.productId.name %></div>
+              <div class="product-quantity">Qty: <%= item.quantity %></div>
+              <div style="color: #16a085;">price: <%=item.productId.regularPrice%></div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No items in the cart.</p>
+      <% } %>
+      <div class="summary-details">
+        <div class="summary-row">
+          <span class="summary-label">Total</span>
+          <span class="summary-value">₹ <%= (totalAmount+Discount) %></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Discount</span>
+          <span class="summary-value">- ₹ <%= Discount%></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping</span>
+          <span class="summary-value">Free</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Tax</span>
+          <span class="summary-value">₹ 100.00</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label final-price">Total</span>
+          <span class="summary-value final-price">₹ <%= (totalAmount + 100).toFixed(2) %></span>
+        </div>
+      </div>
+      <button class="btn-place-order" id="placeOrderBtn">Place Order</button>
+    </div>
+  </div>
 
-      // Handle payment method selection
-      const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
-      paymentRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-          document.querySelectorAll('.payment-option').forEach(option => option.classList.remove('selected'));
-          radio.closest('.payment-option').classList.add('selected');
-        });
-      });
+  <!-- Edit Address Modal -->
+  <div class="modal" id="editAddressModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">×</button>
+      <h2>Edit Address</h2>
+      <form class="modal-form" id="editAddressForm" method="POST" action="/editCheckoutAddress" novalidate>
+        <input type="hidden" name="addressId" id="addressId">
+        
+        <label>
+          Name
+          <input type="text" name="name" id="editName" required>
+          <span class="error-message" id="nameError"></span>
+        </label>
 
-      // Handle address deletion (unchanged)
-      document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const addressId = btn.dataset.id;
-          Swal.fire({
-            title: 'Are you sure?',
-            text: 'This address will be deleted.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-          }).then(result => {
-            if (result.isConfirmed) {
-              $.ajax({
-                url: '/deleteAddress',
-                method: 'GET',
-                data: { id: addressId },
-                success: () => window.location.reload(),
-                error: () => Swal.fire('Error', 'Failed to delete address.', 'error'),
-              });
-            }
-          });
-        });
-      });
+        <label>
+          Address Type
+          <select name="addressType" id="editAddressType" required>
+            <option value="Home">Home</option>
+            <option value="Work">Work</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error-message" id="addressTypeError"></span>
+        </label>
 
-      // Handle place order (modified to include payment method)
-      const placeOrderBtn = document.getElementById('placeOrderBtn');
-      if (placeOrderBtn) {
-        placeOrderBtn.addEventListener('click', () => {
-          const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-          const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+        <label>
+          City
+          <input type="text" name="city" id="editCity" required>
+          <span class="error-message" id="cityError"></span>
+        </label>
 
-          if (!selectedAddress) {
-            Swal.fire('Error', 'Please select a delivery address.', 'error');
-            return;
-          }
+        <label>
+          State
+          <input type="text" name="state" id="editState" required>
+          <span class="error-message" id="stateError"></span>
+        </label>
 
-          if (!selectedPayment) {
-            Swal.fire('Error', 'Please select a payment method.', 'error');
-            return;
-          }
+        <label>
+          Pincode
+          <input type="text" name="pincode" id="editPincode" required>
+          <span class="error-message" id="pincodeError"></span>
+        </label>
 
-          placeOrderBtn.classList.add('loading');
-          placeOrderBtn.textContent = 'Processing...';
+        <label>
+          Landmark
+          <input type="text" name="landMark" id="editLandmark">
+          <span class="error-message" id="landmarkError"></span>
+        </label>
 
-          const orderData = {
-            addressId: selectedAddress.value,
-            paymentMethod: selectedPayment.value,
-            cartId: 'sample_cart_id', // Replace with actual cart ID
-          };
+        <label>
+          Phone
+          <input type="tel" name="phone" id="editPhone" required>
+          <span class="error-message" id="phoneError"></span>
+        </label>
 
-          $.ajax({
-            url: '/placeOrder',
-            method: 'POST',
-            data: orderData,
-            success: response => {
-              Swal.fire('Success', 'Order placed successfully!', 'success').then(() => {
-                window.location.href = '/orderConfirmation';
-              });
-            },
-            error: () => {
-              placeOrderBtn.classList.remove('loading');
-              placeOrderBtn.textContent = 'Place Order';
-              Swal.fire('Error', 'Failed to place order. Try again.', 'error');
-            },
-          });
-        });
-      }
+        <div class="checkbox-container">
+          <label>
+            <input type="checkbox" name="isDefault" id="editIsDefault">
+            <span>SET AS DEFAULT</span>
+          </label>
+          <span class="error-message" id="defaultError"></span>
+        </div>
+
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add New Address Modal -->
+  <div class="modal" id="addAddressModal">
+    <div class="modal-content">
+      <button class="modal-close" id="addModalClose">×</button>
+      <h2>Add New Address</h2>
+      <form class="modal-form" id="addAddressForm" method="POST" action="/addCheckoutAddress" novalidate>
+        <label>
+          Name
+          <input type="text" name="name" id="addName" required>
+          <span class="error-message" id="addNameError"></span>
+        </label>
+
+        <label>
+          Address Type
+          <select name="addressType" id="addAddressType" required>
+            <option value="Home">Home</option>
+            <option value="Work">Work</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error-message" id="addAddressTypeError"></span>
+        </label>
+
+        <label>
+          City
+          <input type="text" name="city" id="addCity" required>
+          <span class="error-message" id="addCityError"></span>
+        </label>
+
+        <label>
+          State
+          <input type="text" name="state" id="addState" required>
+          <span class="error-message" id="addStateError"></span>
+        </label>
+
+        <label>
+          Pincode
+          <input type="text" name="pincode" id="addPincode" required>
+          <span class="error-message" id="addPincodeError"></span>
+        </label>
+
+        <label>
+          Landmark
+          <input type="text" name="landMark" id="addLandmark" required>
+          <span class="error-message" id="addLandmarkError"></span>
+        </label>
+
+        <label>
+          Phone
+          <input type="tel" name="phone" id="addPhone" required>
+          <span class="error-message" id="addPhoneError"></span>
+        </label>
+
+        <div class="checkbox-container">
+          <label>
+            <input type="checkbox" name="isDefault" id="addIsDefault">
+            <span>SET AS DEFAULT</span>
+          </label>
+          <span class="error-message" id="addDefaultError"></span>
+        </div>
+
+        <button type="submit">Add Address</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Handle address selection
+  document.querySelectorAll('.address-card input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+      this.closest('.address-card').classList.add('selected');
     });
-  </script>
-</body>
-</html>
+  });
+
+  // Handle payment method selection
+  document.querySelectorAll('.payment-option input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      document.querySelectorAll('.payment-option').forEach(option => option.classList.remove('selected'));
+      this.closest('.payment-option').classList.add('selected');
+    });
+  });
+
+  // Handle Edit Address Modal
+  const editModal = document.getElementById('editAddressModal');
+  const editCloseBtn = document.getElementById('modalClose');
+  const editButtons = document.querySelectorAll('.btn-edit');
+  const editForm = document.getElementById('editAddressForm');
+
+  editButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const address = JSON.parse(this.getAttribute('data-address'));
+
+      document.getElementById('addressId').value = address._id;
+      document.getElementById('editName').value = address.name;
+      document.getElementById('editAddressType').value = address.addressType;
+      document.getElementById('editCity').value = address.city;
+      document.getElementById('editState').value = address.state;
+      document.getElementById('editPincode').value = address.pincode;
+      document.getElementById('editLandmark').value = address.landMark;
+      document.getElementById('editPhone').value = address.phone;
+      document.getElementById('editIsDefault').checked = address.isDefault;
+
+      editModal.style.display = 'block';
+    });
+  });
+
+  editCloseBtn.addEventListener('click', () => {
+    editModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+      editModal.style.display = 'none';
+    }
+  });
+
+  // Handle Add Address Modal
+  const addModal = document.getElementById('addAddressModal');
+  const addOpenBtn = document.getElementById('openAddAddressModal');
+  const addCloseBtn = document.getElementById('addModalClose');
+  const addForm = document.getElementById('addAddressForm');
+
+  addOpenBtn.addEventListener('click', () => {
+    addModal.style.display = 'block';
+  });
+
+  addCloseBtn.addEventListener('click', () => {
+    addModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === addModal) {
+      addModal.style.display = 'none';
+    }
+  });
+
+  // Form validation for Edit Address
+  document.getElementById('editAddressForm').addEventListener('submit', function(event) {
+    const addressType = document.getElementById('editAddressType');
+    const name = document.getElementById('editName');
+    const city = document.getElementById('editCity');
+    const landMark = document.getElementById('editLandmark');
+    const state = document.getElementById('editState');
+    const pincode = document.getElementById('editPincode');
+    const phone = document.getElementById('editPhone');
+    const pincodeError = document.getElementById('pincodeError');
+    const phoneError = document.getElementById('phoneError');
+    const nameError = document.getElementById('nameError');
+    const cityError = document.getElementById('cityError');
+    const landMarkError = document.getElementById('landmarkError');
+    const stateError = document.getElementById('stateError');
+    const addressTypeError = document.getElementById('addressTypeError');
+    let hasError = false;
+
+    // Reset error states
+    [addressType, name, city, landMark, state, pincode, phone].forEach(field => {
+      field.classList.remove('error-input');
+    });
+    [addressTypeError, nameError, cityError, landMarkError, stateError, pincodeError, phoneError].forEach(error => {
+      error.textContent = '';
+    });
+
+    if (!addressType.value) {
+      addressType.classList.add('error-input');
+      addressTypeError.textContent = 'Please select an address type';
+      hasError = true;
+    }
+
+    if (!/^[a-zA-Z\s]{2,}$/.test(name.value)) {
+      name.classList.add('error-input');
+      nameError.textContent = 'Name must be at least 2 characters long and contain only letters and spaces';
+      hasError = true;
+    }
+
+    if (!/^[a-zA-Z\s]{2,}$/.test(city.value)) {
+      city.classList.add('error-input');
+      cityError.textContent = 'City must be at least 2 characters long and contain only letters and spaces';
+      hasError = true;
+    }
+
+    if (landMark.value.length < 3 && landMark.value.length > 0) {
+      landMark.classList.add('error-input');
+      landMarkError.textContent = 'Landmark must be at least 3 characters long';
+      hasError = true;
+    }
+
+    if (!/^[a-zA-Z\s]{2,}$/.test(state.value)) {
+      state.classList.add('error-input');
+      stateError.textContent = 'State must be at least 2 characters long and contain only letters and spaces';
+      hasError = true;
+    }
+
+    if (!/^\d{6}$/.test(pincode.value)) {
+      pincode.classList.add('error-input');
+      pincodeError.textContent = 'Pincode must be exactly 6 digits';
+      hasError = true;
+    }
+
+    if (!/^\d{10}$/.test(phone.value)) {
+      phone.classList.add('error-input');
+      phoneError.textContent = 'Phone number must be exactly 10 digits';
+      hasError = true;
+    }
+
+    if (hasError) {
+      event.preventDefault();
+    }
+  });
+
+  // Form validation for Add Address
+  document.getElementById('addAddressForm').addEventListener('submit', function(event) {
+    const addressType = document.getElementById('addAddressType');
+    const name = document.getElementById('addName');
+    const city = document.getElementById('addCity');
+    const landMark = document.getElementById('addLandmark');
+    const state = document.getElementById('addState');
+    const pincode = document.getElementById('addPincode');
+    const phone = document.getElementById('addPhone');
+    const pincodeError = document.getElementById('addPincodeError');
+    const phoneError = document.getElementById('addPhoneError');
+    const nameError = document.getElementById('addNameError');
+    const cityError = document.getElementById('addCityError');
+    const landMarkError = document.getElementById('addLandmarkError');
+    const stateError = document.getElementById('addStateError');
+    const addressTypeError = document.getElementById('addAddressTypeError');
+    let hasError = false;
+
+    // Reset error states
+    [addressType, name, city, landMark, state, pincode, phone].forEach(field => {
+      field.classList.remove('error-input');
+    });
+    [addressTypeError, nameError, cityError, landMarkError, stateError, pincodeError, phoneError].forEach(error => {
+      error.textContent = '';
+    });
+
+    if (!addressType.value) {
+      addressType.classList.add('error-input');
+      addressTypeError.textContent = 'Please select an address type';
+      hasError = true;
+    }
+
+    if (!/^[a-zA-Z\s]{2,}$/.test(name.value)) {
+      name.classList.add('error-input');
+      nameError.textContent = 'Name must be at least 2 characters long and contain only letters and spaces';
+      hasError = true;
+    }
+
+    if (!/^[a-zA-Z\s]{2,}$/.test(city.value)) {
+      city.classList.add('error-input');
+      cityError.textContent = 'City must be at least 2 characters long and contain only letters and spaces';
+      hasError = true;
+    }
+
+    if (landMark.value.length < 3 && landMark.value.length > 0) {
+      landMark.classList.add('error-input');
+      landMarkError.textContent = 'Landmark must be at least 3 characters long';
+      hasError = true;
+    }
+
+    if (!/^[a-zA-Z\s]{2,}$/.test(state.value)) {
+      state.classList.add('error-input');
+      stateError.textContent = 'State must be at least 2 characters long and contain only letters and spaces';
+      hasError = true;
+    }
+
+    if (!/^\d{6}$/.test(pincode.value)) {
+      pincode.classList.add('error-input');
+      pincodeError.textContent = 'Pincode must be exactly 6 digits';
+      hasError = true;
+    }
+
+    if (!/^\d{10}$/.test(phone.value)) {
+      phone.classList.add('error-input');
+      phoneError.textContent = 'Phone number must be exactly 10 digits';
+      hasError = true;
+    }
+
+    if (hasError) {
+      event.preventDefault();
+    }
+  });
+</script>
+
+<%- include("../../views/partials/user/footer.ejs") %>

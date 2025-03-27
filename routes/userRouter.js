@@ -76,6 +76,8 @@ router.get("/deleteWishlist",userAuth,cartController.deleteWishlist)
 
 //chekOut 
 router.get("/checkOut",userAuth,cartController.checkOut)
+router.post("/editCheckoutAddress",userAuth,cartController.editCheckoutAddress)
+router.post("/addCheckoutAddress",userAuth,cartController.addCheckoutAddress)
 
 
 
