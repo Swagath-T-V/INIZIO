@@ -8,6 +8,12 @@ const orderSchema = new Schema({
         default:()=>uuidv4(),
         unique:true
     },
+    userId :{
+        type:Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+    },
+
     orderedItems:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -21,7 +27,13 @@ const orderSchema = new Schema({
         price:{
             type:Number,
             default:0
+        },
+        returnStatus: {
+            type: String,
+            enum: ["Not Returned", "Return Requested", "Returned"],
+            default: "Not Returned",
         }
+
     }],
     totalPrice:{
         type:Number,
@@ -31,24 +43,48 @@ const orderSchema = new Schema({
         type:Number,
         default:0
     },
+    tax: {  
+        type: Number,
+        default: 0
+    },
+    shipping: {  
+        type: Number,
+        default: 0
+    },
     finalAmount:{
         type:Number,
         required:true
     },
-    address:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+    address: { 
+        type: {
+            addressType: { type: String, required: true },
+            name: { type: String, required: true },
+            city: { type: String, required: true },
+            landmark: { type: String ,require:true},
+            state: { type: String, required: true },
+            pincode: { type: String, required: true },
+            phone: { type: String, required: true },
+            isDefault: { type: Boolean, default: false },
+        },
+        required: true,
+    },
+    paymentMethod: {  
+        type: String,
+        enum: ["COD", "UPI", "Credit/Debit Card"], 
+        required: true,
+        default: "COD"
     },
     invoiceDate:{
-        type:Date
+        type:Date,
+        default:Date.now
     },
     status:{
         type:String,
         required:true,
-        enum:['Pending','Shipped','Delivered','Cancelled','Return Request','Returned']
+        enum:["Pending","Processing","Shipped", "Out for Delivery","Delivered","Cancelled","Return Request","Returned"],
+        default:"Pending"
     },
-    createdOn:{
+    createdAt:{
         type:Date,
         default:Date.now,
         required:true,

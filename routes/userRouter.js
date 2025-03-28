@@ -78,8 +78,8 @@ router.get("/deleteWishlist",userAuth,cartController.deleteWishlist)
 router.get("/checkOut",userAuth,cartController.checkOut)
 router.post("/editCheckoutAddress",userAuth,cartController.editCheckoutAddress)
 router.post("/addCheckoutAddress",userAuth,cartController.addCheckoutAddress)
-
-
+router.post("/checkOutSubmit",userAuth,cartController.checkOutSubmit)
+router.get("/successPage",userAuth,cartController.successPage)
 
 
 

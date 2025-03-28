@@ -602,6 +602,7 @@
   </div>
 </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   // Handle address selection
   document.querySelectorAll('.address-card input[type="radio"]').forEach(radio => {
@@ -819,6 +820,115 @@
       event.preventDefault();
     }
   });
+
+ // Place Order Button
+document.getElementById('placeOrderBtn').addEventListener('click', async function(e) {
+  e.preventDefault();
+
+  const cartItems = document.querySelectorAll('.product-item');
+  if (cartItems.length === 0) {
+    await Swal.fire({
+      icon: 'warning',
+      title: 'Empty Cart',
+      text: 'Cannot place order: Your cart is empty.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#16a085',
+    });
+    window.location.href = '/shop';
+
+    return;
+  }
+
+  const selectedAddressRadio = document.querySelector('input[name="selectedAddress"]:checked');
+  if (!selectedAddressRadio) {
+    await Swal.fire({
+      icon: 'warning',
+      title: 'Address Required',
+      text: 'Please select a delivery address.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#16a085',
+    });
+    return;
+  }
+  const selectedAddressId = selectedAddressRadio.value;
+
+  const selectedPaymentRadio = document.querySelector('input[name="paymentMethod"]:checked');
+  if (!selectedPaymentRadio) {
+    await Swal.fire({
+      icon: 'warning',
+      title: 'Payment Method Required',
+      text: 'Please select a payment method.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#16a085',
+    });
+    return;
+  }
+  const paymentMethod = selectedPaymentRadio.value;
+
+  const orderData = {
+    addressId: selectedAddressId,
+    paymentMethod: paymentMethod,
+  };
+
+  try {
+
+    this.classList.add('loading');
+    this.disabled = true;
+
+    const response = await fetch('/checkOutSubmit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+
+      body: JSON.stringify(orderData),
+
+    });
+
+    if (response.ok) {
+      
+      window.location.href = '/successPage'
+
+    } else {
+
+      const errorData = await response.json();
+      if (errorData.error) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Order Failed',
+          text: errorData.error,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#16a085',
+        })
+
+      } else {
+
+        throw new Error('Order placement failed')
+
+      }
+    }
+
+  } catch (error) {
+
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An unexpected error occurred while placing your order.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#16a085',
+    })
+
+    window.location.href = '/pageNotFound'
+
+  } finally {
+
+    this.classList.remove('loading')
+    this.disabled = false
+
+  }
+  
+})
+
 </script>
 
 <%- include("../../views/partials/user/footer.ejs") %>

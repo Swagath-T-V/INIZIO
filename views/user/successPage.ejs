@@ -1,0 +1,118 @@
+
+
+<style>
+  .success-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    text-align: center;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .success-icon {
+    font-size: 80px;
+    color: #16a085;
+    margin-bottom: 20px;
+  }
+
+  .success-header {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .success-message {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+  }
+
+  .order-details {
+    background: #f0f8f5;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: left;
+    margin-bottom: 30px;
+  }
+
+  .order-details h3 {
+    font-size: 20px;
+    color: #16a085;
+    margin-bottom: 15px;
+  }
+
+  .order-details p {
+    font-size: 14px;
+    color: #333;
+    margin: 5px 0;
+  }
+
+  .btn-home {
+    background: #16a085;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-home:hover {
+    background: #138a72;
+  }
+
+  .btn-orders {
+    background: #fff;
+    color: #16a085;
+    border: 1px solid #16a085;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+  .btn-orders:hover {
+    background: #16a085;
+    color: white;
+  }
+</style>
+
+
+<main class="main">
+  <div class="success-container">
+    <!-- Success Icon (you can replace with an actual icon or image) -->
+    <div class="success-icon">✓</div>
+
+    <h1 class="success-header">Order Placed Successfully!</h1>
+    <p class="success-message">
+      Thank you for your purchase! Your order has been successfully placed. You'll receive a confirmation soon.
+    </p>
+
+    <!-- Placeholder for Order Details -->
+    <div class="order-details">
+        <h3>Order Summary</h3>
+        <p><strong>Order ID:</strong> #<%= orderId %></p>
+        <p><strong>Total Amount:</strong> ₹<%= totalAmount.toFixed(2) %></p>
+        <p><strong>Payment Method:</strong> <%= paymentMethod %></p>
+        <p><strong>Delivery Address:</strong> <%= address %></p>
+        <p><strong>Estimated Delivery:</strong> <%= estimatedDelivery %></p>
+      </div>
+
+    <!-- Action Buttons -->
+    <a href="/shop" class="btn-home">Continue Shopping</a>
+    <a href="/orders" class="btn-orders">View Orders</a>
+  </div>
+</main>
+

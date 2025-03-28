@@ -4,6 +4,7 @@ const User = require("../../models/userSchema")
 const Wishlist = require("../../models/wishlistSchema")
 const Cart = require("../../models/cartSchema")
 const Address = require("../../models/addressSchema")
+const Order = require("../../models/orderSchema")
 
 
 const getCartPage = async (req, res) => {
@@ -421,6 +422,7 @@ const checkOut = async (req, res) => {
     const addresses = addressDocument ? addressDocument.address : []
     
     const cart = await Cart.findOne({ userId }).populate('items.productId')
+    // console.log("this is from the chekout ",cart)
     
     const totalAmount = cart.items.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0)
     const Discount = cart.items.reduce((sum, item) => sum + ((item.productId.regularPrice - item.productId.salePrice) * item.quantity), 0)
@@ -429,8 +431,8 @@ const checkOut = async (req, res) => {
       user,
       cart,
       address: addresses,
-      totalAmount,
-      Discount
+      totalAmount:totalAmount,
+      Discount:Discount
     });
 
   } catch (error) {
@@ -554,6 +556,109 @@ const addCheckoutAddress = async (req, res) => {
 };
 
 
+const checkOutSubmit = async (req, res) => {
+
+  try {
+
+    const userId = req.session.user
+    const { addressId, paymentMethod } = req.body
+
+    
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.redirect('/login')
+    }
+
+    const addressDoc = await Address.findOne({ userId, 'address._id': addressId })
+    const selectedAddress = addressDoc.address.id(addressId)
+    const cart = await Cart.findOne({ userId }).populate('items.productId')
+
+    const orderedItems = cart.items.map(item => ({
+      product: item.productId._id,
+      quantity: item.quantity,
+      price: item.productId.regularPrice,
+
+    }))
+
+    const tax = 100
+    const shipping = 0
+    const totalAmount = cart.items.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0)
+    const discount = cart.items.reduce((sum, item) => sum + ((item.productId.regularPrice - item.productId.salePrice) * item.quantity), 0)
+    const finalAmount = totalAmount + tax
+
+    const newOrder = new Order({
+      userId: user._id,
+      orderedItems,
+      totalPrice: totalAmount,
+      discount,
+      tax,
+      shipping,
+      finalAmount,
+      address: {
+        addressType: selectedAddress.addressType,
+        name: selectedAddress.name,
+        city: selectedAddress.city,
+        landmark: selectedAddress.landMark,
+        state: selectedAddress.state,
+        pincode: selectedAddress.pincode.toString(),
+        phone: selectedAddress.phone,
+        isDefault: selectedAddress.isDefault,
+      },
+
+      paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'upi' ? 'UPI' : 'Credit/Debit Card',
+      status: 'Pending',
+
+    });
+
+    await newOrder.save()
+    await Cart.findOneAndUpdate({ userId }, { items: [] })
+
+    return res.redirect("/successPage")
+
+  } catch (error) {
+
+    console.error('error in checkOutSubmit:', error)
+    return res.redirect('/pageNotFound')
+
+  }
+
+}
+
+const successPage = async (req, res) => {
+
+  try {
+
+    const userId = req.session.user
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.redirect("/login")
+    }
+
+    const order = await Order.findOne({ userId }).sort({ createdAt: -1 })
+
+    if (!order) {
+      return res.redirect("/pageNotFound")
+    }
+
+    const addressString = `${order.address.name}, ${order.address.addressType}, ${order.address.city}, ${order.address.state} - ${order.address.pincode}, Phone: ${order.address.phone}`;
+
+    return res.render("successPage", {
+      user,
+      orderId: order._id, 
+      totalAmount: order.finalAmount,
+      paymentMethod: order.paymentMethod,
+      address: addressString, 
+      estimatedDelivery: '3-5 Business Days',
+    })
+
+  } catch (error) {
+
+    console.log("error in successPage", error)
+    return res.redirect("/pageNotFound")
+
+  }
+};
+
 
 module.exports = {
   
@@ -568,6 +673,8 @@ module.exports = {
   deleteWishlist,
   checkOut,
   editCheckoutAddress,
-  addCheckoutAddress
+  addCheckoutAddress,
+  checkOutSubmit,
+  successPage
 
 }
