@@ -2,6 +2,7 @@ const Category = require("../../models/categorySchema")
 
 
 const categoryInfo =async(req,res)=>{
+
     try {
         
         let search =req.query.search || ""
@@ -38,6 +39,7 @@ const categoryInfo =async(req,res)=>{
 }
 
 const addCategory = async (req, res) => {
+
     try {
         if (req.method === 'POST') {
             const { name, description } = req.body;
@@ -138,6 +140,7 @@ const getEditCategory = async(req,res)=>{
 
     } catch (error) {
 
+        console.log("error in getEditCategory",error)
         res.redirect("/admin/pageerror")
         
     }

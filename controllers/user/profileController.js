@@ -65,13 +65,14 @@ async function sendVerificationEmail(email, otp) {
 const forgotEmail = async (req, res) => {
 
     try {
+
         const { email } = req.body;
 
         if (!email) {
             return res.status(400).json({
                 success: false,
                 message: "Email is required"
-            });
+            })
         }
 
         const findUser = await User.findOne({ email: email });
@@ -131,6 +132,7 @@ const getForgotPassOtp = async (req, res) => {
 
     } catch (error) {
 
+        console.log("error in getForgotPassOtp",error)
         res.redirect("/pageNotFound")
 
     }
@@ -287,6 +289,7 @@ const userProfile = async (req, res) => {
 }
 
 const loadEditProfile = async (req, res) => {
+
     try {
 
         if (!req.session.user) {
@@ -318,6 +321,7 @@ const loadEditProfile = async (req, res) => {
 const changeUserProfile = async (req, res) => {
 
     try {
+
         if (!req.session.user) {
             return res.status(401).json({ success: false, message: "Unauthorized", redirectUrl: "/login" })
         }
@@ -358,33 +362,46 @@ const changeUserProfile = async (req, res) => {
                     redirectUrl: "/userVerifyOtp"
                 });
             } else {
+
                 return res.status(500).json({ success: false, message: "Failed to send verification email" })
+
             }
+
         } else {
+
             userData.name = name || userData.name
             userData.phone = phone || userData.phone
             userData.email = email || userData.email
 
-            await userData.save();
+            await userData.save()
+
             return res.status(200).json({
                 success: true,
                 message: "Profile updated successfully",
                 redirectUrl: "/userProfile"
-            });
+            })
         }
+
     } catch (error) {
+
         console.error("Error in changeUserProfile:", error)
         return res.status(500).json({ success: false, message: "Server error" })
+
     }
 };
 
 const getUserVerifyOtp = async (req, res) => {
+
     try {
+
         const email = req.session.tempProfileData?.email || '';
         res.render("userVerifyOtp")
+
     } catch (error) {
+
         console.error("Error in getUserVerifyOtp:", error)
         res.redirect("/pageNotFound")
+
     }
 };
 
@@ -439,18 +456,22 @@ const verifyUserOtp = async (req, res) => {
             success: true,
             message: "Email verified and profile updated successfully.",
             redirectUrl: "/userProfile",
-        });
+        })
+
     } catch (error) {
+
         console.error("Error verifying OTP:", error)
         return res.status(500).json({
             success: false,
             message: "An error occurred.",
-        });
+
+        })
     }
 };
 
 
 const resendUserOtp = async (req, res) => {
+
     try {
 
         const email = req.session.tempProfileData?.email
@@ -481,6 +502,7 @@ const resendUserOtp = async (req, res) => {
 //////////////////////////////////////////address//////////////////////////////////////////////////////////////////
 
 const getAddressPage = async (req, res) => {
+
     try {
 
         if (req.session.user) {
@@ -495,6 +517,7 @@ const getAddressPage = async (req, res) => {
                 userAddress,
                 activePage: "addresses"
             })
+
         } else {
 
             res.redirect("/login")
@@ -536,36 +559,30 @@ const getAddAddress = async (req, res) => {
 }
 
 const addAddress = async (req, res) => {
-
     try {
+        const userId = req.session.user;
+        const userData = await User.findOne({ _id: userId });
+        const { addressType, name, city, landMark, state, pincode, phone } = req.body;
 
-        const userId = req.session.user
-        const userData = await User.findOne({ _id: userId })
-        const { addressType, name, city, landMark, state, pincode, phone } = req.body
-
-        const userAddress = await Address.findOne({ userId: userData._id })
+        const userAddress = await Address.findOne({ userId: userData._id });
         if (!userAddress) {
             const newAddress = new Address({
                 userId: userData._id,
                 address: [{ addressType, name, city, landMark, state, pincode, phone }]
-            })
-
-            await newAddress.save()
+            });
+            await newAddress.save();
         } else {
-            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone })
-            await userAddress.save()
+            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone });
+            await userAddress.save();
         }
 
-        res.redirect("/addressPage")
-
+        res.redirect("/addressPage?success=Address added successfully");
 
     } catch (error) {
-
-        console.log("error in addAddressPage", error)
-        res.redirect("/pageNotFound")
-
+        console.log("error in addAddressPage", error);
+        res.redirect("/addressPage?error=Failed to add address");
     }
-}
+};
 
 
 const getEditAddress = async (req, res) => {
@@ -585,7 +602,7 @@ const getEditAddress = async (req, res) => {
 
         const addressData = currentAddress.address.find((item) => {
             return item._id.toString() === addressId.toString()
-        });
+        })
 
         if (!addressData) {
             return res.redirect("/pageNotFound");
@@ -605,18 +622,16 @@ const getEditAddress = async (req, res) => {
 };
 
 const postEditAddress = async (req, res) => {
-
     try {
+        const addressId = req.body.addressId;
+        const userId = req.session.user;
+        const { addressType, name, city, landMark, state, pincode, phone } = req.body;
 
-        const addressId = req.body.addressId
-        const userId = req.session.user
-
-        const { addressType, name, city, landMark, state, pincode, phone } = req.body
-
-        const findAddress = await Address.findOne({ "address._id": addressId })
+        const findAddress = await Address.findOne({ "address._id": addressId });
         if (!findAddress) {
-            return res.redirect("/pageNotFound")
+            return res.redirect("/addressPage?error=Address not found");
         }
+
         await Address.updateOne(
             { "address._id": addressId },
             {
@@ -630,45 +645,35 @@ const postEditAddress = async (req, res) => {
                     "address.$.phone": phone
                 }
             }
-        )
+        );
 
-        return res.redirect("/addressPage")
+        return res.redirect("/addressPage?success=Address updated successfully");
 
     } catch (error) {
-
-        console.log("error in the editAddress", error)
-        return res.redirect("/pageNotFound")
-
+        console.log("error in the editAddress", error);
+        return res.redirect("/addressPage?error=Failed to update address");
     }
 }
 
-const deleteAddress = async (req, res) => {
 
+const deleteAddress = async (req, res) => {
     try {
-        
-        const addressId = req.query.id
-        const findAddress = await Address.findOne({ "address._id": addressId })
+        const addressId = req.query.id;
+        const findAddress = await Address.findOne({ "address._id": addressId });
         if (!findAddress) {
-            return res.redirect("/pageNotFound")
+            return res.redirect("/addressPage?error=Address not found");
         }
 
-        await Address.updateOne({
-            "address._id": addressId
-        }, {
-            $pull: {
-                address: {
-                    _id: addressId,
-                }
-            }
-        })
+        await Address.updateOne(
+            { "address._id": addressId },
+            { $pull: { address: { _id: addressId } } }
+        );
 
-        return res.redirect("/addressPage")
+        return res.redirect("/addressPage?success=Address deleted successfully");
 
     } catch (error) {
-
-        console.log("/error in deleteAddress", error)
-        return res.redirect("/pageNotFound")
-
+        console.log("/error in deleteAddress", error);
+        return res.redirect("/addressPage?error=Failed to delete address");
     }
 }
 

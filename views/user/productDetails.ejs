@@ -594,10 +594,15 @@
 
                                    
                                     <div class="cart-action d-flex flex-column mt-30">
-                                        <div class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
+                                        <!-- <div class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
                                           <button class="quantity-button decrease">-</button>
                                           <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="<%= product.quantity %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>
                                           <button class="quantity-button increase">+</button>
+                                        </div> -->
+                                        <div class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
+                                            <button class="quantity-button decrease">-</button>
+                                            <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="<%= Math.min(10, product.quantity) %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>
+                                            <button class="quantity-button increase">+</button>
                                         </div>
                                         <div class="product-buttons">
                                           <button type="button" class="btn btn-primary add-to-cart <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>Add to Cart</button>
@@ -660,7 +665,7 @@
     const addToCartBtn = document.querySelector('.add-to-cart');
     const mainImage = document.getElementById('mainImage');
     const thumbnails = document.querySelectorAll('.thumbnail-item img');
-    const maxQuantity = parseInt('<%= product.quantity %>');
+    const maxQuantity = parseInt(quantityInput.getAttribute('max'))
     const isStockAvailable = '<%= stockStatus === "in-stock" %>' === 'true';
 
     // Quantity Selector Logic
@@ -675,7 +680,7 @@
             if (value <= maxQuantity) {
                 quantityInput.value = value;
             } else {
-                Swal.fire('Stock Limit', `Only ${maxQuantity} items available.`, 'warning');
+                Swal.fire('Limit Reached', `You can only add up to ${maxQuantity} items of this product.`, 'warning');
             }
         });
 
@@ -684,7 +689,7 @@
             if (isNaN(value) || value < 1) value = 1;
             if (value > maxQuantity) {
                 value = maxQuantity;
-                Swal.fire('Stock Limit', `Only ${maxQuantity} items available.`, 'warning');
+                Swal.fire('Limit Reached', `You can only add up to ${maxQuantity} items of this product.`, 'warning');
             }
             quantityInput.value = value;
         });
@@ -698,7 +703,7 @@
             const quantity = parseInt(quantityInput.value);
 
             if (quantity > maxQuantity) {
-                Swal.fire('Stock Exceeded', `Only ${maxQuantity} items available.`, 'error');
+                Swal.fire('Limit Exceeded', `You can only add up to ${maxQuantity} items of this product.`, 'error');
                 return;
             }
 

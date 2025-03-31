@@ -1,7 +1,6 @@
 <%- include("../../views/partials/userProfile/header.ejs") %>
 
     <style>
-     
         .addr_main-content {
             background: #f5f6fa;
             padding: 20px;
@@ -253,58 +252,106 @@
         }
     </style>
 
-
-
-        <!-- Main Content -->
-        <div class="up_main-content">
-            <!-- Profile Header Section -->
-            <div class="addr_profile-header">
-                <div class="addr_profile-info">
-                    <h1>My Addresses</h1>
-                    <p>Manage your shipping and billing addresses</p>
-                </div>
+    <div class="up_main-content">
+        <!-- Profile Header Section -->
+        <div class="addr_profile-header">
+            <div class="addr_profile-info">
+                <h1>My Addresses</h1>
+                <p>Manage your shipping and billing addresses</p>
             </div>
+        </div>
 
-            <!-- Addresses Card -->
-            <div class="addr_card">
-                <div class="addr_card-header">
-                    <h3 class="addr_card-title">Saved Addresses</h3>
-                    <a href="/addAddress" class="addr_btn-outline">+ Add New Address</a>
-                </div>
-                <div class="addr_card-body">
-                    <div class="addr_list">
-                        <%if(userAddress){%>
-                            <%userAddress.address.forEach((address)=>{%>
+        <!-- Addresses Card -->
+        <div class="addr_card">
+            <div class="addr_card-header">
+                <h3 class="addr_card-title">Saved Addresses</h3>
+                <a href="/addAddress" class="addr_btn-outline">+ Add New Address</a>
+            </div>
+            <div class="addr_card-body">
+                <div class="addr_list">
+                    <% if(userAddress && userAddress.address.length > 0) { %>
+                        <% userAddress.address.forEach((address) => { %>
                         <div class="addr_item">
                             <div class="addr_info">
-                                <div class="addr_type"><%=address.addressType%></div>
-                                <div class="addr_name"><%=address.name%></div>
+                                <div class="addr_type"><%= address.addressType %></div>
+                                <div class="addr_name"><%= address.name %></div>
                                 <div class="addr_details">
-                                    <%=address.city%><br>
-                                    <%=address.landMark%><br>
-                                    <%=address.state%><br>
-                                    <%=address.pincode%>
+                                    <%= address.city %><br>
+                                    <%= address.landMark %><br>
+                                    <%= address.state %><br>
+                                    <%= address.pincode %>
                                 </div>
-                                <div class="addr_phone"><%=address.phone%></div>
+                                <div class="addr_phone"><%= address.phone %></div>
                             </div>
                             <div class="addr_actions">
-                                <a href="/editAddress?id=<%=address._id%>" class="addr_edit-btn">Edit</a>
-                                <a href="/deleteAddress?id=<%=address._id%>" onclick="return confirm('Are you sure you want to delete?')" class="addr_delete-btn">Delete</a>
+                                <a href="/editAddress?id=<%= address._id %>" class="addr_edit-btn">Edit</a>
+                                <a href="/deleteAddress?id=<%= address._id %>" class="addr_delete-btn">Delete</a>
                             </div>
                         </div>
                         <% }) %>
-                        <%}else{%>
-
-                        <!-- No Addresses Message (Hidden if addresses exist) -->
-                        <div class="addr_no-items" style="display: none;">
+                    <% } else { %>
+                        <div class="addr_no-items">
                             <p>You don't have any saved addresses yet.</p>
                             <p>Add a new address to make checkout faster.</p>
                         </div>
-                        <%}%>
-                    </div>
+                    <% } %>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Check for URL parameters and show SweetAlert accordingly
+    const urlParams = new URLSearchParams(window.location.search);
+    const successMessage = urlParams.get('success');
+    const errorMessage = urlParams.get('error');
 
-    <%- include("../../views/partials/userProfile/footer.ejs") %>
+    if (successMessage) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMessage,
+            showConfirmButton: false,
+            timer: 1500
+        }).then(() => {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        });
+    }
+
+    if (errorMessage) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMessage,
+            confirmButtonColor: '#4a6ee0'
+        }).then(() => {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        });
+    }
+
+    // Modify delete confirmation to use Swal
+    document.querySelectorAll('.addr_delete-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to delete this address?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = href;
+                }
+            });
+        });
+    });
+</script>
+
+<%- include("../../views/partials/userProfile/footer.ejs") %>

@@ -1,7 +1,7 @@
-const User = require("../models/userSchema");
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const env = require("dotenv").config();
+const User = require("../models/userSchema")
+const passport = require("passport")
+const GoogleStrategy = require("passport-google-oauth20").Strategy
+const env = require("dotenv").config()
 
 passport.use(new GoogleStrategy({
 
@@ -16,6 +16,7 @@ async (accessToken, refreshToken, profile, done) => {
     console.log('Profile:', profile);
 
     try {
+        
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {

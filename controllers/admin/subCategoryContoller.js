@@ -2,6 +2,7 @@ const SubCategory = require("../../models/subCategorySchema")
 
 
 const subCategoryInfo =async(req,res)=>{
+    
     try {
         
         let search =req.query.search || ""
@@ -132,6 +133,7 @@ const getEditSubCategory = async(req,res)=>{
 
     } catch (error) {
 
+        console.log("error in getEditSubcategroy",error)
         res.redirect("/admin/pageerror")
         
     }
@@ -200,17 +202,17 @@ const deleteSubCategory = async(req,res)=> {
 
         if (updatedSubCategory) {
 
-            res.status(200).json({ success: true, message: "SubCategory soft deleted successfully" });
+            res.status(200).json({ success: true, message: "SubCategory soft deleted successfully" })
             
         } else {
 
-            res.status(404).json({ success: false, message: "SubCategory not found" });
+            res.status(404).json({ success: false, message: "SubCategory not found" })
 
         }
     } catch (error) {
 
         console.error("Error in softDeleteSubCategory", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(500).json({ success: false, message: "Internal server error" })
         
     }
 }

@@ -389,7 +389,7 @@
                 <div class="address-actions">
                   <p class="default-label"><%= addr.isDefault ? '[Default]' : '' %></p>
                   <button class="btn-edit" data-address='<%= JSON.stringify(addr) %>'>Edit</button>
-                  <button class="btn-delete" data-id="<%= addr._id %>">Delete</button>
+                  <!-- <button class="btn-delete" data-id="<%= addr._id %>">Delete</button> -->
                 </div>
               </div>
             <% }) %>
@@ -642,6 +642,7 @@
       document.getElementById('editIsDefault').checked = address.isDefault;
 
       editModal.style.display = 'block';
+
     });
   });
 
@@ -860,7 +861,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
       text: 'Please select a payment method.',
       confirmButtonText: 'OK',
       confirmButtonColor: '#16a085',
-    });
+    })
     return;
   }
   const paymentMethod = selectedPaymentRadio.value;

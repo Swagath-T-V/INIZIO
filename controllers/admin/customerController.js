@@ -63,6 +63,7 @@ const transporter =nodemailer.createTransport({
 })
 
 async function sendMail({to,subject,text,html}){
+    
     try{
 
         const info = await transporter.sendMail({
@@ -72,6 +73,7 @@ async function sendMail({to,subject,text,html}){
             text,
             html
         })
+
         return info.accepted.length>0
 
     }catch(error){

@@ -12,7 +12,7 @@ const pageerror = async (req,res)=>{
     } catch (error) {
 
         console.log("error in the page error",error)
-        return res.redirect("/admin/pageerror",error)
+        return res.redirect("/admin/pageerror")
 
     }
 
@@ -35,7 +35,7 @@ const loadLogin = async(req,res)=>{
     } catch (error) {
 
         console.log("error in the loadLogin",error)
-        req.redirect("/admin.pageeeror")
+        req.redirect("/admin/pageeeror")
         
     }
 }

@@ -16,6 +16,7 @@ const pageNotFound =async (req,res)=>{
 
     } catch (error) {
 
+        console.log("error in pageNotFound",error)
         res.redirect("/pageNotFound")
         
     }
@@ -23,15 +24,18 @@ const pageNotFound =async (req,res)=>{
 
 
 const loadHome = async (req, res) => {
+
     try {
-        const userId = req.session.user;
+        
+        const userId = req.session.user
+
         if (userId) {
 
             const userData = await User.findOne({ _id: userId }); 
 
             if (userData && userData.isBlocked) { 
-                req.session.destroy(); 
-                return res.redirect('/login'); 
+                req.session.destroy()
+                return res.redirect('/login')
             }
 
             const categories = await Category.find({ isListed: true, isDelete: false });
@@ -163,6 +167,7 @@ const signup = async (req, res) => {
         });
         
     } catch (error) {
+        
         console.error("Signup error:", error);
         return res.status(500).json({
             success: false,
@@ -483,5 +488,4 @@ module.exports = {
     logout,
     loadShopPage,
    
-
 }

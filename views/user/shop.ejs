@@ -1,5 +1,50 @@
 <%- include("../../views/partials/user/header.ejs") %>
 
+<style>
+    .noUi-connect {
+        background: #82ae46; 
+    }
+    
+    .noUi-handle {
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+    
+    .noUi-handle:after, 
+    .noUi-handle:before {
+        display: none; 
+    }
+    
+    .price-range-display {
+        font-weight: bold;
+        color: #000;
+    }
+    
+    .noUi-tooltip {
+        display: block;
+        position: absolute;
+        border: 1px solid #D9D9D9;
+        border-radius: 3px;
+        background: #fff;
+        color: #000;
+        padding: 5px;
+        text-align: center;
+        white-space: nowrap;
+    }
+    .btn.fill{
+        font-size: 8px;
+        
+    }
+    .btn.btn-primary {
+    background: #dbcc8f;
+    border: 1px solid #dbcc8f;
+    color: #000000;
+    }
+    
+</style>
+
 <div class="hero-wrap hero-bread" style="background-image: url('/homeImages/banner.avif');">
     <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
@@ -72,10 +117,6 @@
                                         <div class="pricing">
                                             <p class="price">₹ <%= product.salePrice %> <span><strike>₹<%= product.regularPrice %></strike></span></p>
                                         </div>
-                                        <!-- <p class="bottom-area d-flex px-3">
-                                            <a href="/cart" class="add-to-cart text-center py-2 mr-1"><span>Add to cart <i class="ion-ios-add ml-1"></i></span></a>
-                                            <a href="#" class="buy-now text-center py-2">Buy now<span><i class="ion-ios-cart ml-1"></i></span></a>
-                                        </p> -->
                                     </div>
                                 </div>
                             </div>
@@ -177,36 +218,25 @@
 
                         <div class="sidebar-box-2">
                             <h2 class="heading" style="color: black;">Price Range</h2>
-                            <div class="colorlib-form-2" style="color: black;">
+                            <div class="colorlib-form-2" style="color: black; padding: 10px 20px;">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="priceFrom">Price from:</label>
-                                            <div class="form-field">
-                                                <select name="priceFrom" id="priceFrom" class="form-control" onchange="this.form.submit()">
-                                                    <option value="">Any</option>
-                                                    <option value="1" <%= priceFrom === '1' ? 'selected' : '' %>>1</option>
-                                                    <option value="200" <%= priceFrom === '200' ? 'selected' : '' %>>200</option>
-                                                    <option value="300" <%= priceFrom === '300' ? 'selected' : '' %>>300</option>
-                                                    <option value="400" <%= priceFrom === '400' ? 'selected' : '' %>>400</option>
-                                                    <option value="1000" <%= priceFrom === '1000' ? 'selected' : '' %>>1000</option>
-                                                </select>
-                                            </div>
+                                        <!-- Price range slider container -->
+                                        <div id="price-range-slider" class="mb-3"></div>
+                                        
+                                        <!-- Price display section -->
+                                        <div class="price-range-display d-flex justify-content-between mb-3">
+                                            <span>₹<span id="priceFromDisplay"><%= priceFrom || '0' %></span></span>
+                                            <span>₹<span id="priceToDisplay"><%= priceTo || '10000' %></span></span>
                                         </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="priceTo">Price to:</label>
-                                            <div class="form-field">
-                                                <select name="priceTo" id="priceTo" class="form-control" onchange="this.form.submit()">
-                                                    <option value="">Any</option>
-                                                    <option value="2000" <%= priceTo === '2000' ? 'selected' : '' %>>2000</option>
-                                                    <option value="4000" <%= priceTo === '4000' ? 'selected' : '' %>>4000</option>
-                                                    <option value="6000" <%= priceTo === '6000' ? 'selected' : '' %>>6000</option>
-                                                    <option value="8000" <%= priceTo === '8000' ? 'selected' : '' %>>8000</option>
-                                                    <option value="10000" <%= priceTo === '10000' ? 'selected' : '' %>>10000</option>
-                                                </select>
-                                            </div>
+                                        
+                                        <!-- Hidden inputs for form submission -->
+                                        <input type="hidden" name="priceFrom" id="priceFromInput" value="<%= priceFrom || '0' %>">
+                                        <input type="hidden" name="priceTo" id="priceToInput" value="<%= priceTo || '10000' %>">
+                                        
+                                        <!-- Apply button -->
+                                        <div class="text-center mt-3">
+                                            <button type="button" class="btn fill btn-primary" id="applyPriceFilter">Apply Filter</button>
                                         </div>
                                     </div>
                                 </div>
@@ -219,6 +249,10 @@
     </div>
 </section>
 
+<!-- Include noUiSlider from CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
+
 <script>
     function applySort(element) {
         const sortValue = element.value;
@@ -227,6 +261,64 @@
         url.searchParams.set('page', 1); 
         window.location.href = url.toString();
     }
+    
+    // Price Range Slider Implementation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the elements
+        const priceSlider = document.getElementById('price-range-slider');
+        const priceFromDisplay = document.getElementById('priceFromDisplay');
+        const priceToDisplay = document.getElementById('priceToDisplay');
+        const priceFromInput = document.getElementById('priceFromInput');
+        const priceToInput = document.getElementById('priceToInput');
+        const applyButton = document.getElementById('applyPriceFilter');
+        
+        // Set initial values
+        const minPrice = 0;
+        const maxPrice = 10000;
+        const currentPriceFrom = `<%= priceFrom || 0 %>`;
+        const currentPriceTo = `<%= priceTo || 10000 %>`;
+        
+        // Initialize noUiSlider
+        if (priceSlider) {
+            noUiSlider.create(priceSlider, {
+                start: [currentPriceFrom, currentPriceTo],
+                connect: true,
+                step: 100,
+                range: {
+                    'min': minPrice,
+                    'max': maxPrice
+                },
+                format: {
+                    to: function(value) {
+                        return Math.round(value);
+                    },
+                    from: function(value) {
+                        return Math.round(value);
+                    }
+                }
+            });
+            
+            // Update display values when slider changes
+            priceSlider.noUiSlider.on('update', function(values, handle) {
+                if (handle === 0) {
+                    // This is the left/lower handle (min price)
+                    priceFromDisplay.textContent = values[0];
+                    priceFromInput.value = values[0];
+                } else {
+                    // This is the right/upper handle (max price)
+                    priceToDisplay.textContent = values[1];
+                    priceToInput.value = values[1];
+                }
+            });
+            
+            // Apply button event listener
+            applyButton.addEventListener('click', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
+    });
+    
+    
 </script>
 
 <%- include("../../views/partials/user/footer.ejs") %>

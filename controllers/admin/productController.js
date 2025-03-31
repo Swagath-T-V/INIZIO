@@ -54,6 +54,7 @@ const getProductPage = async(req, res) => {
         }
     } catch (error) {
 
+        console.log("error in getProductPage",error)
         res.redirect('/admin/pageerror')
 
     }
@@ -165,7 +166,7 @@ const addProduct = async(req, res) => {
                 return res.json({ 
                     success: false,
                     message: "Invalid category name" 
-                });
+                })
             }
 
             const newProduct = new Product({
@@ -181,15 +182,15 @@ const addProduct = async(req, res) => {
                 material: material || "N/A",
                 dimensions: dimensions || "N/A",
                 weight: weight || "N/A"
-            });
+            })
 
-            await newProduct.save();
+            await newProduct.save()
 
             return res.json({
                 success: true,
                 message: "Product added successfully",
                 redirectUrl: "/admin/product"
-            });
+            })
         }
     } catch (error) {
 
@@ -227,7 +228,8 @@ const getEditProduct = async(req, res) => {
 const deleteProduct = async(req, res) => {
 
     try {
-        const { productId } = req.params;
+
+        const { productId } = req.params
 
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
@@ -329,9 +331,12 @@ const editProduct = async (req, res) => {
             message: "Internal server error: " + error.message
         });
     }
-};
+}
+
 const getListProduct = async (req, res) => {
+
     try {
+
         const productId = req.query.id;
         const product = await Product.findByIdAndUpdate(
             productId,
@@ -343,15 +348,20 @@ const getListProduct = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found." });
         }
 
-        res.json({ success: true, message: "Product has been listed." });
+        res.json({ success: true, message: "Product has been listed." })
+
     } catch (error) {
+
         console.error("Error in getListProduct:", error);
-        res.status(500).json({ success: false, message: "Failed to list the product." });
+        res.status(500).json({ success: false, message: "Failed to list the product." })
+
     }
 };
 
 const getUnlistProduct = async (req, res) => {
+
     try {
+        
         const productId = req.query.id;
         const product = await Product.findByIdAndUpdate(
             productId,
@@ -363,10 +373,12 @@ const getUnlistProduct = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found." });
         }
 
-        res.json({ success: true, message: "Product has been unlisted." });
+        res.json({ success: true, message: "Product has been unlisted." })
+
     } catch (error) {
-        console.error("Error in getUnlistProduct:", error);
-        res.status(500).json({ success: false, message: "Failed to unlist the product." });
+
+        console.error("Error in getUnlistProduct:", error)
+        res.status(500).json({ success: false, message: "Failed to unlist the product." })
     }
 };
 
