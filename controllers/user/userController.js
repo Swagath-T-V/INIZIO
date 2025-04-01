@@ -277,7 +277,7 @@ const verifyOtp = async (req, res) => {
         res.status(500).json({ success: false, message: "An error occurred." });
 
     }
-};
+}
 
 const loadLogin = async (req,res)=>{
     
@@ -334,7 +334,7 @@ const login = async (req, res) => {
         return res.status(500).json({ success: false, message: "Login failed, Please try again" });
 
     }
-};
+}
 
 
 const logout = async(req,res)=>{
@@ -471,9 +471,7 @@ const loadShopPage = async (req, res) => {
         res.redirect('/pageNotFound');
         
     }
-};
-
-
+}
 
 module.exports = {
     loadHome,

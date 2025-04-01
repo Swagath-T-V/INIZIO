@@ -1,0 +1,635 @@
+<%- include("../../views/partials/userProfile/header.ejs") %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+<style>
+    .up_main-content {
+        background: #f5f6fa;
+        padding: 20px;
+        min-height: 100vh;
+        width: 100%; /* Ensure it takes full width of its parent */
+        max-width: 1200px; /* Match typical max-width for consistency */
+        margin: 0 auto; /* Center the content */
+    }
+    .addr_profile-header {
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+    .addr_profile-info h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 5px;
+    }
+    .addr_profile-info p {
+        font-size: 16px;
+        color: #636e72;
+        margin: 0;
+    }
+    .addr_card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        overflow: hidden;
+        width: 100%; /* Ensure card takes full width of container */
+    }
+    .addr_card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fafafa;
+    }
+    .addr_card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3436;
+        margin: 0;
+    }
+    .addr_btn-outline {
+        background: transparent;
+        border: 1px solid #4a6ee0;
+        color: #4a6ee0;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .addr_btn-outline:hover {
+        background: #4a6ee0;
+        color: white;
+    }
+    .addr_card-body {
+        padding: 20px 25px;
+    }
+    .addr_list {
+        margin-top: 10px;
+    }
+    .addr_item {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+    .addr_item:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    .addr_info {
+        flex: 1;
+        width: 100%; /* Ensure it takes full width */
+    }
+    .addr_type {
+        display: inline-block;
+        background-color: #e0e7ff;
+        color: #4a6ee0;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 50px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    .addr_name {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: #2d3436;
+    }
+    .addr_details {
+        margin-bottom: 10px;
+        font-size: 15px;
+        color: #636e72;
+        line-height: 1.6;
+        width: 100%; /* Ensure details take full width */
+    }
+    .addr_phone {
+        font-size: 15px;
+        color: #636e72;
+        font-weight: 500;
+    }
+    .addr_actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+    }
+    .addr_edit-btn, .addr_delete-btn {
+        display: block;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .addr_edit-btn {
+        background-color: transparent;
+        border: 1px solid #4a6ee0;
+        color: #4a6ee0;
+    }
+    .addr_edit-btn:hover {
+        background-color: #4a6ee0;
+        color: white;
+    }
+    .addr_delete-btn {
+        background-color: transparent;
+        border: 1px solid #e74c3c;
+        color: #e74c3c;
+    }
+    .addr_delete-btn:hover {
+        background-color: #e74c3c;
+        color: white;
+    }
+    .addr_no-items {
+        text-align: center;
+        padding: 40px 20px;
+        color: #636e72;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .addr_no-items p {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    /* Modal Styles */
+    .addr_modal-content {
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .addr_modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 15px 20px;
+    }
+    .addr_modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d3436;
+    }
+    .addr_modal-body {
+        padding: 20px;
+        font-size: 16px;
+        color: #636e72;
+    }
+    .addr_modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 15px 20px;
+    }
+    .addr_btn-secondary {
+        background-color: #95a5a6;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+    .addr_btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+    .addr_btn-danger {
+        background-color: #e74c3c;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+    .addr_btn-danger:hover {
+        background-color: #c0392b;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .up_container {
+            flex-direction: column;
+            margin-top: 60px;
+        }
+        .up_sidebar {
+            width: 100%;
+            order: 2;
+            border-right: none;
+            border-top: 1px solid var(--up-border);
+        }
+        .up_main-content {
+            order: 1;
+            padding: 25px;
+        }
+        .addr_profile-header {
+            padding: 15px 20px;
+        }
+        .addr_profile-info h1 {
+            font-size: 24px;
+        }
+        .addr_profile-info p {
+            font-size: 14px;
+        }
+        .addr_card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .addr_btn-outline {
+            width: 100%;
+            text-align: center;
+        }
+        .addr_item {
+            flex-direction: column;
+        }
+        .addr_actions {
+            flex-direction: row;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .addr_edit-btn, .addr_delete-btn {
+            flex: 1;
+            text-align: center;
+        }
+    }
+
+    /* Updated table styling to ensure full width */
+    .addr_details table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* Added to ensure consistent column widths */
+    }
+    .addr_details th {
+        background: #fafafa;
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+        font-weight: 600;
+        color: #2d3436;
+    }
+    .addr_details td {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    /* Product Image Styles */
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 10px;
+    }
+    
+    .product-cell {
+        display: flex;
+        align-items: center;
+    }
+    
+    .product-name {
+        font-weight: 500;
+    }
+    
+    /* Status Badge Styles */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-delivered {
+        background-color: #d1f5ea;
+        color: #0cbc87;
+    }
+    
+    .status-processing {
+        background-color: #e0e7ff;
+        color: #4a6ee0;
+    }
+    
+    .status-shipped {
+        background-color: #fff5cc;
+        color: #f7c32e;
+    }
+    
+    .status-cancelled {
+        background-color: #fee2e2;
+        color: #e74c3c;
+    }
+    
+    .status-returned {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+    
+    /* Updated style for Pending status - Yellow color */
+    .status-pending {
+        background-color: #fff5cc;  /* Light yellow background */
+        color: #f7c32e;             /* Darker yellow text */
+    }
+    
+    /* Action Button Styles */
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .action-btn {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .track-btn {
+        background-color: #e0e7ff;
+        color: #4a6ee0;
+    }
+    
+    .track-btn:hover {
+        background-color: #4a6ee0;
+        color: white;
+    }
+    
+    .cancel-btn {
+        background-color: #fee2e2;
+        color: #e74c3c;
+    }
+    
+    .cancel-btn:hover {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .return-btn {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+    
+    .return-btn:hover {
+        background-color: #d97706;
+        color: white;
+    }
+    
+    .invoice-btn {
+        background-color: #f3f4f6;
+        color: #4b5563;
+    }
+    
+    .invoice-btn:hover {
+        background-color: #4b5563;
+        color: white;
+    }
+
+    /* Back Button Style */
+    .back-btn {
+        display: flex;
+        align-items: center;
+        background-color: transparent;
+        border: 1px solid #6c757d;
+        color: #6c757d;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+        width: fit-content;
+    }
+    
+    .back-btn i {
+        margin-right: 8px;
+    }
+    
+    .back-btn:hover {
+        background-color: #6c757d;
+        color: white;
+    }
+</style>
+
+<div class="up_main-content">
+    <a href="/getOrderPage" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Orders
+    </a>
+    
+    <div class="addr_card">
+        <% if(orderData && orderData.length > 0) { %>
+            <% orderData.forEach(order => { %>
+                <div class="addr_card-header">
+                    <h1 class="addr_card-title">Order Details - <span id="orderId"><%= order.orderId %></span></h1>
+                </div>
+                
+                <div class="addr_card-body">
+                    <div class="addr_list">
+                        <div class="addr_item">
+                            <div class="addr_info">
+                                <div class="addr_type">Order Information</div>
+                                <div class="addr_details">
+                                    <p><strong>Order Date:</strong> <span id="orderDate"><%= new Date(order.createdAt).toLocaleDateString() %></span></p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="status-badge status-<%= order.status.toLowerCase().replace(' ', '-') %>">
+                                            <%= order.status %>
+                                        </span>
+                                    </p>
+                                    <p><strong>Payment Method:</strong> <span id="paymentMethod"><%= order.paymentMethod %></span></p>
+                                    <!-- <p><strong>Invoice Date:</strong> <span id="invoiceDate"><%= new Date(order.invoiceDate).toLocaleDateString() %></span></p> -->
+                                    <p><strong>Coupon Applied:</strong> <span id="couponApplied"><%= order.couponApplied ? 'Yes' : 'No' %></span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="addr_item">
+                            <div class="addr_info">
+                                <div class="addr_type">Shipping Address</div>
+                                <div class="addr_details">
+                                    <p><strong>Address:</strong></p>
+                                    <div><%= order.address.name %></div>
+                                    <div><%= order.address.city %></div>
+                                    <div><%= order.address.landmark %></div>
+                                    <div><%= order.address.state %>, <%= order.address.pincode %></div>
+                                    <div>Phone: <%= order.address.phone %></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="addr_item">
+                            <div class="addr_info">
+                                <div class="addr_type">Price Details</div>
+                                <div class="addr_details">
+                                    <p><strong>Total Price:</strong> <span id="totalPrice"> ₹ <%= order.totalPrice.toFixed(2) %></span></p>
+                                    <p><strong>Discount:</strong> <span id="discount"> -₹ <%= order.discount.toFixed(2) %></span></p>
+                                    <p><strong>Tax:</strong> <span id="tax"> ₹ <%= order.tax.toFixed(2) %></span></p>
+                                    <p><strong>Shipping:</strong> <span id="shipping"> ₹ <%= order.shipping.toFixed(2) %></span></p>
+                                    <p><strong>Final Amount:</strong> <span id="finalAmount"> ₹ <%= order.finalAmount.toFixed(2) %></span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="addr_item">
+                            <div class="addr_info" style="width: 100%;">
+                                <div class="addr_type">Ordered Items</div>
+                                <div class="addr_details" style="width: 100%;">
+                                    <table style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50%;">Product</th>
+                                                <th style="width: 15%;">Quantity</th>
+                                                <th style="width: 15%;">Price</th>
+                                                <th style="width: 20%;">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="productList">
+                                            <% order.orderedItems.forEach(item => { %>
+                                                <tr>
+                                                    <td class="product-cell">
+                                                        <img src="/uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="<%= item.product.name %>" class="product-image">
+                                                        <span class="product-name"><%= item.product.name %></span>
+                                                    </td>
+                                                    <td><%= item.quantity %></td>
+                                                    <td>$<%= item.price.toFixed(2) %></td>
+                                                    <td>
+                                                        <span class="status-badge status-<%= order.status.toLowerCase().replace(' ', '-') %>">
+                                                            <%= order.status %>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="addr_actions">
+                            <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                                <button class="addr_delete-btn" onclick="return deleteOrder('<%=order._id%>')">Cancel Order</button>
+
+                            <% } %>
+                            <button class="addr_delete-btn" onclick="return returnOder('<%=order._id%>')">Return Order</button>
+                            <button class="addr_edit-btn" id="trackOrderBtn" >Track Order</button>
+                            <button class="addr_edit-btn" >Download Invoice</button>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="addr_no-items">
+                <p>No order details available</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function deleteOrder(orderId) {
+        // Add confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to cancel this order?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, cancel it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/deleteOrder',
+                    method: 'GET',
+                    data: { orderId: orderId },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                text: response.message || 'Order cancelled successfully',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                
+                                window.location.reload(true);
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                text: response.message || 'Failed to cancel order'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Failed to cancel order. Please try again.',
+                            footer: 'Error: ' + error
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+
+    function returnOrder(orderId) {
+        // Add confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to return this order?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, return it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/returnOrder',
+                    method: 'GET',
+                    data: { orderId: orderId },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                text: response.message || 'Order return successfully',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                
+                                window.location.reload(true);
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                text: response.message || 'Failed to return order'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Failed to return order. Please try again.',
+                            footer: 'Error: ' + error
+                        });
+                    }
+                });
+            }
+        });
+    }
+    </script>
+
+<%- include("../../views/partials/userProfile/footer.ejs") %>

@@ -579,6 +579,7 @@ const addAddress = async (req, res) => {
         res.redirect("/addressPage?success=Address added successfully");
 
     } catch (error) {
+
         console.log("error in addAddressPage", error);
         res.redirect("/addressPage?error=Failed to add address");
     }
@@ -622,7 +623,9 @@ const getEditAddress = async (req, res) => {
 };
 
 const postEditAddress = async (req, res) => {
+
     try {
+
         const addressId = req.body.addressId;
         const userId = req.session.user;
         const { addressType, name, city, landMark, state, pincode, phone } = req.body;
@@ -650,14 +653,18 @@ const postEditAddress = async (req, res) => {
         return res.redirect("/addressPage?success=Address updated successfully");
 
     } catch (error) {
-        console.log("error in the editAddress", error);
-        return res.redirect("/addressPage?error=Failed to update address");
+
+        console.log("error in the editAddress", error)
+        return res.redirect("/addressPage?error=Failed to update address")
+
     }
 }
 
 
 const deleteAddress = async (req, res) => {
+
     try {
+
         const addressId = req.query.id;
         const findAddress = await Address.findOne({ "address._id": addressId });
         if (!findAddress) {
@@ -672,8 +679,10 @@ const deleteAddress = async (req, res) => {
         return res.redirect("/addressPage?success=Address deleted successfully");
 
     } catch (error) {
+
         console.log("/error in deleteAddress", error);
-        return res.redirect("/addressPage?error=Failed to delete address");
+        return res.redirect("/addressPage?error=Failed to delete address")
+        
     }
 }
 

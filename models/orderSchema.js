@@ -73,7 +73,7 @@ const orderSchema = new Schema({
         enum: ["COD", "UPI", "Credit/Debit Card"], 
         required: true,
         default: "COD"
-    },
+    },      
     invoiceDate:{
         type:Date,
         default:Date.now

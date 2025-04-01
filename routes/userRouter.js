@@ -6,6 +6,7 @@ const {userAuth,adminAuth} = require("../middlewares/auth")
 const profileController = require("../controllers/user/profileController")
 const productController = require("../controllers/user/productControllers")
 const cartController = require("../controllers/user/cartController")
+const orderController = require("../controllers/user/orderController")
 
 
 //page error
@@ -81,6 +82,12 @@ router.post("/addCheckoutAddress",userAuth,cartController.addCheckoutAddress)
 router.post("/checkOutSubmit",userAuth,cartController.checkOutSubmit)
 router.get("/successPage",userAuth,cartController.successPage)
 
+
+//order
+router.get("/getOrderPage",userAuth,orderController.getOrderPage)
+router.get("/orderDetails",userAuth,orderController.orderDetails)
+router.get("/deleteOrder",userAuth,orderController.deleteOrder)
+router.get("/returnOrder",userAuth,orderController.returnOrder)
 
 
 module.exports= router

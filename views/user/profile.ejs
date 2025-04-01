@@ -1,5 +1,6 @@
 <%- include("../../views/partials/userProfile/header.ejs") %>
 
+
         <!-- Main Content Area -->
         <div class="up_main-content">
             <div id="profile" class="up_tab-content active">
@@ -8,17 +9,6 @@
                         <div class="up_default-avatar" id="default-avatar-profile">
                             <span>👤</span>
                         </div>
-                        
-                        <!-- <div class="up_profile-avatar">
-                            <img src="<%= user.profileImage %>" alt="Profile Image" style="display: <%= user.profileImage !== 'default-profile.jpg' ? 'block' : 'none' %>;">
-                            <div class="up_default-avatar" style="display: <%= user.profileImage === 'default-profile.jpg' ? 'block' : 'none' %>;">
-                              <span>👤</span>
-                            </div>
-                        </div> -->
-
-                        <!-- <img id="profile-image-display" src="default-profile.jpg" alt="Profile Image"> -->
-                        <!-- <div class="up_change-image-overlay">Change Image</div> -->
-                        <input type="file" id="profile-image-profile" accept="image/*">
                     </div>
                     <div class="up_profile-info">
                         <h1 id="profile-name"><%=user.name.toUpperCase()%></h1>

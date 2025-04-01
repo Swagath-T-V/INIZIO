@@ -1,0 +1,374 @@
+<%- include("../../views/partials/userProfile/header.ejs") %>
+
+<style>
+    .order_main-content {
+        background: #f5f6fa;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    .order_profile-header {
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+    .order_profile-info h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 5px;
+    }
+    .order_profile-info p {
+        font-size: 16px;
+        color: #636e72;
+        margin: 0;
+    }
+    .order_card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    .order_card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fafafa;
+    }
+    .order_card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3436;
+        margin: 0;
+    }
+    .order_btn-outline {
+        background: transparent;
+        border: 1px solid #4a6ee0;
+        color: #4a6ee0;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .order_btn-outline:hover {
+        background: #4a6ee0;
+        color: white;
+    }
+    .order_card-body {
+        padding: 20px 25px;
+    }
+    .order_search-bar {
+        margin-bottom: 20px;
+    }
+    .order_search-bar input {
+        padding: 10px 15px;
+        width: 250px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #636e72;
+    }
+    .order_search-bar button {
+        background: #4a6ee0;
+        border: none;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-left: 10px;
+    }
+    .order_search-bar button:hover {
+        background: #3d5bc6;
+    }
+    .order_table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .order_table th {
+        padding: 12px 15px;
+        text-align: left;
+        background-color: #f8f9fa;
+        color: #2d3436;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .order_table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+        color: #636e72;
+        font-size: 14px;
+    }
+    .order_table tr:hover {
+        background-color: #f8f9fa;
+    }
+    .order_table tr:last-child td {
+        border-bottom: none;
+    }
+    .order_status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .order_status-pending {
+        background-color: #ffecb3;
+        color: #e67e22;
+    }
+    .order_status-processing {
+        background-color: #e0f7fa;
+        color: #00acc1;
+    }
+    .order_status-shipped {
+        background-color: #dcedc8;
+        color: #7cb342;
+    }
+    .order_status-delivered {
+        background-color: #e0f2f1;
+        color: #009688;
+    }
+    .order_status-cancelled {
+        background-color: #ffebee;
+        color: #e53935;
+    }
+    .order_actions {
+        display: flex;
+        gap: 8px;
+    }
+    .order_btn {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: 1px solid;
+    }
+    .order_btn-view {
+        background-color: transparent;
+        border-color: #4a6ee0;
+        color: #4a6ee0;
+    }
+    .order_btn-view:hover {
+        background-color: #4a6ee0;
+        color: white;
+    }
+    .order_btn-cancel {
+        background-color: transparent;
+        border-color: #e74c3c;
+        color: #e74c3c;
+    }
+    .order_btn-cancel:hover {
+        background-color: #e74c3c;
+        color: white;
+    }
+    .order_btn-return {
+        background-color: transparent;
+        border-color: #f39c12;
+        color: #f39c12;
+    }
+    .order_btn-return:hover {
+        background-color: #f39c12;
+        color: white;
+    }
+    .order_btn-invoice {
+        background-color: transparent;
+        border-color: #17a2b8;
+        color: #17a2b8;
+    }
+    .order_btn-invoice:hover {
+        background-color: #17a2b8;
+        color: white;
+    }
+    .order_no-items {
+        text-align: center;
+        padding: 40px 20px;
+        color: #636e72;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .order_no-items p {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    /* Product image styles */
+    .order_product-images {
+        display: flex;
+        gap: 10px;
+    }
+    .order_product-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid #e9ecef;
+        transition: transform 0.3s ease;
+    }
+    .order_product-image:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .up_container {
+            flex-direction: column;
+            margin-top: 60px;
+        }
+        .up_sidebar {
+            width: 100%;
+            order: 2;
+            border-right: none;
+            border-top: 1px solid var(--up-border);
+        }
+        .up_main-content {
+            order: 1;
+            padding: 25px;
+        }
+        .order_profile-header {
+            padding: 15px 20px;
+        }
+        .order_profile-info h1 {
+            font-size: 24px;
+        }
+        .order_profile-info p {
+            font-size: 14px;
+        }
+        .order_card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .order_search-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .order_search-bar input {
+            width: 100%;
+        }
+        .order_search-bar button {
+            margin-left: 0;
+        }
+        .order_table {
+            display: block;
+            overflow-x: auto;
+        }
+        .order_table th, 
+        .order_table td {
+            min-width: 120px;
+        }
+        .order_actions {
+            flex-direction: column;
+        }
+        .order_product-images {
+            flex-direction: column;
+            gap: 5px;
+        }
+        .order_product-image {
+            width: 50px;
+            height: 50px;
+        }
+    }
+</style>
+
+<div class="up_main-content order_main-content">
+    <div class="order_profile-header">
+        <div class="order_profile-info">
+            <h1>My Orders</h1>
+            <p>Track and manage your orders</p>
+        </div>
+    </div>
+
+    <div class="order_card">
+        <div class="order_card-header">
+            <h3 class="order_card-title">Order History</h3>
+        </div>
+        <div class="order_card-body">
+            <div class="order_search-bar">
+                <input type="text" id="searchInput" placeholder="Search by Order ID...">
+                <button>Search</button>
+            </div>
+            
+            <% if(orderData && orderData.length > 0) { %>
+                <table class="order_table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Product Images</th>
+                            <th>Order Date</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderList">
+                        <% orderData.forEach(order => { %>
+                        <tr>
+                            <td><%=order.orderId%></td>
+                            <td>
+                                <div class="order_product-images">
+                                    <% if(order.orderedItems && order.orderedItems.length > 0) { %>
+                                        <% order.orderedItems.forEach((item, index) => { %>
+                                            <% if(index < 2 && item.product) { %>
+                                                <% if(item.product.Images && item.product.Images.length > 0) { %>
+                                                    <img src="/uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="<%= item.product.name %>" class="order_product-image">
+                                                <% } else { %>
+                                                    <img src="/img/no-image.png" alt="No Image Available" class="order_product-image">
+                                                <% } %>
+                                            <% } %>
+                                        <% }) %>
+                                        <% if(order.orderedItems.length > 2) { %>
+                                            <span style="font-size: 12px; color: #4a6ee0; align-self: center;">+<%= order.orderedItems.length - 2 %> more</span>
+                                        <% } %>
+                                    <% } else { %>
+                                        <img src="/img/no-image.png" alt="No Image" class="order_product-image">
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td><%=order.createdAt.toISOString().split('T')[0] %></td>
+                            <td>
+                                <span class="order_status order_status-<%= order.status.toLowerCase() %>">
+                                    <%= order.status %>
+                                </span>
+                            </td>
+                            <td>₹<%= order.finalAmount.toFixed(2) %></td>
+                            <td>
+                                <div class="order_actions">
+                                    <a href="/orderDetails?orderID=<%= order._id %>" class="order_btn order_btn-view">View</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="order_no-items">
+                    <p>You don't have any orders yet.</p>
+                    <p>Start shopping to see your orders here.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+
+<%- include("../../views/partials/userProfile/footer.ejs") %>
