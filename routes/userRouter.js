@@ -87,7 +87,7 @@ router.get("/successPage",userAuth,cartController.successPage)
 router.get("/getOrderPage",userAuth,orderController.getOrderPage)
 router.get("/orderDetails",userAuth,orderController.orderDetails)
 router.get("/deleteOrder",userAuth,orderController.deleteOrder)
-router.get("/returnOrder",userAuth,orderController.returnOrder)
+router.post("/returnOrder",userAuth,orderController.returnOrder)
 
 
 module.exports= router

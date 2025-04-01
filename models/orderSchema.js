@@ -92,6 +92,14 @@ const orderSchema = new Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    returnReason: {
+        type: String,
+        default: null
+    },
+    returnDetails: {
+        type: String,
+        default: null
     }
 })
 

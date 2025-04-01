@@ -80,7 +80,6 @@ const deleteOrder = async(req,res)=>{
             });
         }
 
-        // Update order status
         await Order.findByIdAndUpdate(
             { _id: orderId },
             { $set: { status: "Cancelled" } },
@@ -111,8 +110,44 @@ const deleteOrder = async(req,res)=>{
 const returnOrder = async (req,res)=>{
 
     try {
+
+        const userId = req.session.user
+        const user = await User.findById(userId)
+        if(!user){
+            return res.status(401).json({success:false,message:"user not found",redirectUrl:"/login"})
+        }
+
+        const {orderId,returnReason,returnDetails} = req.body
+
+        if(!orderId || !returnReason){
+            return res.status(400).json({success:false,message:" orderID and return Reason are require"})
+        }
+
+        const orderData = await Order.findOne({_id:orderId})
+        if(!orderData){
+            return res.status(400).json({success:false,message:"order is not found"})
+        }
+
+        await Order.findByIdAndUpdate(
+            {_id:orderId},
+            {
+                $set:{
+                    status:"Return Request",
+                    returnReason:returnReason,
+                    returnDetails:returnDetails
+                }
+            },
+            {new:true}
+        )
+
+        await orderData.save()
+
+        return res.status(200).json({success:true,message:"return request submitted successfully"})
         
     } catch (error) {
+
+        console.log("error in returnOrder",error)
+        return res.status(500).json({success:false,message:"server error"})
         
     }
 }
