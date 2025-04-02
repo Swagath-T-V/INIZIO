@@ -371,7 +371,13 @@
           <% if (cartItems && cartItems.length > 0) { %>
             <div class="price-row">
               <span>Price (<span id="item-count"><%= cartItems.length %></span> items)</span>
-              <span id="subtotal">₹<%= total %></span>
+              
+              <span id="subtotal">
+                <% let Discount = 0; %>
+                <% cartItems.forEach(item => { %>
+                  <% Discount += (item.productId.regularPrice - item.price) * item.quantity; %>
+                <% }); %>
+                ₹<%= total+Discount%></span>
             </div>
             <div class="price-row">
               <span>Discount</span>

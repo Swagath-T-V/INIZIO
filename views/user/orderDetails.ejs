@@ -353,6 +353,10 @@
         background-color: #e9ecef;
         color: #495057;
     }
+    .status-return-rejected {
+    background-color: #ffe8e8;
+    color: #c0392b;
+    }
     
     /* Action Button Styles */
     .action-buttons {
@@ -599,7 +603,6 @@
                                         </span>
                                     </p>
                                     <p><strong>Payment Method:</strong> <span id="paymentMethod"><%= order.paymentMethod %></span></p>
-                                    <!-- <p><strong>Invoice Date:</strong> <span id="invoiceDate"><%= new Date(order.invoiceDate).toLocaleDateString() %></span></p> -->
                                     <p><strong>Coupon Applied:</strong> <span id="couponApplied"><%= order.couponApplied ? 'Yes' : 'No' %></span></p>
                                 </div>
                             </div>
@@ -639,10 +642,11 @@
                                     <table style="width: 100%;">
                                         <thead>
                                             <tr>
-                                                <th style="width: 50%;">Product</th>
+                                                <th style="width: 40%;">Product</th>
                                                 <th style="width: 15%;">Quantity</th>
                                                 <th style="width: 15%;">Price</th>
-                                                <th style="width: 20%;">Status</th>
+                                                <th style="width: 15%;">Return Status</th>
+                                                <th style="width: 15%;">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="productList">
@@ -653,11 +657,21 @@
                                                         <span class="product-name"><%= item.product.name %></span>
                                                     </td>
                                                     <td><%= item.quantity %></td>
-                                                    <td>$<%= item.price.toFixed(2) %></td>
+                                                    <td>₹<%= item.price.toFixed(2) %></td>
                                                     <td>
-                                                        <span class="status-badge status-<%= order.status.toLowerCase().replace(' ', '-') %>">
-                                                            <%= order.status %>
+                                                        <span class="status-badge status-<%= item.returnStatus.toLowerCase().replace(' ', '-') %>">
+                                                            <%= item.returnStatus %>
                                                         </span>
+                                                    </td>
+                                                    <td>
+                                                        <% if (item.returnStatus === 'Not Returned' && (order.status === 'Delivered')) { %>
+                                                            <button class="action-btn return-btn" 
+                                                                    data-orderid="<%= order._id %>" 
+                                                                    data-productid="<%= item.product._id %>"
+                                                                    onclick="openReturnModal('<%= order._id %>', '<%= item.product._id %>')">
+                                                                Return
+                                                            </button>
+                                                        <% } %> 
                                                     </td>
                                                 </tr>
                                             <% }) %>
@@ -671,7 +685,6 @@
                             <% if (order.status === 'Pending' || order.status === 'Processing') { %>
                                 <button class="addr_delete-btn" onclick="return deleteOrder('<%=order._id%>')">Cancel Order</button>
                             <% } %>
-                            <button class="addr_delete-btn" id="openReturnModal" data-orderid="<%=order._id%>">Return Order</button>
                             <button class="addr_edit-btn" id="trackOrderBtn">Track Order</button>
                             <button class="addr_edit-btn">Download Invoice</button>
                         </div>
@@ -690,12 +703,13 @@
 <div id="returnOrderModal" class="return-modal">
     <div class="return-modal-content">
         <div class="return-modal-header">
-            <h2 class="return-modal-title">Return Order</h2>
-            <span class="return-modal-close">&times;</span>
+            <h2 class="return-modal-title">Return Product</h2>
+            <span class="return-modal-close">×</span>
         </div>
         <div class="return-modal-body">
             <form id="returnOrderForm">
                 <input type="hidden" id="returnOrderId" name="orderId">
+                <input type="hidden" id="returnProductId" name="productId">
                 
                 <div class="return-form-group">
                     <label for="returnReason" class="return-form-label">Return Reason</label>
@@ -729,6 +743,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+
+
     function deleteOrder(orderId) {
         Swal.fire({
             title: 'Are you sure?',
@@ -773,104 +789,71 @@
         });
     }
 
-    // Get the return modal
     const returnModal = document.getElementById("returnOrderModal");
-    const openReturnModalBtn = document.getElementById("openReturnModal");
     const closeReturnModalBtn = document.getElementById("closeReturnModal");
     const closeReturnModalX = document.querySelector(".return-modal-close");
     const submitReturnBtn = document.getElementById("submitReturnRequest");
-    const returnOrderIdInput = document.getElementById("returnOrderId");
 
-    // When the user clicks the Return Order button
-    if (openReturnModalBtn) {
-        openReturnModalBtn.onclick = function() {
-            const orderId = this.getAttribute("data-orderid");
-            returnOrderIdInput.value = orderId;
-            returnModal.style.display = "block";
-        };
+    // Open the return modal
+    function openReturnModal(orderId, productId) {
+        document.getElementById("returnOrderId").value = orderId;
+        document.getElementById("returnProductId").value = productId;
+        returnModal.style.display = "block";
     }
 
-    // Close the modal when clicking the × button
-    if (closeReturnModalX) {
-        closeReturnModalX.onclick = function() {
-            returnModal.style.display = "none";
-        };
-    }
+    // Close the modal
+    closeReturnModalX.onclick = function() { returnModal.style.display = "none"; };
+    closeReturnModalBtn.onclick = function() { returnModal.style.display = "none"; };
+    window.onclick = function(event) { if (event.target == returnModal) returnModal.style.display = "none"; };
 
-    // Close the modal when clicking the Cancel button
-    if (closeReturnModalBtn) {
-        closeReturnModalBtn.onclick = function() {
-            returnModal.style.display = "none";
-        };
-    }
+    // Submit return request
+    submitReturnBtn.onclick = function() {
+        const orderId = document.getElementById("returnOrderId").value;
+        const productId = document.getElementById("returnProductId").value;
+        const returnReason = document.getElementById("returnReason").value;
+        const returnDetails = document.getElementById("returnDetails").value;
 
-    // Close the modal when clicking outside of it
-    window.onclick = function(event) {
-        if (event.target == returnModal) {
-            returnModal.style.display = "none";
+        if (!returnReason) {
+            Swal.fire({ icon: 'error', title: 'Oops...', text: 'Please select a return reason' });
+            return;
         }
-    };
 
-    // Handle the form submission
-    if (submitReturnBtn) {
-        submitReturnBtn.onclick = function() {
-            const form = document.getElementById("returnOrderForm");
-            const orderId = document.getElementById("returnOrderId").value;
-            const returnReason = document.getElementById("returnReason").value;
-            const returnDetails = document.getElementById("returnDetails").value;
-            
-            if (!returnReason) {
+        $.ajax({
+            url: '/returnOrder',
+            method: 'POST',
+            data: {
+                orderId: orderId,
+                productId: productId,
+                returnReason: returnReason,
+                returnDetails: returnDetails
+            },
+            success: function(response) {
+                returnModal.style.display = "none";
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload(true);
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                }
+            },
+            error: function(xhr, status, error) {
+                returnModal.style.display = "none";
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please select a return reason'
+                    title: 'Error',
+                    text: 'Failed to submit return request. Please try again.',
+                    footer: 'Error: ' + error
                 });
-                return;
             }
-            
-            // Submit the return request via AJAX
-            $.ajax({
-                url: '/returnOrder',
-                method: 'POST',
-                data: {
-                    orderId: orderId,
-                    returnReason: returnReason,
-                    returnDetails: returnDetails
-                },
-                success: function(response) {
-                    returnModal.style.display = "none";
-                    
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message || 'Return request submitted successfully',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.reload(true);
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message || 'Failed to submit return request'
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    returnModal.style.display = "none";
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to submit return request. Please try again.',
-                        footer: 'Error: ' + error
-                    });
-                }
-            });
-        };
-    }
+        });
+    };
 </script>
 
 <%- include("../../views/partials/userProfile/footer.ejs") %>

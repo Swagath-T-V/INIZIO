@@ -1,4 +1,3 @@
-const { findById } = require("../../models/categorySchema")
 const Order =  require("../../models/orderSchema")
 const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
@@ -113,32 +112,34 @@ const returnOrder = async (req,res)=>{
 
         const userId = req.session.user
         const user = await User.findById(userId)
+
         if(!user){
             return res.status(401).json({success:false,message:"user not found",redirectUrl:"/login"})
         }
 
-        const {orderId,returnReason,returnDetails} = req.body
+        const {orderId,productId,returnReason,returnDetails} = req.body
 
-        if(!orderId || !returnReason){
-            return res.status(400).json({success:false,message:" orderID and return Reason are require"})
+        if(!orderId || !returnReason || !productId){
+            return res.status(400).json({success:false,message:" orderID,productId and return Reason are require"})
         }
 
-        const orderData = await Order.findOne({_id:orderId})
+        const orderData = await Order.findOne({_id: orderId,userId: userId,'orderedItems.product': productId})
         if(!orderData){
             return res.status(400).json({success:false,message:"order is not found"})
         }
 
-        await Order.findByIdAndUpdate(
-            {_id:orderId},
-            {
-                $set:{
-                    status:"Return Request",
-                    returnReason:returnReason,
-                    returnDetails:returnDetails
-                }
-            },
-            {new:true}
-        )
+        const itemIndex = orderData.orderedItems.findIndex(item => item.product.toString() === productId);
+        if (itemIndex === -1) {
+            return res.status(400).json({ success: false, message: "Product not found in order" });
+        }
+
+        if (orderData.orderedItems[itemIndex].returnStatus !== "Not Returned") {
+            return res.status(400).json({ success: false, message: "Return already requested or processed for this item" });
+        }
+
+        orderData.orderedItems[itemIndex].returnStatus = "Return Requested";
+        orderData.orderedItems[itemIndex].returnReason = returnReason;
+        orderData.orderedItems[itemIndex].returnDetails = returnDetails;
 
         await orderData.save()
 

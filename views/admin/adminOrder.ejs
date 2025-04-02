@@ -1,0 +1,476 @@
+<%- include("../../views/partials/admin/header.ejs") %>
+
+<style>
+    .order-details-page {
+        padding: 20px;
+    }
+    
+    .order-details-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .order-title {
+        color: var(--purple-light);
+    }
+    
+    .card {
+        background-color: var(--gray-dark);
+        border: none;
+        border-radius: 10px;
+        color: var(--text-dark);
+    }
+    
+    .light-mode .card {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+    }
+    
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-dark);
+        padding: 15px;
+    }
+    
+    .light-mode .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        color: var(--text-light);
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .light-mode .detail-item {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-label {
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+    
+    .light-mode .detail-label {
+        color: var(--text-light);
+    }
+    
+    .detail-value {
+        color: var(--text-dark);
+    }
+    
+    .light-mode .detail-value {
+        color: var(--text-light);
+    }
+    
+    /* Order Status Colors */
+    .status-pending {
+        color: #f39c12; /* Orange for Pending */
+        font-weight: 500;
+    }
+
+    .status-processing {
+        color: #3498db; /* Blue for Processing */
+        font-weight: 500;
+    }
+
+    .status-shipped {
+        color: #27ae60; /* Green for Shipped */
+        font-weight: 500;
+    }
+
+    .status-out-for-delivery {
+        color: #f1c40f; /* Yellow for Out for Delivery */
+        font-weight: 500;
+    }
+
+    .status-delivered {
+        color: #2ecc71; /* Bright Green for Delivered */
+        font-weight: 500;
+    }
+
+    .status-cancelled {
+        color: #e74c3c; /* Red for Cancelled */
+        font-weight: 500;
+    }
+
+    .status-return-request {
+        color: #8e44ad; /* Purple for Return Request */
+        font-weight: 500;
+    }
+
+    .status-returned {
+        color: #9b59b6; /* Lighter Purple for Returned */
+        font-weight: 500;
+    }
+
+    .status-return-rejected {
+        color: #c0392b; /* Darker Red for Return Rejected */
+        font-weight: 500;
+    }
+    
+    .table-dark {
+        --bs-table-bg: var(--gray-dark);
+        --bs-table-color: var(--text-dark);
+        color: var(--text-dark);
+    }
+    
+    .light-mode .table-dark {
+        --bs-table-bg: var(--gray-light);
+        --bs-table-color: var(--text-light);
+        color: var(--text-light);
+    }
+    
+    .table-dark th,
+    .table-dark td {
+        color: var(--text-dark);
+    }
+    
+    .light-mode .table-dark th,
+    .light-mode .table-dark td {
+        color: var(--text-light);
+    }
+    
+    .table-dark .text-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    .light-mode .table-dark .text-muted {
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+    
+    .order-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 20px 0;
+    }
+    
+    .btn-outline-secondary {
+        color: var(--text-dark);
+        border-color: var(--text-dark);
+    }
+    
+    .light-mode .btn-outline-secondary {
+        color: var(--text-light);
+        border-color: var(--text-light);
+    }
+    
+    .btn-primary {
+        background-color: var(--purple-light);
+        border-color: var(--purple-light);
+    }
+</style>
+
+
+<div id="content">
+    <div class="order-details-page">
+        <div class="order-details-container">
+            <!-- Order Header -->
+            <div class="order-header">
+                <h2 class="order-title">Order Details - <%=orderData._id%></h2>
+                <a href="/admin/getOrderPage" class="btn btn-outline-secondary">Back to Orders</a>
+            </div>
+
+            <!-- Order Details Section -->
+            <div class="order-details-content mt-4">
+                <div class="row">
+                    <!-- Order Information -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3>Order Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Order ID:</span>
+                                    <span class="detail-value" id="orderIdValue"><%=orderData.orderId%></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Date:</span>
+                                    <span class="detail-value"><%= new Date(orderData.createdAt).toLocaleDateString() %></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Status:</span>
+                                    <span class="detail-value status-<%= orderData.status.toLowerCase().replace(/\s+/g, '-') %>">
+                                        <%= orderData.status %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Payment Method:</span>
+                                    <span class="detail-value"><%=orderData.paymentMethod%></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Order Total:</span>
+                                    <span class="detail-value">₹ <%= orderData.finalAmount.toFixed(2) %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Information -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h3>Customer Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="detail-item">
+                                    <span class="detail-label">Name:</span>
+                                    <span class="detail-value"><%=orderData.userId.name%></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Email:</span>
+                                    <span class="detail-value"><%=orderData.userId.email%></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Phone:</span>
+                                    <span class="detail-value"><%=orderData.userId.phone%></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Shipping Address:</span>
+                                    
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-value"><%= orderData.address.city %></span>
+                                    <span class="detail-value"><%= orderData.address.landmark %></span>
+                                    <span class="detail-value"><%= orderData.address.state %>, <%= orderData.address.pincode %></span>
+                                    <span class="detail-value">Phone: <%= orderData.address.phone %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <!-- Order Items -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Order Items</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% orderData.orderedItems.forEach(item => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="/uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="Product" class="me-2 rounded" style="width: 50px; height: 50px;">
+                                                <div>
+                                                    <div class="fw-medium"><%= item.product.name %></div>
+                                                    <div class="small text-muted">ID: <%= item.product.id || 'N/A' %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>₹ <%= item.price.toFixed(2) %></td>
+                                        <td><%= item.quantity %></td>
+                                        <td>₹ <%= (item.price * item.quantity).toFixed(2) %></td>
+                                    </tr>
+                                    <% }) %>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-medium">Discount:</td>
+                                        <td>₹ <%= orderData.discount.toFixed(2) %></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-medium">Subtotal:</td>
+                                        <td>₹ <%= orderData.orderedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2) %></td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-medium">Shipping:</td>
+                                        <td>₹ <%= orderData.shipping.toFixed(2) %></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-medium">Tax:</td>
+                                        <td>₹ <%= orderData.tax.toFixed(2) %></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="fw-bold">₹ <%= orderData.finalAmount.toFixed(2) %></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Return Requests Section -->
+                <% if (orderData.orderedItems.some(item => item.returnStatus === 'Return Requested')) { %>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Return Requests</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% orderData.orderedItems.filter(item => item.returnStatus === 'Return Requested').forEach(item => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="/uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="Product" class="me-2 rounded" style="width: 50px; height: 50px;">
+                                                <div>
+                                                    <div class="fw-medium"><%= item.product.name %></div>
+                                                    <div class="small text-muted">ID: <%= item.product.id || 'N/A' %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>₹ <%= item.price.toFixed(2) %></td>
+                                        <td><%= item.quantity %></td>
+                                        <td>₹ <%= (item.price * item.quantity).toFixed(2) %></td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-success btn-sm" onclick="handleReturnAction('<%= orderData._id %>', 'Returned')">Approve</button>
+                                                <button class="btn btn-danger btn-sm" onclick="handleReturnAction('<%= orderData._id %>', 'Return Rejected')">Reject</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- reason -->
+                    <% orderData.orderedItems.filter(item => item.returnStatus === 'Return Requested').forEach(item => { %>
+                    <div >
+                        <span class="detail-label">Return Reason:</span>
+                        <span class="detail-value"><%= item.returnReason || 'Not Provided' %></span>
+                    </div>
+                    <div >
+                        <span class="detail-label">Return Details:</span>
+                        <span class="detail-value"><%= item.returnDetails || 'Not Provided' %></span>
+                    </div>
+                    <% }) %>
+                </div>
+                <% } %>
+
+                <!-- Update Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Update Order Status</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex gap-3 align-items-center">
+                            <select class="form-select w-25" id="updateStatus">
+                                <option value="Pending" <%= orderData.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="Processing" <%= orderData.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="Shipped" <%= orderData.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="Out for Delivery" <%= orderData.status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                                <option value="Delivered" <%= orderData.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Cancelled" <%= orderData.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                <option value="Return Request" <%= orderData.status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                                <option value="Returned" <%= orderData.status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                <option value="Return Rejected" <%= orderData.status === 'Return Rejected' ? 'selected' : '' %>>Return Rejected</option>
+
+                            </select>
+                            <button class="btn btn-primary" onclick="return updateOrderStatus('<%= orderData._id %>')">
+                                <i class="bi bi-arrow-repeat me-2"></i>Update Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-footer mt-4">
+                <a href="/admin/getOrderPage" class="btn btn-outline-secondary me-2">Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function updateOrderStatus(orderId) {
+        const status = document.getElementById('updateStatus').value; 
+
+        $.ajax({
+            url: '/admin/updateOrderStatus',
+            method: 'POST', 
+            data: { orderId: orderId, status: status },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: response.message
+                    }).then(() => {
+                        window.location.href = '/admin/getOrderPage'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Failed to update status. Please try again.'
+                });
+            }
+        });
+    }
+
+    function handleReturnAction(orderId, status) {
+        $.ajax({
+            url: '/admin/updateOrderStatus',
+            method: 'POST',
+            data: { orderId: orderId, status: status },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: response.message
+                    }).then(() => {
+                        window.location.href = '/admin/getOrderPage'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Failed to update status. Please try again.'
+                });
+            }
+        });
+    }
+</script>
+<%- include("../../views/partials/admin/footer.ejs") %>

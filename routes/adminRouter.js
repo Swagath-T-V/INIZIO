@@ -9,6 +9,7 @@ const productController = require("../controllers/admin/productController")
 const multer = require("multer")
 const storage = require("../helpers/multer")
 const uploads = multer({storage:storage})
+const orderController = require("../controllers/admin/orderController")
 
 
 //adminpage error
@@ -64,7 +65,10 @@ router.get("/listProduct", adminAuth, productController.getListProduct);
 router.get("/unlistProduct", adminAuth, productController.getUnlistProduct);
 
 
-
+//order
+router.get("/getOrderPage",adminAuth,orderController.getOrderPage)
+router.get("/adminOrderDetails",adminAuth,orderController.getAdminOrderDetails)
+router.post("/updateOrderStatus",adminAuth,orderController.updateOrderStatus)
 
 
 
