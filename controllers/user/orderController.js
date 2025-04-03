@@ -3,31 +3,53 @@ const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
 
 
-const getOrderPage = async(req,res)=>{
+
+const getOrderPage = async (req, res) => {
 
     try {
 
-        const userId = req.session.user 
-        const user = await User.findById(userId)
-        if(!user){
-            return res.redirect("/login")
+        const userId = req.session.user;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.redirect("/login");
         }
 
-        const orderData = await Order.find({userId:userId}).populate('orderedItems.product')
-        // console.log(orderData)
-        res.render("order",{
+        const { search } = req.query;
+        let orderData;
+
+        if (search) {
+            orderData = await Order.find({      
+                userId: userId,
+                $or: [
+                    { orderId: { $regex: search, $options: 'i' } },
+                    { 'orderedItems.product': {
+                        $in: await Product.find({
+                            name: { $regex: search, $options: 'i' }
+                        })
+                    }}
+                ]
+            }).populate('orderedItems.product');
+
+        } else {
+
+            orderData = await Order.find({ userId: userId }).populate('orderedItems.product');
+
+        }
+
+        res.render("order", {
             user,
             orderData,
-            activePage:"orders"
-        })
+            activePage: "orders",
+            searchQuery: search || ''
+        });
         
     } catch (error) {
 
-        console.log("error in getOrderPage",error)
-        return res.redirect("/pageNotFound")
-        
+        console.log("error in getOrderPage", error);
+        return res.redirect("/pageNotFound");
+
     }
-}
+};
 
 const orderDetails = async(req,res)=>{
 
@@ -55,7 +77,7 @@ const orderDetails = async(req,res)=>{
     }
 }
 
-const deleteOrder = async(req,res)=>{
+const cancelOrder = async(req,res)=>{
 
     try {
 
@@ -85,7 +107,6 @@ const deleteOrder = async(req,res)=>{
             { new: true }
         );
 
-        // Restore product quantities
         for (let item of orderData.orderedItems) {
             await Product.findByIdAndUpdate(
                 item.product._id,
@@ -106,7 +127,7 @@ const deleteOrder = async(req,res)=>{
     }
 }
 
-const returnOrder = async (req,res)=>{
+const returnProduct = async (req,res)=>{
 
     try {
 
@@ -133,13 +154,11 @@ const returnOrder = async (req,res)=>{
             return res.status(400).json({ success: false, message: "Product not found in order" });
         }
 
-        if (orderData.orderedItems[itemIndex].returnStatus !== "Not Returned") {
-            return res.status(400).json({ success: false, message: "Return already requested or processed for this item" });
-        }
-
         orderData.orderedItems[itemIndex].returnStatus = "Return Requested";
         orderData.orderedItems[itemIndex].returnReason = returnReason;
         orderData.orderedItems[itemIndex].returnDetails = returnDetails;
+
+        orderData.status ="Return Request"
 
         await orderData.save()
 
@@ -154,10 +173,45 @@ const returnOrder = async (req,res)=>{
 }
 
 
+const getInvoice = async (req, res) => {
+
+    try {
+        
+        const { orderId } = req.query;
+        // console.log("orderid",orderId)
+        const userId = req.session.user;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.redirect("/pageNotFound");
+        }
+
+        const orderData = await Order.findOne({ _id: orderId })
+            .populate("orderedItems.product")
+            .populate("userId");
+
+        if (!orderData) {
+            return res.redirect("/pageNotFound");
+        }
+
+        res.render("invoice", {
+            user: user,
+            order: orderData,
+            orderDate: orderData.createdAt.toLocaleDateString(),
+            invoiceNumber: orderData._id
+        });
+
+    } catch (error) {
+        console.log("error in getInvoice", error);
+        return res.redirect("/pageNotFound");
+    }
+};
+
 
 module.exports={
     getOrderPage,
     orderDetails,
-    deleteOrder,
-    returnOrder
+    cancelOrder,
+    returnProduct,
+    getInvoice
 }

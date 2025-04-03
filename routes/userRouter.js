@@ -86,8 +86,11 @@ router.get("/successPage",userAuth,cartController.successPage)
 //order
 router.get("/getOrderPage",userAuth,orderController.getOrderPage)
 router.get("/orderDetails",userAuth,orderController.orderDetails)
-router.get("/deleteOrder",userAuth,orderController.deleteOrder)
-router.post("/returnOrder",userAuth,orderController.returnOrder)
+router.get("/cancelOrder",userAuth,orderController.cancelOrder)
+router.post("/returnProduct",userAuth,orderController.returnProduct)
+
+//invoice
+router.get("/getInvoice",userAuth,orderController.getInvoice)
 
 
 module.exports= router

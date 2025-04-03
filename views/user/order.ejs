@@ -326,8 +326,10 @@
         </div>
         <div class="order_card-body">
             <div class="order_search-bar">
-                <input type="text" id="searchInput" placeholder="Search by Order ID...">
-                <button>Search</button>
+                <form action="/getOrderPage" method="GET">
+                    <input type="text" id="searchInput" name="search" placeholder="Search by Order ID or Product Name..." value="<%= searchQuery %>">
+                    <button type="submit">Search</button>
+                </form>
             </div>
             
             <% if(orderData && orderData.length > 0) { %>
@@ -384,8 +386,10 @@
                 </table>
             <% } else { %>
                 <div class="order_no-items">
-                    <p>You don't have any orders yet.</p>
-                    <p>Start shopping to see your orders here.</p>
+                    <p>No orders found<% if(searchQuery) { %> for "<%= searchQuery %>".<% } else { %> yet.<% } %></p>
+                    <% if(!searchQuery) { %>
+                        <p>Start shopping to see your orders here.</p>
+                    <% } %>
                 </div>
             <% } %>
         </div>

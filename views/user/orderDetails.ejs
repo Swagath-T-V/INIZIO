@@ -576,6 +576,9 @@
     .return-btn-submit:hover {
         background-color: #c0392b;
     }
+    a {
+    color: #000000;
+    }
 </style>
 
 <div class="up_main-content">
@@ -664,7 +667,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <% if (item.returnStatus === 'Not Returned' && (order.status === 'Delivered')) { %>
+                                                        <% if (item.returnStatus === 'Not Returned' && (order.status === 'Delivered' || order.status === 'Return Requested')) { %>
                                                             <button class="action-btn return-btn" 
                                                                     data-orderid="<%= order._id %>" 
                                                                     data-productid="<%= item.product._id %>"
@@ -683,10 +686,13 @@
 
                         <div class="addr_actions">
                             <% if (order.status === 'Pending' || order.status === 'Processing') { %>
-                                <button class="addr_delete-btn" onclick="return deleteOrder('<%=order._id%>')">Cancel Order</button>
+                                <button class="addr_delete-btn" onclick="return cancelOrder('<%=order._id%>')">Cancel Order</button>
+                            <% } %>
+
+                            <% if(order.status === "Delivered") {%>
+                            <button class="addr_edit-btn "><a href="/getInvoice?orderId=<%=order._id%>">Invoice</a></button>
                             <% } %>
                             <button class="addr_edit-btn" id="trackOrderBtn">Track Order</button>
-                            <button class="addr_edit-btn">Download Invoice</button>
                         </div>
                     </div>
                 </div>
@@ -744,8 +750,7 @@
 
 <script>
 
-
-    function deleteOrder(orderId) {
+    function cancelOrder(orderId) {
         Swal.fire({
             title: 'Are you sure?',
             text: "Do you want to cancel this order?",
@@ -757,7 +762,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/deleteOrder',
+                    url: '/cancelOrder',
                     method: 'GET',
                     data: { orderId: orderId },
                     success: function(response) {
@@ -819,7 +824,7 @@
         }
 
         $.ajax({
-            url: '/returnOrder',
+            url: '/returnProduct',
             method: 'POST',
             data: {
                 orderId: orderId,
@@ -854,6 +859,8 @@
             }
         });
     };
+
+        
 </script>
 
 <%- include("../../views/partials/userProfile/footer.ejs") %>

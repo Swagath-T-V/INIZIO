@@ -30,7 +30,7 @@ const orderSchema = new Schema({
         },
         returnStatus: {
             type: String,
-            enum: [ "Return Requested", "Returned","Return Rejected"],
+            enum: ["Not Returned","Return Requested", "Returned","Return Rejected"],
             default: "Not Returned",
         },
         returnReason: { 

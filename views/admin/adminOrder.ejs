@@ -269,6 +269,7 @@
                                         <th>Product</th>
                                         <th>Price</th>
                                         <th>Quantity</th>
+                                        <th>Status</th>
                                         <th>Total</th>
                                     </tr>
                                 </thead>
@@ -286,30 +287,34 @@
                                         </td>
                                         <td>₹ <%= item.price.toFixed(2) %></td>
                                         <td><%= item.quantity %></td>
+                                        <td>
+                                            <span class="status-<%= (item.status || orderData.status).toLowerCase().replace(/\s+/g, '-') %>">
+                                                <%= item.returnStatus  %>
+                                            </span>
+                                        </td>
                                         <td>₹ <%= (item.price * item.quantity).toFixed(2) %></td>
                                     </tr>
                                     <% }) %>
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-medium">Discount:</td>
+                                        <td colspan="4" class="text-end fw-medium">Discount:</td>
                                         <td>₹ <%= orderData.discount.toFixed(2) %></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-medium">Subtotal:</td>
+                                        <td colspan="4" class="text-end fw-medium">Subtotal:</td>
                                         <td>₹ <%= orderData.orderedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2) %></td>
                                     </tr>
-                                    
                                     <tr>
-                                        <td colspan="3" class="text-end fw-medium">Shipping:</td>
+                                        <td colspan="4" class="text-end fw-medium">Shipping:</td>
                                         <td>₹ <%= orderData.shipping.toFixed(2) %></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-medium">Tax:</td>
+                                        <td colspan="4" class="text-end fw-medium">Tax:</td>
                                         <td>₹ <%= orderData.tax.toFixed(2) %></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td colspan="4" class="text-end fw-bold">Total:</td>
                                         <td class="fw-bold">₹ <%= orderData.finalAmount.toFixed(2) %></td>
                                     </tr>
                                 </tfoot>
@@ -317,6 +322,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Return Requests Section -->
                 <!-- Return Requests Section -->
                 <% if (orderData.orderedItems.some(item => item.returnStatus === 'Return Requested')) { %>
                 <div class="card mb-4">
@@ -346,14 +353,23 @@
                                                     <div class="small text-muted">ID: <%= item.product.id || 'N/A' %></div>
                                                 </div>
                                             </div>
+                                            <!-- Return Reason and Details Below Product -->
+                                            <div class="mt-2">
+                                                <span class="detail-label">Return Reason:</span>
+                                                <span class="detail-value"><%= item.returnReason || 'Not Provided' %></span>
+                                            </div>
+                                            <div>
+                                                <span class="detail-label">Return Details:</span>
+                                                <span class="detail-value"><%= item.returnDetails || 'Not Provided' %></span>
+                                            </div>
                                         </td>
                                         <td>₹ <%= item.price.toFixed(2) %></td>
                                         <td><%= item.quantity %></td>
                                         <td>₹ <%= (item.price * item.quantity).toFixed(2) %></td>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <button class="btn btn-success btn-sm" onclick="handleReturnAction('<%= orderData._id %>', 'Returned')">Approve</button>
-                                                <button class="btn btn-danger btn-sm" onclick="handleReturnAction('<%= orderData._id %>', 'Return Rejected')">Reject</button>
+                                                <button class="btn btn-success btn-sm" onclick="handleReturnAction('<%= orderData._id %>', '<%= item._id %>', 'Returned')">Approve</button>
+                                                <button class="btn btn-danger btn-sm" onclick="handleReturnAction('<%= orderData._id %>', '<%= item._id %>', 'Return Rejected')">Reject</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -362,22 +378,13 @@
                             </table>
                         </div>
                     </div>
-                    <!-- reason -->
-                    <% orderData.orderedItems.filter(item => item.returnStatus === 'Return Requested').forEach(item => { %>
-                    <div >
-                        <span class="detail-label">Return Reason:</span>
-                        <span class="detail-value"><%= item.returnReason || 'Not Provided' %></span>
-                    </div>
-                    <div >
-                        <span class="detail-label">Return Details:</span>
-                        <span class="detail-value"><%= item.returnDetails || 'Not Provided' %></span>
-                    </div>
-                    <% }) %>
                 </div>
                 <% } %>
 
                 <!-- Update Status -->
+
                 <div class="card">
+                    <% if (orderData.status !== 'Cancelled' && orderData.status !== 'Returned') { %>
                     <div class="card-header">
                         <h3>Update Order Status</h3>
                     </div>
@@ -393,7 +400,6 @@
                                 <option value="Return Request" <%= orderData.status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
                                 <option value="Returned" <%= orderData.status === 'Returned' ? 'selected' : '' %>>Returned</option>
                                 <option value="Return Rejected" <%= orderData.status === 'Return Rejected' ? 'selected' : '' %>>Return Rejected</option>
-
                             </select>
                             <button class="btn btn-primary" onclick="return updateOrderStatus('<%= orderData._id %>')">
                                 <i class="bi bi-arrow-repeat me-2"></i>Update Status
@@ -401,7 +407,9 @@
                         </div>
                     </div>
                 </div>
+                <% } %>
             </div>
+
 
             <div class="order-footer mt-4">
                 <a href="/admin/getOrderPage" class="btn btn-outline-secondary me-2">Back</a>
@@ -444,18 +452,18 @@
         });
     }
 
-    function handleReturnAction(orderId, status) {
+    function handleReturnAction(orderId,itemId, status) {
         $.ajax({
             url: '/admin/updateOrderStatus',
             method: 'POST',
-            data: { orderId: orderId, status: status },
+            data: { orderId: orderId, status: status,itemId: itemId },
             success: function(response) {
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
                         text: response.message
                     }).then(() => {
-                        window.location.href = '/admin/getOrderPage'
+                        window.location.reload();
                     });
                 } else {
                     Swal.fire({

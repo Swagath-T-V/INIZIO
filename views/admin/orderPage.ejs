@@ -181,6 +181,25 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .filter-select {
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    background-color: var(--gray-dark);
+    color: white;
+    min-width: 150px;
+    }
+    .order-search-container input.order-form-control {
+        height: 2.2rem;
+        width: 23rem;
+    }
+    .order-search-btn, .order-clear-btn {
+    
+    padding: 6px 12px;
+   
+}
+    
 </style>
 
 <div>
@@ -188,56 +207,36 @@
 </div>
 
 <div id="content">
-    <!-- Stats Cards -->
-    <div class="order-stats-container">
-        <div class="order-stat-card">
-            <div class="order-stat">
-                <div>
-                    <h3>Total Orders</h3>
-                    <div class="order-number">1,248</div>
-                </div>
-                <div class="order-icon"><i class="bi bi-bag"></i></div>
-            </div>
-        </div>
-        <div class="order-stat-card">
-            <div class="order-stat">
-                <div>
-                    <h3>Pending Orders</h3>
-                    <div class="order-number">42</div>
-                </div>
-                <div class="order-icon"><i class="bi bi-clock"></i></div>
-            </div>
-        </div>
-        <div class="order-stat-card">
-            <div class="order-stat">
-                <div>
-                    <h3>Delivered Orders</h3>
-                    <div class="order-number">896</div>
-                </div>
-                <div class="order-icon"><i class="bi bi-check-circle"></i></div>
-            </div>
-        </div>
-        <div class="order-stat-card">
-            <div class="order-stat">
-                <div>
-                    <h3>Return Requests</h3>
-                    <div class="order-number">15</div>
-                </div>
-                <div class="order-icon"><i class="bi bi-arrow-counterclockwise"></i></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Search Section -->
+    <!-- Search sort filter-->
+    
     <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="order-search-container d-flex">
-                <form action="/admin/orders" class="d-flex w-100">
-                    <input type="text" id="searchInput" class="order-form-control" name="search" placeholder="Search orders...">
+        <div class="col-md-12">
+            <div class="order-search-container d-flex align-items-center flex-wrap gap-2">
+                <form action="/admin/getOrderPage" class="d-flex w-100 align-items-center flex-wrap gap-2">
+                    <input type="text" id="searchInput" class="order-form-control" name="search" placeholder="Search orders..." value="<%= search %>">
+                    <select class="filter-select order-form-control" id="statusFilter" name="status">
+                        <option value="">Filter by Status</option>
+                        <option value="Pending" <%= status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                        <option value="Shipped" <%= status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                        <option value="Out for Delivery" <%= status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                        <option value="Delivered" <%= status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                        <option value="Cancelled" <%= status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        <option value="Return Request" <%= status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                        <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                        <option value="Return Rejected" <%= status === 'Return Rejected' ? 'selected' : '' %>>Return Rejected</option>
+                    </select>
+                    <select class="filter-select order-form-control" id="dateFilter" name="date">
+                        <option value="">Filter by Date</option>
+                        <option value="today" <%= date === 'today' ? 'selected' : '' %>>Today</option>
+                        <option value="week" <%= date === 'week' ? 'selected' : '' %>>This Week</option>
+                        <option value="month" <%= date === 'month' ? 'selected' : '' %>>This Month</option>
+                    </select>
                     <button type="submit" id="searchButton" class="order-btn order-search-btn">
                         <i class="bi bi-search"></i>
                     </button>
-                    <a href="/admin/orders" class="order-btn order-clear-btn">Clear</a>
+                    <a href="/admin/getOrderPage" class="order-btn order-clear-btn">Clear</a>
                 </form>
             </div>
         </div>
@@ -286,9 +285,11 @@
     <div class="container mt-3">
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mb-20">
-                <li class="page-item">
-                    <a class="page-link" href="#">1</a>
-                </li>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
             </ul>
         </nav>
     </div>

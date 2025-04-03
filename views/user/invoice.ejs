@@ -1,0 +1,382 @@
+<%- include("../../views/partials/user/header.ejs") %>
+
+<style>
+    body {
+        font-family: 'Open Sans', Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+        margin: 0;
+    }
+    .invoice-container {
+        max-width: 8.27in; /* A4 width */
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        position: relative;
+        min-height: 100%; /* Ensure height */
+        overflow: visible; /* Prevent hidden overflow */
+        break-inside: avoid; /* Prevent column/page breaks inside */
+    }
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px; /* Reduced */
+        border-bottom: 2px solid #F96D00;
+        padding-bottom: 8px; /* Reduced */
+    }
+    .invoice-header h1 {
+        font-size: 28px; /* Further reduced */
+        font-weight: 700;
+        color: #2c2c2c;
+        margin: 0;
+        text-transform: uppercase;
+    }
+    .invoice-logo {
+        width: 70px; /* Reduced */
+        height: 70px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px; /* Reduced */
+        color: #666;
+        font-weight: 600;
+    }
+    .invoice-details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px; /* Reduced */
+    }
+    .invoice-details div {
+        width: 45%;
+    }
+    .invoice-details h3 {
+        font-size: 16px; /* Reduced */
+        font-weight: 600;
+        color: #2c2c2c;
+        margin-bottom: 8px; /* Reduced */
+        border-bottom: 1px solid #eee;
+        padding-bottom: 4px; /* Reduced */
+    }
+    .invoice-details p {
+        margin: 5px 0; /* Reduced */
+        font-size: 13px; /* Reduced */
+        color: #555;
+    }
+    .invoice-meta {
+        text-align: right;
+    }
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px; /* Reduced */
+    }
+    .invoice-table th,
+    .invoice-table td {
+        border: 1px solid #ddd;
+        padding: 8px; /* Reduced */
+        text-align: left;
+        font-size: 12px; /* Reduced */
+        color: #333;
+    }
+    .invoice-table th {
+        background-color: #F96D00;
+        color: white;
+        font-weight: 600;
+    }
+    .invoice-summary {
+        text-align: right;
+        margin-top: 15px; /* Reduced */
+        padding-top: 12px; /* Reduced */
+        border-top: 2px dashed #F96D00;
+    }
+    .invoice-summary p {
+        margin: 5px 0; /* Reduced */
+        font-size: 13px; /* Reduced */
+        color: #555;
+    }
+    .invoice-summary .total {
+        font-weight: 700;
+        font-size: 14px; /* Reduced */
+        background-color: #F96D00;
+        color: white;
+        padding: 5px 10px; /* Reduced */
+        display: inline-block;
+        border-radius: 5px;
+    }
+    .terms {
+        margin-top: 15px; /* Reduced */
+        padding-top: 12px; /* Reduced */
+        border-top: 1px solid #eee;
+    }
+    .terms h3 {
+        font-size: 14px; /* Reduced */
+        font-weight: 600;
+        color: #2c2c2c;
+        margin-bottom: 8px; /* Reduced */
+    }
+    .terms p {
+        font-size: 12px; /* Reduced */
+        color: #666;
+        line-height: 1.5; /* Tighter */
+    }
+    .invoice-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 75px; /* Reduced */
+    }
+    .btn {
+        padding: 6px 10px; /* Reduced */
+        border: none;
+        border-radius: 5px;
+        font-size: 12px; /* Reduced */
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .btn-back {
+        background-color: #6c757d;
+        color: white;
+    }
+    .btn-back:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+    }
+    .btn-download {
+        background-color: #F96D00;
+        color: white;
+    }
+    .btn-download:hover {
+        background-color: #e65c00;
+        transform: translateY(-2px);
+    }
+    .hero-wrap.hero-bread {
+        background-size: cover;
+        background-position: center;
+        height: 200px;
+        margin-bottom: 40px;
+    }
+    .hero-wrap.hero-bread .slider-text {
+        padding-top: 60px;
+    }
+    .breadcrumbs span a {
+        color: #fff;
+        text-decoration: none;
+    }
+    .breadcrumbs span a:hover {
+        color: #F96D00;
+    }
+    .bread {
+        color: #fff;
+        font-size: 36px;
+        font-weight: 700;
+    }
+
+    /* Print-specific styles for PDF */
+    @media print {
+        .invoice-container {
+            width: 100%;
+            max-width: 8.27in;
+            margin: 0;
+            padding: 0.3in; /* Reduced */
+            box-shadow: none;
+            page-break-before: avoid;
+            page-break-after: avoid;
+            break-inside: avoid;
+            overflow: visible;
+            height: auto !important;
+        }
+        .hero-wrap.hero-bread {
+            display: none;
+        }
+        body, html {
+            height: auto !important;
+            overflow: visible !important;
+            background-color: #ffffff;
+        }
+        .invoice-actions {
+            display: none !important; /* Ensure buttons are hidden */
+        }
+        footer {
+            display: none !important;
+        }
+        
+        /* Force a page break after the invoice container */
+        .invoice-container::after {
+            content: "";
+            display: block;
+            page-break-after: always;
+            break-after: always;
+        }
+    }
+</style>
+
+<div class="hero-wrap hero-bread" style="background-image: url('/homeImages/banner.avif');">
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+            <div class="col-md-9 ftco-animate text-center">
+                <p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Invoice</span></p>
+                <h1 class="mb-0 bread">Invoice Details</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="invoice-container">
+    <div class="invoice-header">
+        <h1>INVOICE</h1>
+        <div class="invoice-logo">INIZIO</div>
+    </div>
+
+    <div class="invoice-details">
+        <div>
+            <h3>INIZIO</h3>
+            <p>123 Luxury Avenue, Suite 789</p>
+            <p>+1 (555) 987-6543</p>
+            <p>support@iniziowatches.com</p>
+        </div>
+        <div class="invoice-meta">
+            <h3>Bill to:</h3>
+            <p><%= order.address.name %></p>
+            <p><%= order.address.city %>, <%= order.address.landmark %></p>
+            <p><%= order.address.state %>, <%= order.address.pincode %></p>
+            <p>Phone: <%= order.address.phone %></p>
+            <p>Email: <%= user.email %></p>
+            <br>
+            <p><strong>Invoice number:</strong> <%= invoiceNumber %></p>
+            <p><strong>Invoice date:</strong> <%= orderDate %></p>
+        </div>
+    </div>
+
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price per unit</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% order.orderedItems.forEach(item => { %>
+                <tr>
+                    <td><%= item.product.name %></td>
+                    <td><%= item.quantity %></td>
+                    <td>₹<%= item.price.toFixed(2) %></td>
+                    <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+    <div class="invoice-summary">
+        <p>Subtotal: ₹<%= order.orderedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2) %></p>
+        <p>Tax: ₹<%= order.tax.toFixed(2) %></p>
+        <p>Shipping: ₹<%= order.shipping.toFixed(2) %></p>
+        <p>Discounts: -₹<%= order.discount.toFixed(2) %></p>
+        <p class="total">TOTAL: ₹<%= order.finalAmount.toFixed(2) %></p>
+    </div>
+
+    <div class="terms">
+        <h3>Terms and Conditions</h3>
+        <p>Payment is due within 30 days from the invoice date. Late payments may incur a 2% monthly interest charge. Returns are accepted within 14 days with original packaging. For further assistance, contact us at support@iniziowatches.com.</p>
+    </div>
+
+    <div class="invoice-actions">
+        <button class="btn btn-back"><a href="/orderDetails">Back</a></button>
+        <button class="btn btn-download">Download Invoice</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function () {
+    function downloadInvoice() {
+        const element = document.querySelector('.invoice-container');
+        if (!element) {
+            console.error('Invoice container not found!');
+            return;
+        }
+
+        const footer = document.querySelector('footer');
+        const header = document.querySelector('header');
+        const heroBanner = document.querySelector('.hero-wrap.hero-bread');
+        const backButton = document.querySelector('.btn-back');
+        const downloadButton = document.querySelector('.btn-download');
+
+        if (footer) footer.style.display = 'none';
+        if (header) header.style.display = 'none';
+        if (heroBanner) heroBanner.style.display = 'none';
+        if (backButton) backButton.style.display = 'none';
+        if (downloadButton) downloadButton.style.display = 'none';
+
+        element.style.display = 'block';
+        element.style.height = 'auto';
+        element.style.overflow = 'visible';
+        element.style.width = '100%';
+        element.style.backgroundColor = '#ffffff';
+        element.style.padding = '20px';
+
+        const orderId = "<%= order._id %>".trim(); 
+        const filename = `invoice_${orderId}.pdf`;
+
+        const opt = {
+            margin: [0.1, 0.1, 0.1, 0.1],
+            filename: filename, 
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                letterRendering: true,
+                windowWidth: document.body.scrollWidth,
+                height: element.scrollHeight,
+                scrollX: 0,
+                scrollY: 0,
+                backgroundColor: '#ffffff'
+            },
+            jsPDF: {
+                unit: 'in',
+                format: 'a4',
+                orientation: 'portrait',
+                compress: true,
+                putOnlyUsedFonts: true,
+                precision: 16
+            },
+            pagebreak: { mode: 'avoid-all' }
+        };
+
+        setTimeout(() => {
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf) => {
+                pdf.save(filename); 
+
+                if (footer) footer.style.display = '';
+                if (header) header.style.display = '';
+                if (heroBanner) heroBanner.style.display = '';
+                if (backButton) backButton.style.display = '';
+                if (downloadButton) downloadButton.style.display = '';
+            }).catch((error) => {
+                console.error('Error generating PDF:', error);
+
+                if (footer) footer.style.display = '';
+                if (header) header.style.display = '';
+                if (heroBanner) heroBanner.style.display = '';
+                if (backButton) backButton.style.display = '';
+                if (downloadButton) downloadButton.style.display = '';
+            });
+        }, 100);
+    }
+
+    document.querySelector('.btn-download').addEventListener('click', downloadInvoice);
+});
+
+</script>
+
+<%- include("../../views/partials/user/footer.ejs") %>
