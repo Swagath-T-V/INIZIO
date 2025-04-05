@@ -41,6 +41,7 @@ const categoryInfo =async(req,res)=>{
 const addCategory = async (req, res) => {
 
     try {
+
         if (req.method === 'POST') {
             const { name, description } = req.body;
 
@@ -176,6 +177,7 @@ const editCategory = async (req, res) => {
                 message: "Category updated successfully",
                 redirectUrl: "/admin/category" 
             });
+            
         } else {
             return res.status(400).json({
                 success: false,

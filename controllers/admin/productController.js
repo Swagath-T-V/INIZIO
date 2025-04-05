@@ -52,6 +52,7 @@ const getProductPage = async(req, res) => {
             res.render('pageerror')
 
         }
+
     } catch (error) {
 
         console.log("error in getProductPage",error)
@@ -84,6 +85,7 @@ const addProductPage = async(req, res) => {
 const addProduct = async(req, res) => {
 
     try {
+
         if (req.method === 'POST') {
 
             const { productName, category, subCategory, regularPrice, salePrice, quantity, description,brand,dimensions,material,weight } = req.body;
@@ -192,6 +194,7 @@ const addProduct = async(req, res) => {
                 redirectUrl: "/admin/product"
             })
         }
+
     } catch (error) {
 
         console.log("Error in saving the Product", error)
@@ -206,6 +209,7 @@ const addProduct = async(req, res) => {
 const getEditProduct = async(req, res) => {
 
     try {
+
         const id = req.query.id
         const product = await Product.findOne({ _id: id })
         const category = await Category.find({})
@@ -262,6 +266,7 @@ const deleteProduct = async(req, res) => {
 const editProduct = async (req, res) => {
 
     try {
+        
         const id = req.params.id;
         const { productName, category, subCategory, regularPrice, salePrice, quantity, description, brand, material, dimensions, weight } = req.body;
 

@@ -41,6 +41,7 @@ const subCategoryInfo =async(req,res)=>{
 const addSubCategory = async (req, res) => {
 
     try {
+        
         if (req.method === 'POST') {
             const { name, description } = req.body;
 

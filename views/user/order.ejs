@@ -325,12 +325,7 @@
             <h3 class="order_card-title">Order History</h3>
         </div>
         <div class="order_card-body">
-            <div class="order_search-bar">
-                <form action="/getOrderPage" method="GET">
-                    <input type="text" id="searchInput" name="search" placeholder="Search by Order ID or Product Name..." value="<%= searchQuery %>">
-                    <button type="submit">Search</button>
-                </form>
-            </div>
+            
             
             <% if(orderData && orderData.length > 0) { %>
                 <table class="order_table">
@@ -396,4 +391,4 @@
     </div>
 </div>
 </div>
-<%- include("../../views/partials/userProfile/footer.ejs") %>
+<%- include("../../views/partials/userProfile/footer.ejs") %> 

@@ -373,7 +373,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <% }) %>
+                                    <% }) %> 
                                 </tbody>
                             </table>
                         </div>
@@ -384,7 +384,7 @@
                 <!-- Update Status -->
 
                 <div class="card">
-                    <% if (orderData.status !== 'Cancelled' && orderData.status !== 'Returned') { %>
+                    <% if (orderData.status !== 'Cancelled' && orderData.status !== 'Returned' && !orderData.orderedItems.some(item => item.returnStatus === 'Return Requested') ) { %>
                     <div class="card-header">
                         <h3>Update Order Status</h3>
                     </div>

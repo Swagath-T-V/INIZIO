@@ -101,6 +101,7 @@ const addCart = async (req, res) => {
       cart.items[itemIndex].totalPrice = newQuantity * cart.items[itemIndex].price
 
     } else {
+
       cart.items.push({
         productId,
         quantity: requestedQuantity,
@@ -129,7 +130,9 @@ const addCart = async (req, res) => {
 
 
 const cartQuantity = async (req, res) => {
+
   try {
+
     const userId = req.session.user;
     const { productId, action } = req.body;
     const MAX_CART_QUANTITY = 10; 
@@ -148,6 +151,7 @@ const cartQuantity = async (req, res) => {
           message: `You can only add up to ${maxAllowed} items of this product to the cart`,
         });
       }
+
     } else if (action === "decrement") {
       newQuantity -= 1;
       if (newQuantity < 1) {
@@ -181,9 +185,12 @@ const cartQuantity = async (req, res) => {
       cartItems: updatedCart.items,
       message: "Cart updated successfully",
     });
+
   } catch (error) {
+
     console.log("Error in cartQuantity:", error);
     res.status(500).json({ message: "Internal server error" });
+
   }
 };
 
@@ -219,6 +226,7 @@ const deleteCart = async (req, res) => {
     res.redirect("/pageNotFound")
     
   }
+
 };
 
 
@@ -281,6 +289,7 @@ const getWishlist = async (req, res) => {
     res.redirect("/pageNotFound")
 
   }
+
 };
 
 
@@ -332,6 +341,7 @@ const addWishlist = async (req, res) => {
       })
 
     }
+
   } catch (error) {
 
     console.log("Error in addWishlist:", error)
@@ -369,6 +379,7 @@ const checkWishlist = async (req, res) => {
 const deleteWishlist = async (req, res) => {
   
   try {
+    
     const userId = req.session.user
     const { productId } = req.query
 

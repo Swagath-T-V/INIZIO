@@ -92,5 +92,12 @@ router.post("/returnProduct",userAuth,orderController.returnProduct)
 //invoice
 router.get("/getInvoice",userAuth,orderController.getInvoice)
 
+//trackOrder
+router.get("/trackOrder",userAuth,orderController.trackOrder)
+
+
+
+
+
 
 module.exports= router

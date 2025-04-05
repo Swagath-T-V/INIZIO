@@ -544,6 +544,7 @@ const getAddAddress = async (req, res) => {
                 user: user,
                 activePage: "addresses"
             })
+
         } else {
 
             console.log("no user found")
@@ -559,7 +560,9 @@ const getAddAddress = async (req, res) => {
 }
 
 const addAddress = async (req, res) => {
+
     try {
+        
         const userId = req.session.user;
         const userData = await User.findOne({ _id: userId });
         const { addressType, name, city, landMark, state, pincode, phone } = req.body;

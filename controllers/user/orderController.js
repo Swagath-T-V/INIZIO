@@ -14,33 +14,14 @@ const getOrderPage = async (req, res) => {
             return res.redirect("/login");
         }
 
-        const { search } = req.query;
-        let orderData;
-
-        if (search) {
-            orderData = await Order.find({      
-                userId: userId,
-                $or: [
-                    { orderId: { $regex: search, $options: 'i' } },
-                    { 'orderedItems.product': {
-                        $in: await Product.find({
-                            name: { $regex: search, $options: 'i' }
-                        })
-                    }}
-                ]
-            }).populate('orderedItems.product');
-
-        } else {
-
-            orderData = await Order.find({ userId: userId }).populate('orderedItems.product');
-
-        }
-
+        let orderData = await Order.find({ userId: userId })
+            .populate('orderedItems.product')
+            .sort({createdAt:-1})
         res.render("order", {
             user,
             orderData,
             activePage: "orders",
-            searchQuery: search || ''
+           
         });
         
     } catch (error) {
@@ -208,10 +189,37 @@ const getInvoice = async (req, res) => {
 };
 
 
+const trackOrder = async(req,res)=>{
+
+    try {
+
+        const{orderId} = req.query
+        // console.log("orderId",orderId)
+        const userId = req.session.user
+        const user = await User.findById(userId)
+
+        const orderData = await Order.findOne({_id:orderId}).populate("orderedItems.product")
+        // console.log("orderData",orderData)
+        res.render("track",{
+            user,
+            orderData
+        })
+        
+    } catch (error) {
+
+        console.log("error in trackOrder",error)
+        return res.redirect("/pageNotFound")
+        
+    }
+} 
+ 
+
+
 module.exports={
     getOrderPage,
     orderDetails,
     cancelOrder,
     returnProduct,
-    getInvoice
+    getInvoice,
+    trackOrder
 }

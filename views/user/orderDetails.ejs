@@ -414,7 +414,6 @@
         color: white;
     }
 
-    /* Back Button Style */
     .back-btn {
         display: flex;
         align-items: center;
@@ -440,7 +439,6 @@
         color: white;
     }
 
-    /* Return Order Modal Styles */
     .return-modal {
         display: none;
         position: fixed;
@@ -576,7 +574,7 @@
     .return-btn-submit:hover {
         background-color: #c0392b;
     }
-    a {
+    a {  
     color: #000000;
     }
 </style>
@@ -692,7 +690,7 @@
                             <% if(order.status === "Delivered") {%>
                             <button class="addr_edit-btn "><a href="/getInvoice?orderId=<%=order._id%>">Invoice</a></button>
                             <% } %>
-                            <button class="addr_edit-btn" id="trackOrderBtn">Track Order</button>
+                            <button class="addr_edit-btn" id="trackOrderBtn"><a href="/trackOrder?orderId=<%=order._id%>">Track Order</a></button>
                         </div>
                     </div>
                 </div>
@@ -862,5 +860,5 @@
 
         
 </script>
-
+ 
 <%- include("../../views/partials/userProfile/footer.ejs") %>

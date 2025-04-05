@@ -8,6 +8,7 @@ const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
 
 
+
 const pageNotFound =async (req,res)=>{
 
     try {
@@ -194,6 +195,7 @@ const getOptPage = async (req,res)=>{
 const resentOtp = async (req, res) => {
 
     try {
+        
         const { email } = req.session.userData;
         
         if (!email) {
@@ -217,6 +219,7 @@ const resentOtp = async (req, res) => {
             return res.status(500).json({ success: false, message: "Failed to resend OTP, please try again" });
 
         }
+        
     } catch (error) {
 
         console.error("Error resending OTP:", error);
