@@ -117,6 +117,24 @@
                                         <div class="pricing">
                                             <p class="price">₹ <%= product.salePrice %> <span><strike>₹<%= product.regularPrice %></strike></span></p>
                                         </div>
+                                        <p class="bottom-area d-flex px-3">
+                                            <% 
+                                                let stockStatus = 'in-stock';
+                                                let stockMessage = `In Stock (${product.quantity} available)`;
+                                                if (product.quantity <= 0) {
+                                                    stockStatus = 'out-of-stock';
+                                                    stockMessage = 'Out of Stock';
+                                                } else if (product.status === 'sold-out') {
+                                                    stockStatus = 'sold-out';
+                                                    stockMessage = 'Sold Out';
+                                                } else if (product.status === 'unavailable') {
+                                                    stockStatus = 'unavailable';
+                                                    stockMessage = 'Currently Unavailable';
+                                                }
+                                            %>
+                                            <a href="/addToCart?productId=<%= product._id %>" class="add-to-cart text-center py-2 mr-1 <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>><span>Add to cart<i class="ion-ios-cart ml-1"></i></span></a>
+									        <a href="/addWishlist/productId=<%= product._id %>" class="wishlist-btn text-center py-2 <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>><span>Wishlist <i class="fas fa-heart ml-1"></i></span></a>
+                                        </p> 
                                     </div>
                                 </div>
                             </div>
@@ -241,7 +259,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> 
                     </form>
                 </div>
             </div>
@@ -253,7 +271,107 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+
+        document.addEventListener('DOMContentLoaded',()=>{
+			const addToCartButtons = document.querySelectorAll(".add-to-cart")
+			
+			addToCartButtons.forEach((addToCartBtn)=>{
+				addToCartBtn.addEventListener('click',(e)=>{
+					e.preventDefault()
+					if(addToCartBtn.classList.contains('disabled-btn')) return;
+
+					const productId = addToCartBtn.dataset.productId
+					const quantity = 1;
+
+					addToCartBtn.classList.add('loading');
+      				addToCartBtn.textContent = 'Adding...';
+
+					$.ajax({
+						url:"/cartAdd",
+						method:"post",
+						data:{productId,quantity},
+						success:()=>{
+							addToCartBtn.classList.remove('loading');
+							addToCartBtn.textContent = 'Add to Cart';
+							window.location.href = '/cart';
+						},
+						error:()=>{
+							addToCartBtn.classList.remove('loading');
+							addToCartBtn.textContent = 'Add to Cart';
+							Swal.fire('Error', 'Failed to add to cart. Try again.', 'error');
+						}
+					})
+				})
+
+			})
+		})
+
+		document.addEventListener('DOMContentLoaded', () => {
+  			const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+
+			wishlistButtons.forEach((wishlistBtn) => {
+				wishlistBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				if (wishlistBtn.classList.contains('disabled-btn')) return;
+
+				const productId = wishlistBtn.dataset.productId;
+				const isAdded = wishlistBtn.classList.contains('added');
+
+				wishlistBtn.classList.add('loading');
+				wishlistBtn.innerHTML = `<span>${isAdded ? 'Removing...' : 'Adding...'} <i class="fas fa-heart ml-1"></i></span>`;
+
+				$.ajax({
+					url: '/addWishlist',
+					method: 'POST',
+					data: { productId },
+					success: (response) => {
+					wishlistBtn.classList.remove('loading');
+					if (response.added) {
+						wishlistBtn.classList.add('added');
+						wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
+						Swal.fire('Success', 'Added to wishlist!', 'success');
+					} else {
+						wishlistBtn.classList.remove('added');
+						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+						Swal.fire('Success', 'Removed from wishlist!', 'success');
+					}
+					},
+					error: () => {
+					wishlistBtn.classList.remove('loading');
+					wishlistBtn.innerHTML = `<span>${isAdded ? 'Added' : 'Wishlist'} <i class="fas fa-heart ml-1"></i></span>`;
+					Swal.fire('Error', 'Failed to update wishlist. Try again.', 'error');
+					},
+				});
+				});
+
+				// Check initial wishlist state
+				const productId = wishlistBtn.dataset.productId;
+				$.ajax({
+				url: '/checkWishlist',
+				method: 'GET',
+				data: { productId },
+				success: (response) => {
+					if (response.inWishlist) {
+					wishlistBtn.classList.add('added');
+					wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
+					} else {
+					wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+					}
+				},
+				error: () => {
+					wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+				},
+				});
+			});
+		});
+
+
+
+
     function applySort(element) {
         const sortValue = element.value;
         const url = new URL(window.location.href);
