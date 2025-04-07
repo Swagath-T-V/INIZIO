@@ -132,8 +132,14 @@
                                                     stockMessage = 'Currently Unavailable';
                                                 }
                                             %>
-                                            <a href="/addToCart?productId=<%= product._id %>" class="add-to-cart text-center py-2 mr-1 <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>><span>Add to cart<i class="ion-ios-cart ml-1"></i></span></a>
-									        <a href="/addWishlist/productId=<%= product._id %>" class="wishlist-btn text-center py-2 <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>><span>Wishlist <i class="fas fa-heart ml-1"></i></span></a>
+                                            <% if (stockStatus === 'in-stock') { %>
+                                                <a href="/addToCart?productId=<%= product._id %>" class="add-to-cart text-center py-2 mr-1" data-product-id="<%= product._id %>">
+                                                    <span>Add to cart <i class="ion-ios-cart ml-1"></i></span>
+                                                </a>
+                                                <a href="/addWishlist/productId=<%= product._id %>" class="wishlist-btn text-center py-2" data-product-id="<%= product._id %>">
+                                                    <span>Wishlist <i class="fas fa-heart ml-1"></i></span>
+                                                </a>
+                                            <% } %>
                                         </p> 
                                     </div>
                                 </div>
@@ -269,6 +275,8 @@
 
 <!-- Include noUiSlider from CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -330,14 +338,20 @@
 					data: { productId },
 					success: (response) => {
 					wishlistBtn.classList.remove('loading');
-					if (response.added) {
+					if (response.redirectUrl || !response.success) {
+						window.location.href = response.redirectUrl || '/login';
+						return;
+					}else if (response.added === true) {
 						wishlistBtn.classList.add('added');
 						wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
 						Swal.fire('Success', 'Added to wishlist!', 'success');
-					} else {
+					} else if(response.added === false){
 						wishlistBtn.classList.remove('added');
 						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
 						Swal.fire('Success', 'Removed from wishlist!', 'success');
+					}else{
+						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+      					Swal.fire('Error', response.message || 'Failed to update wishlist', 'error');
 					}
 					},
 					error: () => {
@@ -368,6 +382,7 @@
 				});
 			});
 		});
+
 
 
 

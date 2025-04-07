@@ -476,6 +476,8 @@ const loadShopPage = async (req, res) => {
     }
 }
 
+
+
 module.exports = {
     loadHome,
     pageNotFound,

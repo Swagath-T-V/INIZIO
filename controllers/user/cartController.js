@@ -73,6 +73,11 @@ const addCart = async (req, res) => {
 
     const requestedQuantity = parseInt(quantity);
     const maxAllowed = Math.min(MAX_CART_QUANTITY, product.quantity)
+    const currentQuantity = parseInt(product.quantity)
+
+    if(currentQuantity<1){
+      return res.status(400).json({message:"out of stock"})
+    }
 
     if (requestedQuantity > maxAllowed) {
       return res.status(400).json({
@@ -298,10 +303,17 @@ const addWishlist = async (req, res) => {
   try {
 
     const userId = req.session.user
+    
     const { productId } = req.body
 
-    if (!userId) {
-      return res.redirect("/login")
+    const user = await User.findById(userId)
+
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        redirectUrl: "/login", 
+        message: "Please log in to add items to your wishlist" 
+      });
     }
 
     const product = await Product.findById(productId)
@@ -323,6 +335,7 @@ const addWishlist = async (req, res) => {
       await wishlist.save()
       
       return res.status(200).json({
+        success: true,
         message: "Product added to wishlist",
         productId,
         added: true,
@@ -335,6 +348,7 @@ const addWishlist = async (req, res) => {
       await wishlist.save()
 
       return res.status(200).json({
+        success:true,
         message: "Product removed from wishlist",
         productId,
         added: false,
@@ -344,8 +358,8 @@ const addWishlist = async (req, res) => {
 
   } catch (error) {
 
-    console.log("Error in addWishlist:", error)
-    return res.redirect("/pageNotFound")
+    console.log("Error in addWishlist:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
 
   }
 };
@@ -384,12 +398,12 @@ const deleteWishlist = async (req, res) => {
     const { productId } = req.query
 
     if (!userId) {
-      return res.redirect("/login")
+      return res.status(401).json({ success: false, message: 'Please login first' });
     }
 
     const wishlist = await Wishlist.findOne({ userId })
     if (!wishlist) {
-      return res.redirect("/pageNotFound")
+      return res.status(404).json({ success: false, message: 'Wishlist not found' });
     }
 
     const result = await Wishlist.updateOne(
@@ -397,12 +411,12 @@ const deleteWishlist = async (req, res) => {
       { $pull: { products: { productId } } }
     )
 
-    return res.redirect("/wishlist")
+    return res.status(200).json({ success: true, message: 'Item removed from wishlist' });
 
   } catch (error) {
 
-    console.log("Error in deleteWishlist:", error)
-    return res.redirect("/pageNotFound")
+    console.log("Error in deleteWishlist:", error);
+    return res.status(500).json({ success: false, message: 'Server error' });
 
   }
 }
@@ -609,7 +623,7 @@ const checkOutSubmit = async (req, res) => {
         isDefault: selectedAddress.isDefault,
       },
 
-      paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'upi' ? 'UPI' : 'Credit/Debit Card',
+      paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'upi' ? 'UPI' : paymentMethod==='Razorpay'? 'Razorpay' : 'Credit/Debit Card',
       status: 'Pending',
 
     });

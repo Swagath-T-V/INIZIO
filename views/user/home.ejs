@@ -133,24 +133,11 @@
 										</span></p>
 								</div>
 								<p class="bottom-area d-flex px-3">
-									<% 
-                                        let stockStatus = 'in-stock';
-                                        let stockMessage = `In Stock (${product.quantity} available)`;
-                                        if (product.quantity <= 0) {
-                                            stockStatus = 'out-of-stock';
-                                            stockMessage = 'Out of Stock';
-                                        } else if (product.status === 'sold-out') {
-                                            stockStatus = 'sold-out';
-                                            stockMessage = 'Sold Out';
-                                        } else if (product.status === 'unavailable') {
-                                            stockStatus = 'unavailable';
-                                            stockMessage = 'Currently Unavailable';
-                                        }
-                                    %>
 									
-									<a href="/addToCart?productId=<%= product[i]._id %>" class="add-to-cart text-center py-2 mr-1 <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product[i]._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>><span>Add to cart<i class="ion-ios-cart ml-1"></i></span></a>
-									<a href="/addWishlist/productId=<%= product[i]._id %>" class="wishlist-btn text-center py-2 <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product[i]._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>><span>Wishlist <i class="fas fa-heart ml-1"></i></span></a>
-									
+									<% if(product[i].quantity > 0 ){%>
+									<a  class="add-to-cart text-center py-2 mr-1 " data-product-id="<%= product[i]._id %>" ><span>Add to cart<i class="ion-ios-cart ml-1"></i></span></a>
+									<a  class="wishlist-btn text-center py-2 " data-product-id="<%= product[i]._id %>"><span>Wishlist <i class="fas fa-heart ml-1"></i></span></a>
+									<%}%>
 								</p>
 							</div>
 						</div>
@@ -693,67 +680,72 @@
 			})
 		})
 
-		document.addEventListener('DOMContentLoaded', () => {
-  			const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+			document.addEventListener('DOMContentLoaded', () => {
+				const wishlistButtons = document.querySelectorAll('.wishlist-btn');
 
-			wishlistButtons.forEach((wishlistBtn) => {
-				wishlistBtn.addEventListener('click', (e) => {
-				e.preventDefault();
-				if (wishlistBtn.classList.contains('disabled-btn')) return;
+				wishlistButtons.forEach((wishlistBtn) => {
+					wishlistBtn.addEventListener('click', (e) => {
+					e.preventDefault();
+					if (wishlistBtn.classList.contains('disabled-btn')) return;
 
-				const productId = wishlistBtn.dataset.productId;
-				const isAdded = wishlistBtn.classList.contains('added');
+					const productId = wishlistBtn.dataset.productId;
+					const isAdded = wishlistBtn.classList.contains('added');
 
-				wishlistBtn.classList.add('loading');
-				wishlistBtn.innerHTML = `<span>${isAdded ? 'Removing...' : 'Adding...'} <i class="fas fa-heart ml-1"></i></span>`;
+					wishlistBtn.classList.add('loading');
+					wishlistBtn.innerHTML = `<span>${isAdded ? 'Removing...' : 'Adding...'} <i class="fas fa-heart ml-1"></i></span>`;
 
-				$.ajax({
-					url: '/addWishlist',
-					method: 'POST',
+					$.ajax({
+						url: '/addWishlist',
+						method: 'POST',
+						data: { productId },
+						success: (response) => {
+						wishlistBtn.classList.remove('loading');
+						if (response.redirectUrl || !response.success) {
+							window.location.href = response.redirectUrl || '/login';
+							return;
+						}else if (response.added === true) {
+							wishlistBtn.classList.add('added');
+							wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
+							Swal.fire('Success', 'Added to wishlist!', 'success');
+						} else if(response.added === false){
+							wishlistBtn.classList.remove('added');
+							wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+							Swal.fire('Success', 'Removed from wishlist!', 'success');
+						}else{
+							wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+							Swal.fire('Error', response.message || 'Failed to update wishlist', 'error');
+						}
+						},
+						error: () => {
+						wishlistBtn.classList.remove('loading');
+						wishlistBtn.innerHTML = `<span>${isAdded ? 'Added' : 'Wishlist'} <i class="fas fa-heart ml-1"></i></span>`;
+						Swal.fire('Error', 'Failed to update wishlist. Try again.', 'error');
+						},
+					});
+					});
+
+					// Check initial wishlist state
+					const productId = wishlistBtn.dataset.productId;
+					$.ajax({
+					url: '/checkWishlist',
+					method: 'GET',
 					data: { productId },
 					success: (response) => {
-					wishlistBtn.classList.remove('loading');
-					if (response.added) {
+						if (response.inWishlist) {
 						wishlistBtn.classList.add('added');
 						wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
-						Swal.fire('Success', 'Added to wishlist!', 'success');
-					} else {
-						wishlistBtn.classList.remove('added');
+						} else {
 						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-						Swal.fire('Success', 'Removed from wishlist!', 'success');
-					}
+						}
 					},
 					error: () => {
-					wishlistBtn.classList.remove('loading');
-					wishlistBtn.innerHTML = `<span>${isAdded ? 'Added' : 'Wishlist'} <i class="fas fa-heart ml-1"></i></span>`;
-					Swal.fire('Error', 'Failed to update wishlist. Try again.', 'error');
+						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
 					},
-				});
-				});
-
-				// Check initial wishlist state
-				const productId = wishlistBtn.dataset.productId;
-				$.ajax({
-				url: '/checkWishlist',
-				method: 'GET',
-				data: { productId },
-				success: (response) => {
-					if (response.inWishlist) {
-					wishlistBtn.classList.add('added');
-					wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
-					} else {
-					wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-					}
-				},
-				error: () => {
-					wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-				},
+					});
 				});
 			});
-		});
 
 	</script>
-
 
 
 <%- include("../../views/partials/user/footer") %>
