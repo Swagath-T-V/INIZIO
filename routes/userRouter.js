@@ -80,8 +80,10 @@ router.get("/checkOut",userAuth,cartController.checkOut)
 router.post("/editCheckoutAddress",userAuth,cartController.editCheckoutAddress)
 router.post("/addCheckoutAddress",userAuth,cartController.addCheckoutAddress)
 router.post("/checkOutSubmit",userAuth,cartController.checkOutSubmit)
+router.post('/verifyPayment',userAuth, cartController.verifyPayment);
+router.post('/retryPayment',userAuth, cartController.retryPayment);
 router.get("/successPage",userAuth,cartController.successPage)
-
+router.get('/paymentFailure',userAuth,cartController.paymentFailure)
 
 //order
 router.get("/getOrderPage",userAuth,orderController.getOrderPage)
@@ -95,7 +97,8 @@ router.get("/getInvoice",userAuth,orderController.getInvoice)
 //trackOrder
 router.get("/trackOrder",userAuth,orderController.trackOrder)
 
-
+//wallet
+router.get("/walletPage",userAuth,orderController.walletPage)
 
 
 

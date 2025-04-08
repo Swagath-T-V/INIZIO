@@ -1,0 +1,198 @@
+<style>
+    .failure-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+  
+    .failure-icon {
+      font-size: 80px;
+      color: #e74c3c;
+      margin-bottom: 20px;
+    }
+  
+    .failure-header {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+    }
+  
+    .failure-message {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 30px;
+    }
+  
+    .error-details {
+      background: #fef0f0;
+      padding: 20px;
+      border-radius: 5px;
+      text-align: left;
+      margin-bottom: 30px;
+    }
+  
+    .error-details h3 {
+      font-size: 20px;
+      color: #e74c3c;
+      margin-bottom: 15px;
+    }
+  
+    .error-details p {
+      font-size: 14px;
+      color: #333;
+      margin: 5px 0;
+    }
+  
+    .btn-retry {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+  
+    .btn-retry:hover {
+      background: #c0392b;
+    }
+  
+    .btn-details {
+      background: #fff;
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+      padding: 12px 25px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin-left: 10px;
+    }
+  
+    .btn-details:hover {
+      background: #e74c3c;
+      color: white;
+    }
+  </style>
+  
+  <main class="main">
+    <div class="failure-container">
+      <!-- Failure Icon (you can replace with an actual icon or image) -->
+      <div class="failure-icon">✗</div>
+  
+      <h1 class="failure-header">Payment Failed</h1>
+      <p class="failure-message">
+        Sorry, there was an issue processing your payment. Please try again or contact support.
+      </p>
+  
+      <!-- Error Details -->
+      <div class="error-details">
+        <h3>Transaction Details</h3>
+        <p><strong>Order ID:</strong> #<%= orderId %></p>
+        <p><strong>Total Amount:</strong> ₹<%= totalAmount.toFixed(2) %></p>
+        <p><strong>Payment Method:</strong> <%= paymentMethod %></p>
+        <p><strong>Delivery Address:</strong> <%= address %></p>
+      </div>
+  
+      <!-- Action Buttons -->
+      <button class="btn-retry" onclick="retryPayment('<%= orderId %>')">Retry Payment</button>
+      <a href="/getOrderPage" class="btn-details">View Order </a>
+    </div>
+  </main>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  function retryPayment(orderId) {
+    $.ajax({
+      url: '/retryPayment',
+      method: 'POST',
+      data: { orderId },
+      success: function (response) {
+        if (response.success && response.razorpayOrderId) {
+          const options = {
+            key: response.key,
+            amount: response.amount,
+            currency: response.currency,
+            name: 'Your Company Name',
+            description: 'Order Payment Retry',
+            order_id: response.razorpayOrderId,
+            handler: function (razorpayResponse) {
+              $.ajax({
+                url: '/verifyPayment',
+                method: 'POST',
+                data: {
+                  orderId: response.orderId,
+                  razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                  razorpay_order_id: razorpayResponse.razorpay_order_id,
+                  razorpay_signature: razorpayResponse.razorpay_signature,
+                },
+                success: function (verifyResponse) {
+                  if (verifyResponse.success) {
+                    window.location.href = '/successPage';
+                  } else {
+                    window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                  }
+                },
+                error: function () {
+                  window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                },
+              });
+            },
+            prefill: {
+              name: response.user.name,
+              email: response.user.email,
+              contact: response.user.contact,
+            },
+            theme: {
+              color: '#F37254',
+            },
+            modal: {
+              ondismiss: function () {
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Payment Cancelled',
+                  text: 'You closed the payment window. Please try again.',
+                });
+              },
+            },
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function () {
+            window.location.href = '/paymentFailure?orderId=' + response.orderId;
+          });
+          rzp.open();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: response.message || 'Failed to initiate retry. Please try again.',
+          });
+        }
+      },
+      error: function () {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to initiate retry. Please try again.',
+        });
+      },
+    });
+  }
+</script>
+

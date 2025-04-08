@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const Razorpay = require('razorpay');
 const {Schema} = mongoose;
 const {v4:uuidv4} = require('uuid')
 
@@ -78,7 +79,7 @@ const orderSchema = new Schema({
     },
     paymentMethod: {  
         type: String,
-        enum: ["COD", "UPI", "Credit/Debit Card","Razorpay"], 
+        enum: ["COD","Razorpay"], 
         required: true,
         default: "COD"
     },      
@@ -89,7 +90,7 @@ const orderSchema = new Schema({
     status:{
         type:String,
         required:true,
-        enum:["Pending","Processing","Shipped", "Out for Delivery","Delivered","Cancelled","Return Request","Returned","Return Rejected"],
+        enum:["Pending","Processing","Shipped", "Out for Delivery","Delivered","Cancelled","Return Request","Returned","Return Rejected","Payment Failed"],
         default:"Pending"
     },
     createdAt:{
@@ -101,6 +102,20 @@ const orderSchema = new Schema({
         type:Boolean,
         default:false
     },
+    razorpayOrderId:{
+        type:String
+    },
+    razorpayPaymentId:{
+        type:String
+    },
+    razorpaySignature:{
+        type:String
+    },
+    paymentStatus:{
+        type: String,
+        enum: ['Pending', 'Completed', 'Failed'],
+        default: 'Pending',
+    }
       
 })
 

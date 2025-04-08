@@ -277,7 +277,7 @@
                     </div>
 
                     <div class="track-tracking-timeline">
-                        <% if (orderData.status !== 'Return Request' && orderData.status !== 'Returned' ) { %>
+                        <% if (orderData.status !== 'Return Request' && orderData.status !== 'Returned' && orderData.status !== 'Cancelled') { %>
                             <!-- Regular Order Status Timeline -->
                             <div class="track-timeline-item track-active">
                                 <div class="track-timeline-icon">
@@ -341,8 +341,24 @@
                                 </div>
                             </div>
                         <% } %>
+
+                        <% if (orderData.status === 'Cancelled' ) { %>
+                            <!-- Return Status Timeline -->
+                            <div class="track-timeline-item track-active">
+                                <div class="track-timeline-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path>
+                                        <path d="M12 13h-1v-1h1v1zm0-2h-1V7h1v4z"></path>
+                                    </svg>
+                                </div>
+                                <div class="track-timeline-content">
+                                    <h3>Cancelled</h3>
+                                    <p>Your order has been Cancelled.</p>
+                                </div>
+                            </div>
+                        <%}%>
                     
-                           <% if (orderData.status === 'Return Request' ) { %>
+                        <% if (orderData.status === 'Return Request' ) { %>
                             <!-- Return Status Timeline -->
                             <div class="track-timeline-item track-active">
                                 <div class="track-timeline-icon">
@@ -358,7 +374,7 @@
                             </div>
                             <%}%>
 
-                            <% if (orderData.status === 'Returned' ) { %>
+                        <% if (orderData.status === 'Returned' ) { %>
                             <div class="track-timeline-item <%= orderData.status === 'Returned' ? 'track-active' : 'track-pending' %>">
                                 <div class="track-timeline-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

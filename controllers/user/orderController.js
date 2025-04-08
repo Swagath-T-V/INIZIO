@@ -3,7 +3,7 @@ const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
 
 
-
+ 
 const getOrderPage = async (req, res) => {
 
     try {
@@ -212,6 +212,20 @@ const trackOrder = async(req,res)=>{
         
     }
 } 
+
+const walletPage = async (req,res) =>{
+
+    try {
+
+        res.render('wallet')
+        
+    } catch (error) {
+
+        console.log("error in walletPage",error)
+        return res.redirect("/pageNotFound")
+        
+    }
+}
  
 
 
@@ -221,5 +235,6 @@ module.exports={
     cancelOrder,
     returnProduct,
     getInvoice,
-    trackOrder
+    trackOrder,
+    walletPage
 }

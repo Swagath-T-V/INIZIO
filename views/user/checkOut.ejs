@@ -1,6 +1,9 @@
 <%- include("../../views/partials/user/header.ejs") %>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <style>
+  
   .payment-section {
     background: #fff;
     border-radius: 10px;
@@ -414,18 +417,6 @@
             <label>
               <input type="radio" name="paymentMethod" value="Razorpay">
               Razorpay
-            </label>
-          </div>
-          <div class="payment-option">
-            <label>
-              <input type="radio" name="paymentMethod" value="credit_card">
-              Credit/Debit Card
-            </label>
-          </div>
-          <div class="payment-option">
-            <label>
-              <input type="radio" name="paymentMethod" value="upi">
-              UPI
             </label>
           </div>
         </div>
@@ -877,62 +868,82 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
     paymentMethod: paymentMethod,
   };
 
-  try {
-
-    this.classList.add('loading');
-    this.disabled = true;
-
-    const response = await fetch('/checkOutSubmit', {
+  $.ajax({
+      url: '/checkOutSubmit',
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-
-      body: JSON.stringify(orderData),
-
-    });
-
-    if (response.ok) {
+      data: orderData,
       
-      window.location.href = '/successPage'
+      success: function (response) {
+        if (response.success && response.razorpayOrderId) {
+          const options = {
+            key: response.key,
+            amount: response.amount,
+            currency: response.currency,
+            name: 'Your Company Name',
+            description: 'Order Payment',
+            order_id: response.razorpayOrderId,
+            
+            handler: function (razorpayResponse) {
+              // Handle successful payment
+              $.ajax({
+                url: '/verifyPayment',
+                method: 'POST',
+                data: {
+                  orderId: response.orderId,
+                  razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                  razorpay_order_id: razorpayResponse.razorpay_order_id,
+                  razorpay_signature: razorpayResponse.razorpay_signature,
+                },
+                success: function (verifyResponse) {
+                  if (verifyResponse.success) {
+                    window.location.href = '/successPage';
+                  } else {
+                    window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                  }
+                },
+                error: function () {
+                  window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                },
+              });
+            },
+            prefill: {
+              name: response.user.name,
+              email: response.user.email,
+              contact: response.user.contact,
+            },
+            theme: {
+              color: '#F37254',
+            },
+            modal: {
+              ondismiss: function () {
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Payment Cancelled',
+                  text: 'You closed the payment window. Please try again.',
+                });
+              },
+            },
+          };
 
-    } else {
-
-      const errorData = await response.json();
-      if (errorData.error) {
-        await Swal.fire({
+          const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function (failureResponse) {
+            // Handle payment failure
+            window.location.href = '/paymentFailure?orderId=' + response.orderId;
+          });
+          rzp.open();
+        } else {
+          // COD or other methods redirect directly
+          window.location.href = '/successPage'; // COD case
+        }
+      },
+      error: function (xhr, status, error) {
+        Swal.fire({
           icon: 'error',
-          title: 'Order Failed',
-          text: errorData.error,
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#16a085',
-        })
-
-      } else {
-
-        throw new Error('Order placement failed')
-
-      }
-    }
-
-  } catch (error) {
-
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'An unexpected error occurred while placing your order.',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#16a085',
-    })
-
-    window.location.href = '/pageNotFound'
-
-  } finally {
-
-    this.classList.remove('loading')
-    this.disabled = false
-
-  }
+          title: 'Error',
+          text: 'Failed to process order. Please try again.',
+        });
+      },
+    });
   
 })
 

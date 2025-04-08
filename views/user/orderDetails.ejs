@@ -1,7 +1,7 @@
 <%- include("../../views/partials/userProfile/header.ejs") %>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
     .up_main-content {
         background: #f5f6fa;
@@ -341,6 +341,10 @@
         background-color: #fee2e2;
         color: #e74c3c;
     }
+    .status-payment-failed {
+        background-color: #fee2e2; /* Light red background */
+        color: #e74c3c;           /* Darker red text */
+    }    
 
     /* Return Request - Light Amber */
     .status-return-request {
@@ -683,8 +687,12 @@
                         </div>
 
                         <div class="addr_actions">
+                            
                             <% if (order.status === 'Pending' || order.status === 'Processing') { %>
                                 <button class="addr_delete-btn" onclick="return cancelOrder('<%=order._id%>')">Cancel Order</button>
+                            <% } %>
+                            <% if (order.paymentStatus === 'Failed') { %>
+                                <button class="addr_edit-btn" onclick="retryPayment('<%= order._id %>')">Retry Payment</button>
                             <% } %>
 
                             <% if(order.status === "Delivered") {%>
@@ -789,6 +797,75 @@
                     }
                 });
             }
+        });
+    }
+
+    function retryPayment(orderId) {
+        $.ajax({
+            url: '/retryPayment',
+            method: 'POST',
+            data: { orderId },
+            success: function (response) {
+            if (response.success && response.razorpayOrderId) {
+                const options = {
+                key: response.key,
+                amount: response.amount,
+                currency: response.currency,
+                name: 'Your Company Name',
+                description: 'Order Payment Retry',
+                order_id: response.razorpayOrderId,
+                handler: function (razorpayResponse) {
+                    $.ajax({
+                    url: '/verifyPayment',
+                    method: 'POST',
+                    data: {
+                        orderId: response.orderId,
+                        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                        razorpay_order_id: razorpayResponse.razorpay_order_id,
+                        razorpay_signature: razorpayResponse.razorpay_signature,
+                    },
+                    success: function (verifyResponse) {
+                        if (verifyResponse.success) {
+                        window.location.href = '/successPage';
+                        } else {
+                        window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                        }
+                    },
+                    error: function () {
+                        window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                    },
+                    });
+                },
+                prefill: {
+                    name: response.user.name,
+                    email: response.user.email,
+                    contact: response.user.contact,
+                },
+                theme: {
+                    color: '#F37254',
+                },
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function () {
+                window.location.href = '/paymentFailure?orderId=' + response.orderId;
+                });
+                rzp.open();
+            } else {
+                Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: response.message || 'Failed to initiate retry. Please try again.',
+                });
+            }
+            },
+            error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to initiate retry. Please try again.',
+            });
+            },
         });
     }
 
