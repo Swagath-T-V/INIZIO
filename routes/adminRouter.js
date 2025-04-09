@@ -10,6 +10,7 @@ const multer = require("multer")
 const storage = require("../helpers/multer")
 const uploads = multer({storage:storage})
 const orderController = require("../controllers/admin/orderController")
+const couponController  = require("../controllers/admin/couponController")
 
 
 //adminpage error
@@ -70,7 +71,13 @@ router.get("/getOrderPage",adminAuth,orderController.getOrderPage)
 router.get("/adminOrderDetails",adminAuth,orderController.getAdminOrderDetails)
 router.post("/updateOrderStatus",adminAuth,orderController.updateOrderStatus)
 
-
+//coupons
+router.get("/coupon",adminAuth,couponController.loadCoupon)
+router.get("/addCoupon",adminAuth,couponController.getAddCoupon)
+router.post("/addCoupon",adminAuth,couponController.addCoupon)
+router.get("/editCoupon",adminAuth,couponController.getEditCoupon)
+router.post("/editCoupon",adminAuth,couponController.editCoupon)
+router.patch("/deleteCoupon/:couponId",adminAuth,couponController.deleteCoupon)
 
 
 module.exports = router

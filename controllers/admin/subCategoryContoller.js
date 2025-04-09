@@ -210,6 +210,7 @@ const deleteSubCategory = async(req,res)=> {
             res.status(404).json({ success: false, message: "SubCategory not found" })
 
         }
+        
     } catch (error) {
 
         console.error("Error in softDeleteSubCategory", error);

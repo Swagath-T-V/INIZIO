@@ -1,0 +1,311 @@
+<%- include("../../views/partials/admin/header.ejs") %>
+
+<style>
+    .add-coupon-btn {
+        background-color: var(--purple-light);
+        color: white;
+    }
+    .search-container .search-btn {
+        background-color: var(--purple-light);
+        color: white;
+    }
+    .clear-btn {
+        background-color: #d33;
+        color: white;
+        border: none;
+    }
+
+    .table-dark {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-mode .table-dark {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+    }
+
+    body.light-mode .table-dark thead th {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode .table-dark tbody td {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode h2.text-white {
+        color: var(--text-light) !important;
+    }
+
+    body.light-mode .pagination .page-link {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        border-color: #dee2e6;
+    }
+
+    body.light-mode .pagination .page-item.active .page-link {
+        background-color: var(--purple-light);
+        color: white;
+        border-color: var(--purple-light);
+    }
+
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="text-white">Add New Coupon</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <form id="couponForm" onsubmit="return handleFormSubmit(event)" novalidate>
+                        <div class="mb-3">
+                            <label for="couponName" class="form-label">Coupon Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="couponName" name="couponName" >
+                            <div class="error-message" id="couponName-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="couponCode" class="form-label">Coupon Code <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="couponCode" name="couponCode" >
+                                <button class="btn btn-outline-secondary" type="button" onclick="generateCouponCode()">Generate</button>
+                            </div>
+                            <div class="error-message" id="couponCode-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="startingDate" class="form-label">Starting Date<span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="startingDate" name="startingDate" >
+                                <div class="error-message" id="startingDate-error" style="display: none;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="expireOn" class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="expireOn" name="expireOn" required>
+                                <div class="error-message" id="expireOn-error" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="offerPrice" class="form-label">Discount Amount <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="offerPrice" name="offerPrice" min="0" step="0.01" >
+                                </div>
+                                <div class="error-message" id="offerPrice-error" style="display: none;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="minimumPurchase" class="form-label">Minimum Purchase Amount <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="minimumPurchase" name="minimumPurchase" min="0" step="0.01" >
+                                </div>
+                                <div class="error-message" id="minimumPurchase-error" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                            <select class="form-control" id="status" name="status" >
+                                <option value="Active">Active</option>
+                                <option value="Disabled">Disabled</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                            <div class="error-message" id="status-error" style="display: none;"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/admin/coupon" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="background-color: var(--purple-light);">Save Coupon</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    function generateCouponCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('couponCode').value = result;
+    }
+
+    function handleFormSubmit(event){
+        event.preventDefault()
+
+        clearErrorMessage()
+
+        if(!validateForm()){
+            return false
+        }
+
+        const couponName = document.getElementById("couponName").value.trim()
+        const couponCode = document.getElementById("couponCode").value.trim();
+        const startingDate = document.getElementById("startingDate").value;
+        const expireOn = document.getElementById("expireOn").value;
+        const offerPrice = parseFloat(document.getElementById("offerPrice").value);
+        const minimumPurchase = parseFloat(document.getElementById("minimumPurchase").value);
+        const status = document.getElementById("status").value;
+
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = 'Saving...';
+        submitButton.disabled = true;
+
+        const relatedData ={
+            couponName,
+            couponCode,
+            startingDate,
+            expireOn,
+            offerPrice,
+            minimumPurchase,
+            status
+        }
+
+        $.ajax({
+            url: '/admin/addCoupon',
+            method: 'post',
+            data: JSON.stringify(relatedData),
+            contentType: 'application/json',
+            success: (response) => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Coupon created successfully!',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/admin/coupon';
+                        }
+                    });
+                } 
+            },
+            error: (xhr, status, error) => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+
+                let errorMessage = 'An unexpected error occurred while saving the coupon';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message; 
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: errorMessage,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
+                });
+                console.error('AJAX Error:', error);
+            }
+        });
+    }
+
+
+
+    
+
+    function validateForm() {
+        const couponName = document.getElementById("couponName").value.trim();
+        const couponCode = document.getElementById("couponCode").value.trim();
+        const startingDate = document.getElementById("startingDate").value;
+        const expireOn = document.getElementById("expireOn").value;
+        const offerPrice = document.getElementById("offerPrice").value.trim();
+        const minimumPurchase = document.getElementById("minimumPurchase").value.trim();
+        let isValid = true;
+
+        if (couponName === "") {
+            displayErrorMessage("couponName-error", "Please enter a coupon name");
+            isValid = false;
+        } else if (couponName.length < 3) {
+            displayErrorMessage("couponName-error", "Coupon name should be at least 3 characters long");
+            isValid = false;
+        }
+
+        if (couponCode === "") {
+            displayErrorMessage("couponCode-error", "Please enter a coupon code");
+            isValid = false;
+        } else if (couponCode.length < 4) {
+            displayErrorMessage("couponCode-error", "Coupon code should be at least 4 characters long");
+            isValid = false;
+        }
+
+        if (!startingDate) {
+            displayErrorMessage("startingDate-error", "Please select a creation date");
+            isValid = false;
+        }
+
+        if (!expireOn) {
+            displayErrorMessage("expireOn-error", "Please select an expiry date");
+            isValid = false;
+        } else {
+            const createdDate = new Date(startingDate);
+            const expiryDate = new Date(expireOn);
+            
+            if (expiryDate <= createdDate) {
+                displayErrorMessage("expireOn-error", "Expiry date must be after creation date");
+                isValid = false;
+            }
+        }
+
+        if (offerPrice === "") {
+            displayErrorMessage("offerPrice-error", "Please enter a discount amount");
+            isValid = false;
+        } else if (parseFloat(offerPrice) <= 0) {
+            displayErrorMessage("offerPrice-error", "Discount amount must be greater than 0");
+            isValid = false;
+        }
+
+        if (minimumPurchase === "") {
+            displayErrorMessage("minimumPurchase-error", "Please enter a minimum purchase amount");
+            isValid = false;
+        } else if (parseFloat(minimumPurchase) <= 0) {
+            displayErrorMessage("minimumPurchase-error", "Minimum purchase amount must be greater than 0");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+
+    function clearErrorMessage() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+            element.innerText = "";
+            element.style.display = "none";
+        });
+    }
+</script>
+
+<%- include("../../views/partials/admin/footer.ejs") %>

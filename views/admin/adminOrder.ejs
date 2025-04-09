@@ -97,6 +97,10 @@
         color: #f1c40f; /* Yellow for Out for Delivery */
         font-weight: 500;
     }
+    .status-payment-failed {
+        color: #e74c3c; /* Red for Cancelled */
+        font-weight: 500;          /* Darker red text */
+    } 
 
     .status-delivered {
         color: #2ecc71; /* Bright Green for Delivered */
@@ -384,7 +388,7 @@
                 <!-- Update Status -->
 
                 <div class="card">
-                    <% if (orderData.status !== 'Cancelled' && orderData.status !== 'Returned' && !orderData.orderedItems.some(item => item.returnStatus === 'Return Requested') ) { %>
+                    <% if (orderData.status !== 'Cancelled' && orderData.status !== 'Returned' && orderData.status !== "Payment Failed" && !orderData.orderedItems.some(item => item.returnStatus === 'Return Requested') ) { %>
                     <div class="card-header">
                         <h3>Update Order Status</h3>
                     </div>
