@@ -344,16 +344,19 @@ const logout = async(req,res)=>{
 
     try {
         
-        req.session.destroy((err)=>{
+        // req.session.destroy((err)=>{
 
-            if(err){
-                console.log("error in destroy",err)
-                return re.redirect("/pageNotFound")
-            }else{
-                return res.redirect("/")
-            }
+        //     if(err){
+        //         console.log("error in destroy",err)
+        //         return re.redirect("/pageNotFound")
+        //     }else{
+        //         return res.redirect("/")
+        //     }
 
-        })
+        // })/
+
+        req.session.user = null
+        return res.redirect('/')
 
     } catch (error) {
 

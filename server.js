@@ -9,7 +9,12 @@ const db = require("./config/db")
 const passort = require("./config/passport")
 const userRouter =require("./routes/userRouter")
 const adminRouter = require("./routes/adminRouter")
+
+const nocache = require("nocache")
+
 db()
+
+app.use(nocache())
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))

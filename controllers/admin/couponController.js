@@ -223,12 +223,14 @@ const deleteCoupon = async(req,res)=>{
         
     }
 }
-
+        
 module.exports = {
+
     loadCoupon,
     getAddCoupon,
     addCoupon,
     getEditCoupon,
     editCoupon,
     deleteCoupon
+
 }
