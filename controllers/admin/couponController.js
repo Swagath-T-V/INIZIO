@@ -80,7 +80,7 @@ const addCoupon = async(req,res)=>{
         if(existingCouponName && existingCouponName.isDelete === false){
 
             return res.status(400).json({success:false,message:'coupon name already exists'})
-
+            
         }
         
         const existingCouponCode = await Coupon.findOne({couponCode})
