@@ -8,6 +8,16 @@ const loadCoupon = async(req,res)=>{
         const page = parseInt(req.query.page || 1)
         const limit = 4
         const skip = (page-1)*limit
+
+        await Coupon.updateMany(
+            {
+                expireOn: { $lt: new Date() },
+                status: { $ne: "Expired" }, 
+                isDelete: false,
+            },
+            { $set: { status: "Expired" } }
+        );
+        
         const coupons = await Coupon.find({
             couponName:{$regex:search,$options:'i'},
             isDelete:false

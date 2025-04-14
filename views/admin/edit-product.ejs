@@ -332,24 +332,23 @@
                         </div>
                         
                         <div class="row">
-                           
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">subCategory</label>
+                                <label class="form-label">Subcategory</label>
                                 <select class="form-select" name="subCategory" id="subCategory">
                                     <% for(let i=0; i<subCategory.length; i++){ %>
-                                    <option value="<%= subCategory[i].name %>" <%= product.subCategory === subCategory[i].name ? 'selected' : '' %>>
+                                    <option value="<%= subCategory[i]._id %>" <%= product.subCategory && product.subCategory.toString() === subCategory[i]._id.toString() ? 'selected' : '' %>>
                                         <%= subCategory[i].name %>
                                     </option>
                                     <% } %>
                                 </select>
-                                <div id="brand-error" class="error-message"></div>
+                                <div id="subCategory-error" class="error-message"></div>
                             </div>
                             
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Category</label>
                                 <select class="form-select" name="category" id="category">
                                     <% for(let i=0; i<cat.length; i++){ %>
-                                    <option value="<%= cat[i].name %>" <%= product.category === cat[i].name ? 'selected' : '' %>>
+                                    <option value="<%= cat[i]._id %>" <%= product.category && product.category.toString() === cat[i]._id.toString() ? 'selected' : '' %>>
                                         <%= cat[i].name %>
                                     </option>
                                     <% } %>

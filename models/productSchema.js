@@ -11,11 +11,13 @@
             required:false
         },
         category:{
-            type:String,
+            type:Schema.Types.ObjectId,
+            ref:'Category',
             required:false
         },
         subCategory : {
-            type:String,
+            type:Schema.Types.ObjectId,
+            ref:'subCategory',
             required:true,
         },
         regularPrice:{

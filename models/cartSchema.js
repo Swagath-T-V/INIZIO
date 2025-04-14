@@ -35,7 +35,27 @@ const cartSchema = new Schema({
             type: String,
             default: 'none'
         }
-    }]
+    }],
+    appliedCoupon: {
+        type: Schema.Types.ObjectId,
+        ref: 'Coupons',
+        default: null,
+    },
+    totalAmount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    offerDiscount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    couponDiscount: {
+        type: Number,
+        default: 0,
+        min: 0
+    }
 }, { timestamps: true });
 
 const Cart = mongoose.model('Cart', cartSchema);

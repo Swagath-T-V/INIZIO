@@ -312,7 +312,7 @@
             grid-template-columns: 1fr;
         }
     }
-
+ 
 </style>
 
 <section class="content-main">
@@ -337,7 +337,7 @@
                                 <label class="form-label">Subcategory</label>
                                 <select class="form-select" name="subCategory" id="subCategory">
                                     <% for(let i=0; i<subCategory.length; i++) { %>
-                                    <option value="<%= subCategory[i].name %>">
+                                    <option value="<%= subCategory[i]._id %>">
                                         <%= subCategory[i].name %>
                                     </option>
                                     <% } %>
@@ -349,7 +349,7 @@
                                 <label class="form-label">Category</label>
                                 <select class="form-select" name="category" id="category">
                                     <% for(let i=0; i<cat.length; i++) { %>
-                                    <option value="<%= cat[i].name %>">
+                                    <option value="<%= cat[i]._id %>">
                                         <%= cat[i].name %>
                                     </option>
                                     <% } %>

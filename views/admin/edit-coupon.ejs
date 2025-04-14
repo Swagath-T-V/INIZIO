@@ -273,9 +273,18 @@
                 isValid = false;
             }
 
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             if (!startingDate) {
-                displayErrorMessage("startingDate-error", "Please select a creation date");
+                displayErrorMessage("startingDate-error", "Please select a starting date");
                 isValid = false;
+            } else {
+                const createdDate = new Date(startingDate);
+                createdDate.setHours(0, 0, 0, 0);
+                if (createdDate < today) {
+                    displayErrorMessage("startingDate-error", "Starting date cannot be in the past");
+                    isValid = false;
+                }
             }
 
             if (!expireOn) {

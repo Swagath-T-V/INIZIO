@@ -7,6 +7,7 @@ const profileController = require("../controllers/user/profileController")
 const productController = require("../controllers/user/productControllers")
 const cartController = require("../controllers/user/cartController")
 const orderController = require("../controllers/user/orderController")
+const walletController = require("../controllers/user/walletController")
 
 
 //page error
@@ -23,7 +24,7 @@ router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
 router.get("/logout",userController.logout)
 
-//mail
+//mail 
 router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]}))
 router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/signup"}),(req,res)=>{
     req.session.user = req.user._id;
@@ -68,6 +69,9 @@ router.post("/cartAdd",userAuth, cartController.addCart);
 router.post("/cartQuantity", userAuth, cartController.cartQuantity);
 router.get("/deleteCart", userAuth, cartController.deleteCart);
 router.post("/cartCheckout", userAuth, cartController.cartCheckout);
+// Coupon Routes
+router.post("/applyCoupon", userAuth, cartController.applyCoupon);
+router.post("/removeCoupon", userAuth, cartController.removeCoupon);
 
 //wishlist
 router.get("/wishlist",userAuth,cartController.getWishlist)
@@ -98,9 +102,9 @@ router.get("/getInvoice",userAuth,orderController.getInvoice)
 router.get("/trackOrder",userAuth,orderController.trackOrder)
 
 //wallet
-router.get("/walletPage",userAuth,orderController.walletPage)
-
-
+router.get("/walletPage",userAuth,walletController.walletPage)
+router.get("/walletViewAll",walletController.walletViewAll)
+router.post("/addToWallet",userAuth,walletController.addToWallet)
 
 
 module.exports= router

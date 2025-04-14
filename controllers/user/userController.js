@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt")
 const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
+const Wallet = require("../../models/walletSchema")
 
 
 
@@ -259,6 +260,13 @@ const verifyOtp = async (req, res) => {
 
             await saveUserData.save();
 
+            const newWallet = new Wallet({
+                userId:saveUserData._id
+
+            })
+
+            await newWallet.save()
+
             req.session.user = saveUserData._id;
             res.status(200).json({
                 success: true,
@@ -393,8 +401,8 @@ const loadShopPage = async (req, res) => {
         let filter = {
             isDelete: false,
             isListed: true,
-            category: { $in: activeCategories.map(cat => cat.name) },
-            subCategory: { $in: activeSubCategories.map(sub => sub.name) }
+            category: { $in: activeCategories.map(cat => cat._id) },
+            subCategory: { $in: activeSubCategories.map(sub => sub._id) }
         };
 
         if (clear === 'true') {
@@ -413,10 +421,10 @@ const loadShopPage = async (req, res) => {
             const cat = await Category.findOne({ _id: selectedCategory, isListed: true, isDelete: false });
 
             if (cat) {
-                filter.category = cat.name;
+                filter.category = cat._id;
             } else {
                 selectedCategory = 'all';
-                filter.category = { $in: activeCategories.map(cat => cat.name) };
+                filter.category = { $in: activeCategories.map(cat => cat._id) };
             }
         }
 
@@ -425,10 +433,10 @@ const loadShopPage = async (req, res) => {
             const sub = await SubCategory.findOne({ _id: selectedSubCategory, isListed: true, isDelete: false });
 
             if (sub) {
-                filter.subCategory = sub.name;
+                filter.subCategory = sub._id;
             } else {
                 selectedSubCategory = 'all';
-                filter.subCategory = { $in: activeSubCategories.map(sub => sub.name) };
+                filter.subCategory = { $in: activeSubCategories.map(sub => sub._id) };
             }
         }
 
@@ -451,6 +459,7 @@ const loadShopPage = async (req, res) => {
         const totalProducts = await Product.countDocuments(filter);
 
         const products = await Product.find(filter)
+            .populate('category subCategory')
             .sort(sortQuery)
             .skip(skip)
             .limit(limit)

@@ -1,6 +1,7 @@
 const Order =  require("../../models/orderSchema")
 const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
+const Wallet = require("../../models/walletSchema")
 
 
 const getOrderPage = async (req, res) => {
@@ -138,6 +139,50 @@ const updateOrderStatus = async (req, res) => {
                 if (status === "Returned") {
                     await Product.findByIdAndUpdate(item.product._id, { $inc: { quantity: item.quantity } });
                     message = 'Return approved';
+
+                    let refundAmount;
+                    const product = item.product 
+                    const salePrice = product.salePrice
+                    const itemSalePrice = salePrice * item.quantity
+
+                    const isFullReturn = order.orderedItems.every(i=>i.returnStatus === "Returned" || i._id.toString() === itemId)
+
+                    if (isFullReturn) {
+
+                        const previousRefunds = order.orderedItems
+                            .filter(i => i.returnStatus === "Returned" && i._id.toString() !== itemId)
+                            .reduce((sum, i) => {
+                                const prevProduct = i.product;
+                                const prevSalePrice = prevProduct.salePrice || (prevProduct.regularPrice - (prevProduct.discount || 0));
+                                return sum + (prevSalePrice * i.quantity);
+                            }, 0)
+
+                        refundAmount = order.finalAmount - previousRefunds;
+                        message = 'Full order returned and refunded'
+
+                    } else {
+
+                        refundAmount = itemSalePrice;
+                        
+                    }
+
+                    const wallet = await Wallet.findOneAndUpdate(
+                        {userId:order.userId},
+                        {$inc:{balance:refundAmount},
+                            $push:{
+                                transactions:{
+                                    amount: refundAmount,
+                                    type: "Credit",
+                                    method: "Refund",
+                                    status: "Completed",
+                                    description: `Refund for order ${order.orderId}, item ${item.product._id}`,
+                                    date: new Date()
+                                }
+                            },
+                            $set: { lastUpdated: new Date() }
+                        },{new:true}
+                    )
+
                 } else if (status === "Return Rejected") {
                     message = 'Return rejected';
                 }

@@ -569,8 +569,12 @@ function validateForm() {
     }
 
     // For edit form, we don't check if date is in the past
+    const today = new Date().toISOString().split('T')[0];
     if (!validFrom) {
         displayErrorMessage('validFrom-error', 'Please select a start date');
+        isValid = false;
+    } else if (validFrom < today) {
+        displayErrorMessage('validFrom-error', 'Start date cannot be in the past');
         isValid = false;
     }
 

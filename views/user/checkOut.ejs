@@ -419,6 +419,12 @@
               Razorpay
             </label>
           </div>
+          <div class="payment-option">
+            <label>
+              <input type="radio" name="paymentMethod" value="Wallet">
+              Wallet
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -433,7 +439,7 @@
             <div class="product-details">
               <div class="product-name"><%= item.productId.name %></div>
               <div class="product-quantity">Qty: <%= item.quantity %></div>
-              <div style="color: #16a085;">price: <%=item.productId.regularPrice%></div>
+              <!-- <div style="color: #16a085;">price: <%=item.productId.regularPrice%></div> -->
             </div>
           </div>
         <% }) %>
@@ -443,11 +449,15 @@
       <div class="summary-details">
         <div class="summary-row">
           <span class="summary-label">Total</span>
-          <span class="summary-value">₹ <%= (totalAmount+Discount) %></span>
+          <span class="summary-value">₹ <%= (totalAmount) %></span>
         </div>
         <div class="summary-row">
-          <span class="summary-label">Discount</span>
-          <span class="summary-value">- ₹ <%= Discount%></span>
+          <span class="summary-label">Offer Discount</span>
+          <span class="summary-value">- ₹ <%= cart.offerDiscount %></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Coupon Discount</span>
+          <span class="summary-value">- ₹ <%= cart.couponDiscount %></span>
         </div>
         <div class="summary-row">
           <span class="summary-label">Shipping</span>
@@ -459,7 +469,7 @@
         </div>
         <div class="summary-row">
           <span class="summary-label final-price">Total</span>
-          <span class="summary-value final-price">₹ <%= (totalAmount + 100).toFixed(2) %></span>
+          <span class="summary-value final-price">₹ <%= (cart.totalAmount + 100).toFixed(2) %></span>
         </div>
       </div>
       <button class="btn-place-order" id="placeOrderBtn">Place Order</button>
@@ -937,10 +947,15 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
         }
       },
       error: function (xhr, status, error) {
+        let errorMessage = 'Failed to process order. Please try again.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMessage = xhr.responseJSON.message;
+        }
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to process order. Please try again.',
+          text: errorMessage,
         });
       },
     });

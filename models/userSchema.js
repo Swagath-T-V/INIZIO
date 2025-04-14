@@ -14,7 +14,7 @@ const userSchema = new Schema({
     phone : {
         type:String,
         required:false,
-        unique:true,
+        unique:false,
        
     },
     googleId:{
@@ -43,6 +43,22 @@ const userSchema = new Schema({
         type:String,
         required:false,
     },
+    usedDiscounts: [{
+        productId: { 
+            type: Schema.Types.ObjectId, 
+            ref: "Product" 
+        },
+        couponId: { 
+            type: Schema.Types.ObjectId, 
+            ref: "Coupons", 
+            default: null 
+        },
+        offerId: { 
+            type: Schema.Types.ObjectId, 
+            ref: "Offer", 
+            default: null 
+        },
+        }],
 })
 
 const User=mongoose.model("User",userSchema)

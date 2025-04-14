@@ -184,6 +184,7 @@
                         <th>VALID FROM</th>
                         <th>VALID UPTO</th>
                         <th>DISCOUNT</th>
+                        <th>STATUS</th>
                         <th>List/Unlist</th>
                         <th>ACTIONS</th>
                     </tr>
@@ -213,6 +214,13 @@
                                     <%}else{%>
                                         <%=offer.discountAmount%>
                                     <%}%>
+                                </td>
+                                <td>
+                                <% if (new Date(offer.validUpto) >= new Date()) { %>
+                                        Active
+                                <% } else { %>
+                                        Expired
+                                <% } %>
                                 </td>
                                 <td class="text-start">
                                     <% if (offer.isListed) { %>

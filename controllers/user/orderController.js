@@ -1,9 +1,8 @@
 const Order =  require("../../models/orderSchema")
 const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
+const Wallet = require("../../models/walletSchema")
 
-
- 
 const getOrderPage = async (req, res) => {
 
     try {
@@ -80,6 +79,58 @@ const cancelOrder = async(req,res)=>{
                 success: false,
                 message: "Order not found" 
             });
+        }
+
+        if(orderData.paymentMethod === 'Wallet'){
+
+            if(orderData.status ==='Pending' || orderData.status === 'Processing'){
+
+                const wallet = await Wallet.findOneAndUpdate(
+                    {userId:orderData.userId},
+                    {
+                        $inc:{balance:orderData.finalAmount},
+                        $push:{
+                            transactions:{
+                                amount: orderData.finalAmount,
+                                type: "Credit",
+                                method: "Refund",
+                                status: "Completed",
+                                description: `Refund for order ${orderId}`,
+                                date: new Date()
+                            }
+                        },
+                        $set: { lastUpdated: new Date() }
+                    },{new: true}
+                    
+                )
+
+            }
+
+        }
+
+        if(orderData.paymentMethod === 'Razorpay'){
+
+            if(orderData.status ==='Pending' || orderData.status === 'Processing'){
+
+                const wallet = await Wallet.findOneAndUpdate(
+                    {userId:orderData.userId},
+                    {
+                        $inc:{balance:orderData.finalAmount},
+                        $push:{
+                            transactions:{
+                                amount: orderData.finalAmount,
+                                type: "Credit",
+                                method: "Refund",
+                                status: "Completed",
+                                description: `Refund for order ${orderId}`,
+                                date: new Date()
+                            }
+                        },
+                        $set: { lastUpdated: new Date() }
+                    },{new: true}
+                    
+                )
+            }
         }
 
         await Order.findByIdAndUpdate(
@@ -213,19 +264,7 @@ const trackOrder = async(req,res)=>{
     }
 } 
 
-const walletPage = async (req,res) =>{
 
-    try {
-
-        res.render('wallet')
-        
-    } catch (error) {
-
-        console.log("error in walletPage",error)
-        return res.redirect("/pageNotFound")
-        
-    }
-}
  
 
 
@@ -236,5 +275,4 @@ module.exports={
     returnProduct,
     getInvoice,
     trackOrder,
-    walletPage
 }

@@ -14,13 +14,24 @@ const getProductPage = async(req, res) => {
         const page = parseInt(req.query.page) || 1
         const limit = 4
 
+        const matchingCategories = await Category.find({
+            name: { $regex: search, $options: "i" },
+            isListed: true,
+            isDelete: false,
+        }).select("_id");
+
+        const categoryIds = matchingCategories.map((cat) => cat._id);
+
         const productData = await Product.find({
             isDelete: false,
             $or: [
                 { name: { $regex: search, $options: "i" }},
-                { category: { $regex: search, $options: "i" }}
+                { category: { $in: categoryIds } },
             ],
-        }).sort({ createdAt: -1 })
+        })
+          .populate("category", "name") 
+          .populate("subCategory", "name")
+          .sort({ createdAt: -1 })
           .limit(limit * 1)
           .skip((page - 1) * limit)
           .exec();
@@ -29,12 +40,12 @@ const getProductPage = async(req, res) => {
             isDelete: false,
             $or: [
                 { name: { $regex: search, $options: "i" }},
-                { category: { $regex: search, $options: "i" }}
+                { category: { $in: categoryIds } },
             ],
         });
 
-        const category = await Category.find({ isListed: true, isDelete: false })
-        const subCategory = await SubCategory.find({ isListed: true, isDelete: false })
+        const category = await Category.find({ isListed: true, isDelete: false }).select('name')
+        const subCategory = await SubCategory.find({ isListed: true, isDelete: false }).select('name')
 
         if (category && subCategory) {
 
@@ -160,15 +171,6 @@ const addProduct = async(req, res) => {
                     
                     images.push('resized-' + file.filename);
                 }
-            }
-
-            const categoryId = await Category.findOne({ name: category });
-
-            if (!categoryId) {
-                return res.json({ 
-                    success: false,
-                    message: "Invalid category name" 
-                })
             }
 
             const newProduct = new Product({
