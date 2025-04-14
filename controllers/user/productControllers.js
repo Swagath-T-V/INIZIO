@@ -26,13 +26,19 @@ const productDetails = async (req, res) => {
             .populate('applicableTo')
             .lean();
 
+        const usedDiscountsForProduct = userData?.usedDiscounts.filter(discount => discount.productId.toString() === productId) || [];
+        const usedOfferIdsForProduct = usedDiscountsForProduct
+            .map(discount => discount.offerId?.toString())
+            .filter(id => id);
+
         const offers = allOffers.filter(item => {
             const offerId = item.applicableTo?._id?.toString();
-            return (
-                item.offerType === 'Category' && offerId === product.category._id.toString() ||
-                item.offerType === 'subCategory' && offerId === product.subCategory._id.toString() ||
-                item.offerType === 'Product' && offerId === product._id.toString()
+            const isApplicable = (
+                (item.offerType === 'Category' && offerId === product.category._id.toString()) ||
+                (item.offerType === 'subCategory' && offerId === product.subCategory._id.toString()) ||
+                (item.offerType === 'Product' && offerId === product._id.toString())
             );
+            return isApplicable && !usedOfferIdsForProduct.includes(item._id.toString());
         });
 
         let bestOffer = null;
@@ -40,18 +46,14 @@ const productDetails = async (req, res) => {
 
         if (offers.length > 0) {
             bestOffer = offers.reduce((best, current) => {
-                const bestDiscount = best ? 
-                    (best.discountType === 'percentage' ? (product.salePrice * best.discountAmount / 100) : best.discountAmount) : 0;
-                const currentDiscount = current.discountType === 'percentage' ? 
-                    (product.salePrice * current.discountAmount / 100) : current.discountAmount;
+                const bestDiscount = best ? best.discountType === 'percentage' ? (product.salePrice * best.discountAmount) / 100 : best.discountAmount : 0;
+                const currentDiscount = current.discountType === 'percentage' ? (product.salePrice * current.discountAmount) / 100 : current.discountAmount;
                 return currentDiscount > bestDiscount ? current : best;
             }, null);
 
             if (bestOffer) {
-                const discountAmount = bestOffer.discountType === 'percentage' ?
-                    (product.salePrice * bestOffer.discountAmount / 100) :
-                    Math.min(bestOffer.discountAmount, product.salePrice); 
-                discountedPrice = Math.max(0, product.salePrice - discountAmount); 
+                const discountAmount = bestOffer.discountType === 'percentage'  ? (product.salePrice * bestOffer.discountAmount / 100) : Math.min(bestOffer.discountAmount, product.salePrice);
+                discountedPrice = Math.max(0, product.salePrice - discountAmount);
             }
         }
 
@@ -72,11 +74,14 @@ const productDetails = async (req, res) => {
             products: relatedProducts,
             offers,
             bestOffer,
-            discountedPrice 
+            discountedPrice
         });
+
     } catch (error) {
+
         console.log("Error in productDetails:", error);
         res.redirect("/pageNotFound");
+        
     }
 };
 

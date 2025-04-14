@@ -302,13 +302,14 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="4" class="text-end fw-medium">Discount:</td>
-                                        <td>₹ <%= orderData.discount.toFixed(2) %></td>
-                                    </tr>
-                                    <tr>
                                         <td colspan="4" class="text-end fw-medium">Subtotal:</td>
                                         <td>₹ <%= orderData.orderedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2) %></td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-end fw-medium">Discount:</td>
+                                        <td>-₹ <%= orderData.discount.toFixed(2) %></td>
+                                    </tr>
+                                   
                                     <tr>
                                         <td colspan="4" class="text-end fw-medium">Shipping:</td>
                                         <td>₹ <%= orderData.shipping.toFixed(2) %></td>
@@ -327,7 +328,6 @@
                     </div>
                 </div>
 
-                <!-- Return Requests Section -->
                 <!-- Return Requests Section -->
                 <% if (orderData.orderedItems.some(item => item.returnStatus === 'Return Requested')) { %>
                 <div class="card mb-4">

@@ -1,10 +1,12 @@
 const Wallet = require("../../models/walletSchema");
+const User = require("../../models/userSchema")
 
 const walletPage = async (req, res) => {
 
     try {
 
-        const user = req.session.user;
+        const userId = req.session.user;
+        const user = await User.findById(userId)
         const wallet = await Wallet.findOne({ userId: user }).populate('userId');
 
         if (!wallet) {
@@ -16,6 +18,7 @@ const walletPage = async (req, res) => {
             .slice(0, 4);
 
         res.render('wallet', {
+            user,
             wallet: { ...wallet.toObject(), transactions: recentTransactions },
             activePage: 'wallet'
         });

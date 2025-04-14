@@ -7,7 +7,7 @@ const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
 const Wallet = require("../../models/walletSchema")
-
+const { v4: uuidv4 } = require('uuid');
 
 
 const pageNotFound =async (req,res)=>{
@@ -72,6 +72,11 @@ const loadHome = async (req, res) => {
 const loadSignup =async (req,res)=>{
 
     try {
+
+        const referralToken = req.query.ref; 
+        if (referralToken) {
+            req.session.referralToken = referralToken; 
+        }
 
         return res.render("signup")
         
@@ -249,6 +254,7 @@ const verifyOtp = async (req, res) => {
 
             const user = req.session.userData;
             const passwordHash = await bcrypt.hash(user.password, 10);
+            const referralToken = uuidv4().replace(/-/g, '').slice(0, 10); 
 
             const saveUserData = new User({
                 name: user.name,
@@ -256,6 +262,7 @@ const verifyOtp = async (req, res) => {
                 phone: user.phone,
                 password: passwordHash,
                 googleId: user.googleId || undefined, 
+                referralToken
             });
 
             await saveUserData.save();
@@ -267,7 +274,55 @@ const verifyOtp = async (req, res) => {
 
             await newWallet.save()
 
+            const referralTokenFromUrl = req.session.referralToken;
+            if (referralTokenFromUrl) {
+                const referrer = await User.findOne({ referralToken: referralTokenFromUrl });
+                if (referrer && referrer._id.toString() !== saveUserData._id.toString()) {
+                    await Wallet.findOneAndUpdate(
+                        { userId: referrer._id },
+                        {
+                            $inc: { balance: 500 },
+                            $push: {
+                                transactions: {
+                                    amount: 500,
+                                    type: "Credit",
+                                    method: "Referral",
+                                    status: "Completed",
+                                    description: `Referral bonus for inviting ${saveUserData.email}`,
+                                    date: new Date()
+                                }
+                            },
+                            $set: { lastUpdated: new Date() }
+                        },
+                        { new: true }
+                    );
+
+                    await Wallet.findOneAndUpdate(
+                        { userId: saveUserData._id },
+                        {
+                            $inc: { balance: 250 },
+                            $push: {
+                                transactions: {
+                                    amount: 250,
+                                    type: "Credit",
+                                    method: "Referral",
+                                    status: "Completed",
+                                    description: `Welcome bonus for joining via referral`,
+                                    date: new Date()
+                                }
+                            },
+                            $set: { lastUpdated: new Date() }
+                        },
+                        { new: true }
+                    );
+                }
+            }
+
             req.session.user = saveUserData._id;
+            delete req.session.userOtp;
+            delete req.session.userData;
+            delete req.session.referralToken;
+
             res.status(200).json({
                 success: true,
                 message: "OTP verified successfully",

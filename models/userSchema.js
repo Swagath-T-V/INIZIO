@@ -43,6 +43,11 @@ const userSchema = new Schema({
         type:String,
         required:false,
     },
+    referralToken: { 
+        type: String,
+        unique: true,
+        sparse: true
+    },
     usedDiscounts: [{
         productId: { 
             type: Schema.Types.ObjectId, 
@@ -58,7 +63,7 @@ const userSchema = new Schema({
             ref: "Offer", 
             default: null 
         },
-        }],
+    }],
 })
 
 const User=mongoose.model("User",userSchema)

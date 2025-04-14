@@ -270,7 +270,7 @@
                     </td>
                     <td><%= order.orderId %></td>
                     <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
-                    <td>₹ <%= order.totalPrice %></td>
+                    <td>₹ <%= order.finalAmount %></td>
                     <td>
                         <span class="order-status order-status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
                             <%= order.status %>
