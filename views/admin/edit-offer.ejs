@@ -415,11 +415,9 @@ const categories = JSON.parse('<%- JSON.stringify(category) %>');
 const subCategories = JSON.parse('<%- JSON.stringify(subCategory) %>');
 const currentApplicableTo = '<%= offer.applicableTo %>';
 
-// Call this function when the page loads to populate the applicableTo dropdown
 window.onload = function() {
     updateApplicableTo();
     
-    // Set the current applicableTo value after populating options
     setTimeout(() => {
         document.getElementById("applicableTo").value = currentApplicableTo;
     }, 100);
@@ -445,7 +443,6 @@ function updateApplicableTo() {
         });
     }
     
-    // Set the previous selected value if it exists
     if (currentApplicableTo) {
         setTimeout(() => {
             document.getElementById("applicableTo").value = currentApplicableTo;
@@ -568,7 +565,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // For edit form, we don't check if date is in the past
     const today = new Date().toISOString().split('T')[0];
     if (!validFrom) {
         displayErrorMessage('validFrom-error', 'Please select a start date');

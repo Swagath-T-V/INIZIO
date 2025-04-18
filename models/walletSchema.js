@@ -17,7 +17,7 @@ const walletSchema = new Schema({
     currency: {
         type: String,
         default: "INR" 
-    },
+    }, 
     transactions: [{
         transactionId: {
             type: String,

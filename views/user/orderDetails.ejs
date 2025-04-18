@@ -7,9 +7,9 @@
         background: #f5f6fa;
         padding: 20px;
         min-height: 100vh;
-        width: 100%; /* Ensure it takes full width of its parent */
-        max-width: 1200px; /* Match typical max-width for consistency */
-        margin: 0 auto; /* Center the content */
+        width: 100%; 
+        max-width: 1200px; 
+        margin: 0 auto; 
     }
     .addr_profile-header {
         background: #fff;
@@ -35,7 +35,7 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         margin-bottom: 20px;
         overflow: hidden;
-        width: 100%; /* Ensure card takes full width of container */
+        width: 100%; 
     }
     .addr_card-header {
         display: flex;
@@ -88,7 +88,7 @@
     }
     .addr_info {
         flex: 1;
-        width: 100%; /* Ensure it takes full width */
+        width: 100%; 
     }
     .addr_type {
         display: inline-block;
@@ -112,7 +112,7 @@
         font-size: 15px;
         color: #636e72;
         line-height: 1.6;
-        width: 100%; /* Ensure details take full width */
+        width: 100%; 
     }
     .addr_phone {
         font-size: 15px;
@@ -165,7 +165,6 @@
         font-size: 16px;
     }
 
-    /* Modal Styles */
     .addr_modal-content {
         border-radius: 10px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -211,7 +210,6 @@
         background-color: #c0392b;
     }
 
-    /* Responsive Styles */
     @media (max-width: 768px) {
         .up_container {
             flex-direction: column;
@@ -259,11 +257,10 @@
         }
     }
 
-    /* Updated table styling to ensure full width */
     .addr_details table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; /* Added to ensure consistent column widths */
+        table-layout: fixed; 
     }
     .addr_details th {
         background: #fafafa;
@@ -278,7 +275,6 @@
         border-bottom: 1px solid #e9ecef;
     }
     
-    /* Product Image Styles */
     .product-image {
         width: 60px;
         height: 60px;
@@ -296,7 +292,6 @@
         font-weight: 500;
     }
     
-    /* Status Badge Styles */
     .status-badge {
         display: inline-block;
         padding: 4px 12px;
@@ -306,53 +301,45 @@
         text-transform: uppercase;
     }
 
-    /* Pending - Light Yellow */
     .status-pending {
-        background-color: #fff5cc; /* Light yellow background */
-        color: #f7c32e;           /* Darker yellow text */
+        background-color: #fff5cc; 
+        color: #f7c32e;           
     }
 
-    /* Processing - Light Blue */
     .status-processing {
         background-color: #e0e7ff;
         color: #4a6ee0;
     }
 
-    /* Shipped - Light Orange */
     .status-shipped {
         background-color: #fff5cc;
         color: #f7c32e;
     }
 
-    /* Out for Delivery - Light Purple */
     .status-out-for-delivery {
         background-color: #f3e8ff;
         color: #8b5cf6;
     }
 
-    /* Delivered - Light Green */
     .status-delivered {
         background-color: #d1f5ea;
         color: #0cbc87;
     }
 
-    /* Cancelled - Light Red */
     .status-cancelled {
         background-color: #fee2e2;
         color: #e74c3c;
     }
     .status-payment-failed {
-        background-color: #fee2e2; /* Light red background */
-        color: #e74c3c;           /* Darker red text */
+        background-color: #fee2e2; 
+        color: #e74c3c;           
     }    
 
-    /* Return Request - Light Amber */
     .status-return-request {
         background-color: #fef3c7;
         color: #d97706;
     }
 
-    /* Returned - Light Gray */
     .status-returned {
         background-color: #e9ecef;
         color: #495057;
@@ -362,7 +349,6 @@
     color: #c0392b;
     }
     
-    /* Action Button Styles */
     .action-buttons {
         display: flex;
         gap: 5px;
@@ -632,8 +618,8 @@
                                 <div class="addr_type">Price Details</div>
                                 <div class="addr_details">
                                     <p><strong>Total Price:</strong> <span id="totalPrice"> ₹ <%= order.totalPrice.toFixed(2) %></span></p>
-                                    <p><strong>Discount:</strong> <span id="discount"> -₹ <%= order.discount.toFixed(2) %></span></p>
-                                    <p><strong>Tax:</strong> <span id="tax"> ₹ <%= order.tax.toFixed(2) %></span></p>
+                                    <p><strong>Offer Discount:</strong> <span id="discount"> -₹ <%= order.offerDiscount.toFixed(2) %></span></p>
+                                    <p><strong>Coupon Discount:</strong> <span id="discount"> -₹ <%= order.couponDiscount.toFixed(2) %></span></p>
                                     <p><strong>Shipping:</strong> <span id="shipping"> ₹ <%= order.shipping.toFixed(2) %></span></p>
                                     <p><strong>Final Amount:</strong> <span id="finalAmount"> ₹ <%= order.finalAmount.toFixed(2) %></span></p>
                                 </div>
@@ -874,19 +860,16 @@
     const closeReturnModalX = document.querySelector(".return-modal-close");
     const submitReturnBtn = document.getElementById("submitReturnRequest");
 
-    // Open the return modal
     function openReturnModal(orderId, productId) {
         document.getElementById("returnOrderId").value = orderId;
         document.getElementById("returnProductId").value = productId;
         returnModal.style.display = "block";
     }
 
-    // Close the modal
     closeReturnModalX.onclick = function() { returnModal.style.display = "none"; };
     closeReturnModalBtn.onclick = function() { returnModal.style.display = "none"; };
     window.onclick = function(event) { if (event.target == returnModal) returnModal.style.display = "none"; };
 
-    // Submit return request
     submitReturnBtn.onclick = function() {
         const orderId = document.getElementById("returnOrderId").value;
         const productId = document.getElementById("returnProductId").value;

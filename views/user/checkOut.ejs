@@ -439,7 +439,6 @@
             <div class="product-details">
               <div class="product-name"><%= item.productId.name %></div>
               <div class="product-quantity">Qty: <%= item.quantity %></div>
-              <!-- <div style="color: #16a085;">price: <%=item.productId.regularPrice%></div> -->
             </div>
           </div>
         <% }) %>
@@ -611,7 +610,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // Handle address selection
   document.querySelectorAll('.address-card input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', function() {
       document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
@@ -619,7 +617,6 @@
     });
   });
 
-  // Handle payment method selection
   document.querySelectorAll('.payment-option input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', function() {
       document.querySelectorAll('.payment-option').forEach(option => option.classList.remove('selected'));
@@ -627,7 +624,6 @@
     });
   });
 
-  // Handle Edit Address Modal
   const editModal = document.getElementById('editAddressModal');
   const editCloseBtn = document.getElementById('modalClose');
   const editButtons = document.querySelectorAll('.btn-edit');
@@ -663,7 +659,6 @@
     }
   });
 
-  // Handle Add Address Modal
   const addModal = document.getElementById('addAddressModal');
   const addOpenBtn = document.getElementById('openAddAddressModal');
   const addCloseBtn = document.getElementById('addModalClose');
@@ -683,7 +678,6 @@
     }
   });
 
-  // Form validation for Edit Address
   document.getElementById('editAddressForm').addEventListener('submit', function(event) {
     const addressType = document.getElementById('editAddressType');
     const name = document.getElementById('editName');
@@ -756,7 +750,6 @@
     }
   });
 
-  // Form validation for Add Address
   document.getElementById('addAddressForm').addEventListener('submit', function(event) {
     const addressType = document.getElementById('addAddressType');
     const name = document.getElementById('addName');
@@ -829,7 +822,7 @@
     }
   });
 
- // Place Order Button
+
 document.getElementById('placeOrderBtn').addEventListener('click', async function(e) {
   e.preventDefault();
 
@@ -894,7 +887,6 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
             order_id: response.razorpayOrderId,
             
             handler: function (razorpayResponse) {
-              // Handle successful payment
               $.ajax({
                 url: '/verifyPayment',
                 method: 'POST',
@@ -937,13 +929,11 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
 
           const rzp = new Razorpay(options);
           rzp.on('payment.failed', function (failureResponse) {
-            // Handle payment failure
             window.location.href = '/paymentFailure?orderId=' + response.orderId;
           });
           rzp.open();
         } else {
-          // COD or other methods redirect directly
-          window.location.href = '/successPage'; // COD case
+          window.location.href = '/successPage'; 
         }
       },
       error: function (xhr, status, error) {

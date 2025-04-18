@@ -27,7 +27,7 @@ const couponSchema = new Schema({
     minimumPurchase:{
         type:Number,
         required:true 
-    },
+    }, 
     status: {
         type: String,
         enum: ['Active', 'Expired', 'Disabled'],

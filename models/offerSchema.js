@@ -43,7 +43,7 @@ const offerSchema = new Schema({
     type: String,
     required: true,
     enum: ['Category', 'subCategory', 'Product']
-  },
+  }, 
   createdAt: {
     type: Date,
     default: Date.now

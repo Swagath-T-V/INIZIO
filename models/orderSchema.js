@@ -52,6 +52,16 @@ const orderSchema = new Schema({
         type:Number,
         default:0
     },
+    offerDiscount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    couponDiscount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     tax: {  
         type: Number,
         default: 0

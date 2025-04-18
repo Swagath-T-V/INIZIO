@@ -16,6 +16,7 @@ const getOrderPage = async (req, res) => {
         let orderData = await Order.find({ userId: userId })
             .populate('orderedItems.product')
             .sort({createdAt:-1})
+            
         res.render("order", {
             user,
             orderData,

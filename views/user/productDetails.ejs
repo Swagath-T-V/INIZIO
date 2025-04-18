@@ -537,7 +537,6 @@
         border: 1px dashed #ccc;
     }
     
-    /* Offer Icon Colors */
     .offer-card:nth-child(1) .offer-icon {
         color: #e74c3c;
         background-color: rgba(231, 76, 60, 0.1);
@@ -558,7 +557,6 @@
         background-color: rgba(155, 89, 182, 0.1);
     }
     
-    /* Responsive Styles */
     @media (max-width: 768px) {
         .offers-container {
             grid-template-columns: 1fr;
@@ -568,13 +566,13 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        background-color: #1bb71c; /* Red background like the image */
+        background-color: #1bb71c; 
         color: white;
         padding: 5px 10px;
         border-radius: 5px;
         font-size: 12px;
         font-weight: 600;
-        transform: rotate(10deg); /* Slight tilt like the image */
+        transform: rotate(10deg); 
         z-index: 1;
     }
 
@@ -642,7 +640,6 @@
         border-radius: 4px;
     }
 
-    /* Fade-in animation */
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -837,11 +834,6 @@
 
 
                                             <div class="cart-action d-flex flex-column mt-30">
-                                                <!-- <div class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
-                                          <button class="quantity-button decrease">-</button>
-                                          <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="<%= product.quantity %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>
-                                          <button class="quantity-button increase">+</button>
-                                        </div> -->
                                                 <div
                                                     class="quantity-selector d-flex align-items-center <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>">
                                                     <button class="quantity-button decrease">-</button>
@@ -851,7 +843,6 @@
                                                 <div class="product-buttons">
                                                     <button type="button"
                                                         class="btn btn-primary add-to-cart <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%=stockStatus !=='in-stock' ? 'disabled' : '' %>>Add to Cart</button>
-                                                    <!-- <button type="button" class="btn btn-danger buy-now <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%= stockStatus !== 'in-stock' ? 'disabled' : '' %>>Buy Now</button> -->
                                                     <button type="button" class="btn wishlist-btn <%= stockStatus !== 'in-stock' ? 'disabled-btn' : '' %>" data-product-id="<%= product._id %>" <%=stockStatus !=='in-stock' ? 'disabled' : '' %>>
                                                         <i class="fas fa-heart"></i> <a href="">Add to Wishlist</a>
                                                     </button>
@@ -969,7 +960,6 @@
             const maxQuantity = parseInt(quantityInput.getAttribute('max'))
             const isStockAvailable = '<%= stockStatus === "in-stock" %>' === 'true';
 
-            // Quantity Selector Logic
             if (isStockAvailable) {
                 decreaseBtn.addEventListener('click', () => {
                     const value = Math.max(1, parseInt(quantityInput.value) - 1);
@@ -1086,7 +1076,6 @@
                     });
                 });
 
-                // Check initial wishlist state
                 const productId = wishlistBtn.dataset.productId;
                 $.ajax({
                     url: '/checkWishlist',

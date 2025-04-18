@@ -12,6 +12,7 @@ const uploads = multer({storage:storage})
 const orderController = require("../controllers/admin/orderController")
 const couponController  = require("../controllers/admin/couponController")
 const offerController = require('../controllers/admin/offerController')
+const dashboardController =  require("../controllers/admin/dashboardController")
 
 
 //adminpage error
@@ -20,7 +21,6 @@ router.get("/pageerror",adminController.pageerror)
 //login 
 router.get("/login",adminController.loadLogin)
 router.post("/login",adminController.login)
-router.get("/",adminAuth,adminController.loadDashboard)
 router.get("/logout",adminController.logout)
 
 //coustomer 
@@ -89,6 +89,12 @@ router.post('/editOffer',adminAuth,offerController.editOffer)
 router.get("/listOffer",adminAuth,offerController.listOffer)
 router.get("/unlistOffer",adminAuth,offerController.unlistOffer)
 router.patch("/deleteOffer",adminAuth,offerController.deleteOffer)
+
+//dashboard 
+router.get("/",adminAuth,dashboardController.loadDashboard)
+router.get("/sales-report", dashboardController.getSalesReport);
+
+
 
 
 module.exports = router

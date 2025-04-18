@@ -1,5 +1,5 @@
 const Coupon = require('../../models/couponSchema')
-
+ 
 const loadCoupon = async(req,res)=>{
 
     try {
@@ -94,6 +94,7 @@ const addCoupon = async(req,res)=>{
         }
         
         const existingCouponCode = await Coupon.findOne({couponCode})
+
         if(existingCouponCode){
 
             return res.status(400).json({success:false,message:'Coupon code already exists'})
@@ -117,7 +118,7 @@ const addCoupon = async(req,res)=>{
     } catch (error) {
 
         console.log("error in addCoupon",error)
-        return res.status(500).json({ success: false, message: "Server error occurred" });
+        return res.status(500).json({ success: false, message: "Server error occurred" }); 
             
     }
 
@@ -206,6 +207,7 @@ const deleteCoupon = async(req,res)=>{
     try {
 
         const couponId =req.params.couponId 
+        
         if (!couponId) {
             return res.status(400).json({ success: false, message: 'Coupon ID is required' });
         }
@@ -215,7 +217,7 @@ const deleteCoupon = async(req,res)=>{
             {$set:{isDelete:true}},
             {new:true}
         )
-
+  
         if(updatedCoupon){
 
             return res.status(200).json({success:true,message:'coupon deleted successfully'})

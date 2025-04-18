@@ -1,7 +1,6 @@
 <%- include("../../views/partials/admin/header.ejs") %>
 
 <style>
-    /* Essential Order Management Styles */
     .order-stats-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -105,20 +104,19 @@
         font-weight: 500;
     }
 
-    /* Order Status Colors */
     .order-status-pending {
         background-color: #fef5e7;
-        color: #f39c12; /* Orange for Pending */
+        color: #f39c12; 
     }
 
     .order-status-processing {
         background-color: #e8f4fd;
-        color: #3498db; /* Blue for Processing */
+        color: #3498db; 
     }
 
     .order-status-shipped {
         background-color: #e9f7ef;
-        color: #27ae60; /* Green for Shipped */
+        color: #27ae60;
     }
 
     .order-status-payment-failed {
@@ -128,32 +126,32 @@
 
     .order-status-out-for-delivery {
         background-color: #fef9e7;
-        color: #f1c40f; /* Yellow for Out for Delivery */
+        color: #f1c40f; 
     }
 
     .order-status-delivered {
         background-color: #d5f5e3;
-        color: #2ecc71; /* Bright Green for Delivered */
+        color: #2ecc71; 
     }
 
     .order-status-cancelled {
         background-color: #f9ebeb;
-        color: #e74c3c; /* Red for Cancelled */
+        color: #e74c3c; 
     }
 
     .order-status-return-request {
         background-color: #f5eef8;
-        color: #8e44ad; /* Purple for Return Request */
+        color: #8e44ad; 
     }
 
     .order-status-returned {
         background-color: #ebdef0;
-        color: #9b59b6; /* Lighter Purple for Returned */
+        color: #9b59b6; 
     }
 
     .order-status-return-rejected {
         background-color: #fadbd8;
-        color: #c0392b; /* Darker Red for Return Rejected */
+        color: #c0392b; 
     }
 
     .order-action-buttons .order-btn-action {

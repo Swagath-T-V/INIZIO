@@ -1,7 +1,6 @@
 <%- include("../../views/partials/user/header.ejs") %>
 
 <style>
-  /* Reset and Base Styles */
   * {
     margin: 0;
     padding: 0;
@@ -287,7 +286,6 @@
     font-size: 14px;
   }
 
-  /* New Offer Badge Styles */
   .offer-badge-container {
     margin-top: 8px;
     display: flex;
@@ -337,7 +335,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* Offer type badges */
   .offer-type {
     display: inline-block;
     font-size: 0.7rem;
@@ -389,7 +386,6 @@
     color: #28a745;
   }
 
-  /* Coupon Section Styles */
   .coupon-section {
     background: #fff;
     border-radius: 8px;
@@ -510,7 +506,6 @@
     cursor: not-allowed;
   }
 
-  /* Applied Coupon Section Styles */
   .applied-coupon-section {
     background: #fff;
     border-radius: 8px;
@@ -586,6 +581,7 @@
   .remove-coupon-btn:hover {
     background: #c82333;
   }
+
 </style>
 
 <div class="hero-wrap hero-bread">
@@ -656,7 +652,8 @@
                 <div class="offer-badge"> <i class="fa fa-tags"></i> <%= item.bestOffer.offerName %></div>
 
                 <% let offerType, offerTypeText; 
-                  const discountPercent=Math.round((1 - item.discountedPrice / item.product.salePrice) * 100); if (discountPercent>= 35) {
+                  const discountPercent=Math.round((1 - item.discountedPrice / item.product.salePrice) * 100); 
+                  if (discountPercent>= 35) {
                     offerType = 'discount'; offerTypeText = 'MEGA DISCOUNT'; 
                   } else if (discountPercent >= 20) { 
                     offerType = 'coupon'; 
@@ -986,7 +983,6 @@
               confirmButtonColor: "#ff7f50",
             }).then(() => {
               if (response.couponRemoved) {
-                // Coupon was removed, reload to update UI
                 location.reload();
               }
             });
@@ -995,7 +991,7 @@
       });
   });
 
-  // Apply Coupon
+
   document.querySelector("#applyCouponBtn").addEventListener("click", function () {
       const couponCode = document.querySelector("#couponCode").value.trim();
       if (!couponCode) {
@@ -1054,7 +1050,7 @@
       });
     });
 
-    // Remove Coupon
+
     document.querySelectorAll(".remove-coupon-btn").forEach((btn) => {
       btn.addEventListener("click", function () {
         const couponId = this.getAttribute("data-coupon-id");
@@ -1104,8 +1100,9 @@
         });
       });
     });
-  // Copy Coupon Code
-  document.querySelectorAll(".copy-btn").forEach((button) => {
+
+
+    document.querySelectorAll(".copy-btn").forEach((button) => {
     button.addEventListener("click", function () {
       const code = this.getAttribute("data-code");
       navigator.clipboard.writeText(code).then(() => {

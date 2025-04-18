@@ -70,8 +70,8 @@ const getCartPage = async (req, res) => {
       isDelete: false,
       validUpto: { $gte: new Date() },
     })
-      .populate("applicableTo")
-      .lean();
+    .populate("applicableTo")
+    .lean();
 
     let total = 0;
     let offerDiscount = 0;
@@ -141,6 +141,7 @@ const getCartPage = async (req, res) => {
         const product = item.productId;
 
         if (!product) continue;
+        
         const used = user.usedDiscounts.find((d) => d.productId.toString() === product._id.toString() && d.couponId && d.couponId.toString() === coupon._id.toString());
 
         if (used) {
@@ -161,8 +162,10 @@ const getCartPage = async (req, res) => {
         appliedCoupon = null;
 
       } else {
+
         couponDiscount = coupon.offerPrice;
         total -= couponDiscount;
+
       }
     }
 
@@ -322,8 +325,8 @@ const removeCoupon = async (req, res) => {
       isDelete: false,
       validUpto: { $gte: new Date() },
     })
-      .populate("applicableTo")
-      .lean();
+    .populate("applicableTo")
+    .lean();
 
     let total = 0;
     let offerDiscount = 0;
@@ -1349,30 +1352,35 @@ const checkOutSubmit = async (req, res) => {
           price: item.productId.salePrice,
       }));
 
-      const totalPrice = cart.totalAmount;
-      const discount = cart.offerDiscount + cart.couponDiscount;
-      const tax = 100;
-      const shipping = 0;
-      const finalAmount = totalPrice + tax + shipping;
+      const totalPrice = cart.totalAmount + cart.offerDiscount + cart.couponDiscount;
+        const offerDiscount = cart.offerDiscount;
+        const couponDiscount = cart.couponDiscount;
+        const discount = offerDiscount + couponDiscount; 
+        const tax = 100;
+        const shipping = 0;
+        const finalAmount = cart.totalAmount  
 
-      const newOrder = new Order({
-          userId: user._id,
-          orderedItems,
-          totalPrice,
-          discount,
-          tax,
-          shipping,
-          finalAmount,
-          address: {
-              addressType: selectedAddress.addressType,
-              name: selectedAddress.name,
-              city: selectedAddress.city,
-              landmark: selectedAddress.landMark,
-              state: selectedAddress.state,
-              pincode: selectedAddress.pincode.toString(),
-              phone: selectedAddress.phone,
-              isDefault: selectedAddress.isDefault,
-          },
+        const newOrder = new Order({
+            userId: user._id,
+            orderedItems,
+            totalPrice,
+            discount,
+            offerDiscount, 
+            couponDiscount, 
+            tax,
+            shipping,
+            finalAmount,
+            address: {
+                addressType: selectedAddress.addressType,
+                name: selectedAddress.name,
+                city: selectedAddress.city,
+                landmark: selectedAddress.landMark,
+                state: selectedAddress.state,
+                pincode: selectedAddress.pincode.toString(),
+                phone: selectedAddress.phone,
+                isDefault: selectedAddress.isDefault,
+            },
+
           paymentMethod: paymentMethod === "cod" ? "COD" : paymentMethod === "Wallet" ? "Wallet" : "Razorpay",
           status: "Pending",
           paymentStatus: "Pending",
@@ -1692,4 +1700,4 @@ module.exports = {
   successPage,
   applyCoupon,
   removeCoupon
-} 
+}  

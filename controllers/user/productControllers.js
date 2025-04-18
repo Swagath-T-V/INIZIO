@@ -27,9 +27,7 @@ const productDetails = async (req, res) => {
             .lean();
 
         const usedDiscountsForProduct = userData?.usedDiscounts.filter(discount => discount.productId.toString() === productId) || [];
-        const usedOfferIdsForProduct = usedDiscountsForProduct
-            .map(discount => discount.offerId?.toString())
-            .filter(id => id);
+        const usedOfferIdsForProduct = usedDiscountsForProduct.map(discount => discount.offerId?.toString()).filter(id => id);
 
         const offers = allOffers.filter(item => {
             const offerId = item.applicableTo?._id?.toString();

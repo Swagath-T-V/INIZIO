@@ -38,7 +38,7 @@ const userSchema = new Schema({
     createdOn : {
         type:Date,
         default:Date.now,
-    },
+    },      
     profileImage:{
         type:String,
         required:false,

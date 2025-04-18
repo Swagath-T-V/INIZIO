@@ -699,7 +699,6 @@ function validateForm() {
     
     let isValid = true;
 
-    // Product Name Validation
     if (name === "") {
         displayErrorMessage('productName-error', 'Please enter a product name.');
         isValid = false;
@@ -714,7 +713,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Brand Validation
     if (brand === "") {
         displayErrorMessage('brand-error', 'Please enter a brand name.');
         isValid = false;
@@ -723,7 +721,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Material Validation
     if (material === "") {
         displayErrorMessage('material-error', 'Please enter the material.');
         isValid = false;
@@ -732,7 +729,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Dimensions Validation
     if (dimensions === "") {
         displayErrorMessage('dimensions-error', 'Please enter the dimensions.');
         isValid = false;
@@ -741,7 +737,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Weight Validation
     if (weight === "") {
         displayErrorMessage('weight-error', 'Please enter the weight.');
         isValid = false;
@@ -750,7 +745,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Description Validation
     if (description === "") {
         displayErrorMessage('description-error', 'Please enter a product description.');
         isValid = false;
@@ -765,13 +759,11 @@ function validateForm() {
         isValid = false;
     }
 
-    // Quantity Validation
     if (quantity === "" || parseInt(quantity) < 0) {
         displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
         isValid = false;
     }
 
-    // Price Validations
     if (!regularPrice || !/^\d+(\.\d{1,2})?$/.test(regularPrice) || parseFloat(regularPrice) < 0) {
         displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
         isValid = false;
@@ -787,7 +779,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Image Validation
     if (!image1 && !image2 && !image3) {
         displayErrorMessage("images-error", 'Please select at least one image.');
         isValid = false;

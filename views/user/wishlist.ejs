@@ -73,18 +73,9 @@
                       <td class="price">₹<%= item.productId.salePrice?.toFixed(2) || 'N/A' %>
                       </td>
                       <td>
-                        <!-- <form class="add-to-cart-form" action="/cartAdd" method="POST">
-                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
-                        <button type="submit" class="btn btn-primary circular-btn">Add to Cart</button>
-                      </form> -->
-                        <!-- <form class="add-to-cart-form" action="/cartAdd" method="POST">
-                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
-                        <button type="submit" class="btn btn-primary circular-btn">Add to Cart</button>
-                      </form> -->
                         <form class="add-to-cart-form">
                           <input type="hidden" name="productId" value="<%= item.productId._id %>">
-                          <button type="button" class="btn btn-primary circular-btn add-to-cart-btn">Add to
-                            Cart</button>
+                          <button type="button" class="btn btn-primary circular-btn add-to-cart-btn">Add to Cart</button>
                         </form>
                       </td>
                     </tr>

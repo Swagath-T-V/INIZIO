@@ -303,7 +303,6 @@
 
 function confirmListCategory(categoryId) {
 
-    // Check if dark mode is active
     const isDarkMode = !document.body.classList.contains('light-mode');
 
     Swal.fire({
@@ -315,7 +314,6 @@ function confirmListCategory(categoryId) {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, unlist it!',
 
-        // Add these properties for dark mode support
         background: isDarkMode ? '#2c2c2c' : '#fff',
         color: isDarkMode ? '#ffffff' : '#000000'
 
@@ -361,7 +359,6 @@ function confirmListCategory(categoryId) {
 
     function confirmDeleteCategory(categoryId) {
 
-        // Check if dark mode is active
         const isDarkMode = !document.body.classList.contains('light-mode');
 
         Swal.fire({
@@ -373,7 +370,6 @@ function confirmListCategory(categoryId) {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!',
 
-            // Add these properties for dark mode support
             background: isDarkMode ? '#2c2c2c' : '#fff',
             color: isDarkMode ? '#ffffff' : '#000000'
 

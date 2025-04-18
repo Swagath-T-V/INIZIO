@@ -383,10 +383,6 @@
 			});
 		});
 
-
-
-
-
     function applySort(element) {
         const sortValue = element.value;
         const url = new URL(window.location.href);
@@ -434,11 +430,9 @@
             // Update display values when slider changes
             priceSlider.noUiSlider.on('update', function(values, handle) {
                 if (handle === 0) {
-                    // This is the left/lower handle (min price)
                     priceFromDisplay.textContent = values[0];
                     priceFromInput.value = values[0];
                 } else {
-                    // This is the right/upper handle (max price)
                     priceToDisplay.textContent = values[1];
                     priceToInput.value = values[1];
                 }

@@ -285,7 +285,7 @@
         <div class="balance-amount"><%= wallet.balance.toFixed(2) %> <%= wallet.currency %></div>
     </div>
     
-    <div class="wallet-actions">
+    <!-- <div class="wallet-actions">
         <button class="action-btn">
             <span class="action-icon">↑</span>
             Credited
@@ -294,7 +294,7 @@
             <span class="action-icon">↓</span>
             Debited
         </button>
-    </div>
+    </div> -->
     
     <div class="transactions">
         <div class="transactions-header">
@@ -337,7 +337,7 @@
         </table>
     </div>
     
-    <div class="payment-methods">
+    <!-- <div class="payment-methods">
         <div class="payment-header">
             <h2 class="payment-title">Add Amount to Wallet</h2>
         </div>
@@ -353,7 +353,7 @@
             </form>
             <div id="message" style="margin-top: 15px; text-align: center;"></div>
         </div>
-    </div>
+    </div> -->
 </div>
 </div>
 
@@ -438,7 +438,7 @@ function validateForm() {
     } else if (isNaN(amount) || parseFloat(amount) <= 0) {
         displayErrorMessage("amount-error", "Amount must be greater than 0");
         isValid = false;
-    } else if (parseFloat(amount) > 10000) { // Example maximum limit
+    } else if (parseFloat(amount) > 10000) { 
         displayErrorMessage("amount-error", "Amount cannot exceed ₹10,000");
         isValid = false;
     }

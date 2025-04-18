@@ -56,8 +56,7 @@ const addCategory = async (req, res) => {
                 
                 return res.json({ success: true, message: 'Category restored successfully' });
 
-            }
-            else if (existingCategory && existingCategory.isDelete === false) {
+            }else if (existingCategory && existingCategory.isDelete === false) {
 
                 return res.status(400).json({ success: false, message: 'Category name already exists' });
 
@@ -179,6 +178,7 @@ const editCategory = async (req, res) => {
             });
             
         } else {
+            
             return res.status(400).json({
                 success: false,
                 message: "Category not found"

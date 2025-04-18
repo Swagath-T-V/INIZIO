@@ -1,13 +1,450 @@
 <%- include("../../views/partials/admin/header.ejs") %>
-    
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
 
+    .stat-card {
+        background: linear-gradient(135deg, var(--purple-light), var(--purple-dark));
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
 
+    .light-mode .stat-card {
+        background: linear-gradient(135deg, #6a1b9a, #ab47bc);
+        color: white;
+    }
 
+    .stat-card-icon {
+        color: #7dff7d;
+        font-size: 2rem;
+        margin-right: 15px;
+        opacity: 0.9;
+    }
 
+    .stat-card-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
 
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
 
+    /* Sales Report */
+    .sales-report {
+        background-color: var(--gray-dark);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
 
+    .light-mode .sales-report {
+        background-color: var(--gray-light);
+    }
 
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
 
+    .report-header h2 {
+        font-size: 1.5rem;
+        color: var(--text-dark);
+    }
+
+    .light-mode .report-header h2 {
+        color: var(--text-light);
+    }
+
+    .report-filters {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .form-select,
+    .form-control {
+        background-color: var(--bg-dark);
+        color: var(--text-dark);
+        border: 1px solid var(--purple-light);
+    }
+
+    .light-mode .form-select,
+    .light-mode .form-control {
+        background-color: var(--bg-light);
+        color: var(--text-light);
+        border: 1px solid #6a1b9a;
+    }
+
+    .btn-primary {
+        background-color: var(--purple-light);
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--purple-dark);
+    }
+
+    .btn-secondary {
+        background-color: #555;
+        border: none;
+    }
+
+    .light-mode .btn-secondary {
+        background-color: #777;
+    }
+
+    .custom-date {
+        display: flex;
+        gap: 10px;
+    }
+
+    .report-stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .report-stat-card {
+        flex: 1;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .light-mode .report-stat-card {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .report-stat-card h4 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .report-stat-card p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--purple-light);
+    }
+
+    .report-table {
+        overflow-x: auto;
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    body:not(.light-mode) .table {
+        --bs-table-bg: var(--gray-dark);
+        --bs-table-color: white;
+        --bs-table-hover-bg: #2c2c2c;
+        --bs-table-border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body.light-mode .table {
+        --bs-table-bg: var(--gray-light);
+        --bs-table-color: var(--text-light);
+        --bs-table-hover-bg: #e0e0e0;
+        --bs-table-border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    body:not(.light-mode) .table th {
+        background-color: var(--gray-dark);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 12px 15px;
+        border-bottom: 2px solid var(--purple-light);
+    }
+
+    body.light-mode .table th {
+        background-color: var(--gray-light);
+        color: var(--text-light);
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 12px 15px;
+        border-bottom: 2px solid var(--purple-light);
+    }
+
+    .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--bs-table-border-color);
+        background-color: var(--bs-table-bg);
+        color: var(--bs-table-color);
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--bs-table-hover-bg);
+    }
+
+    body.light-mode .table-hover tbody tr:hover {
+        background-color: #e0e0e0 !important;
+        color: var(--text-light) !important;
+    }
+
+    body.light-mode .table-hover tbody tr:hover td {
+        background-color: #e0e0e0 !important;
+        color: var(--text-light) !important;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.3s ease;
+    }
+
+    body.light-mode .table tbody tr:hover td,
+    body.light-mode .table tbody tr:hover th {
+        color: var(--text-light) !important;
+    }
+
+    body:not(.light-mode) .table tbody tr:hover td,
+    body:not(.light-mode) .table tbody tr:hover th {
+        color: white !important;
+    }
+
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .report-stats {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .report-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .report-filters {
+            flex-direction: column;
+            width: 100%;
+        }
+        .custom-date {
+            flex-direction: column;
+        }
+    }
+
+    .form-select {
+        background-color: var(--bg-dark);
+        color: var(--text-dark);
+        border: 1px solid var(--purple-light);
+        position: relative;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        padding-right: 30px;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+    }
+
+    .light-mode .form-select {
+        background-color: var(--bg-light);
+        color: var(--text-light);
+        border: 1px solid #6a1b9a;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--purple-light) !important;
+        border-color: var(--purple-light) !important;
+        color: white !important;
+    }
+</style>
+
+<div class="content">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-icon"><i class="bi bi-bag"></i></div>
+            <div class="stat-card-content">
+                <h3>Total Orders</h3>
+                <div class="stat-number"><%= stats.totalOrders %></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon"><i class="bi bi-clock"></i></div>
+            <div class="stat-card-content">
+                <h3>Pending Orders</h3>
+                <div class="stat-number"><%= stats.pendingOrders %></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-card-content">
+                <h3>Delivered Orders</h3>
+                <div class="stat-number"><%= stats.deliveredOrders %></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon"><i class="bi bi-arrow-counterclockwise"></i></div>
+            <div class="stat-card-content">
+                <h3>Returned</h3>
+                <div class="stat-number"><%= stats.returned %></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Report Section -->
+    <div class="sales-report">
+        <div class="report-header">
+            <h2>Sales Report</h2>
+            <div class="report-filters">
+                <select id="reportPeriod" class="form-select">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom Date</option>
+                </select>
+                <div id="customDateRange" class="custom-date" style="display: none;">
+                    <input type="date" id="startDate" class="form-control" />
+                    <input type="date" id="endDate" class="form-control" />
+                </div>
+                <button id="generateReport" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+        <div class="report-content">
+            <div class="report-stats">
+                <div class="report-stat-card">
+                    <h4>Overall Sales Count</h4>
+                    <p id="salesCount"><%= salesData.totalOrders %></p>
+                </div>
+                <div class="report-stat-card">
+                    <h4>Overall Order Amount</h4>
+                    <p id="orderAmount">$<%= salesData.totalAmount.toFixed(2) %></p>
+                </div>
+                <div class="report-stat-card">
+                    <h4>Overall Discount</h4>
+                    <p id="discountAmount">$<%= salesData.totalDiscount.toFixed(2) %></p>
+                </div>
+            </div>
+            <div class="report-table">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Order ID</th>
+                            <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Coupon Applied</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                            <td><%= order.orderId %></td>
+                            <td>$<%= order.finalAmount.toFixed(2) %></td>
+                            <td>$<%= order.discount.toFixed(2) %></td>
+                            <td><%= order.couponApplied ? 'True' : 'False' %></td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="container mt-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-20">
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const reportPeriod = document.getElementById("reportPeriod");
+        const customDateRange = document.getElementById("customDateRange");
+        const generateReport = document.getElementById("generateReport");
+        const salesCount = document.getElementById("salesCount");
+        const orderAmount = document.getElementById("orderAmount"); // Fixed ID
+        const discountAmount = document.getElementById("discountAmount");
+        const salesTableBody = document.getElementById("salesTableBody");
+
+        // Show/hide custom date range
+        reportPeriod.addEventListener("change", () => {
+            customDateRange.style.display =
+                reportPeriod.value === "custom" ? "flex" : "none";
+        });
+
+        generateReport.addEventListener("click", async () => {
+            const period = reportPeriod.value;
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            const page = new URLSearchParams(window.location.search).get("page") || 1;
+
+            const query = new URLSearchParams({ period, page });
+            if (period === "custom") {
+                query.append("startDate", startDate);
+                query.append("endDate", endDate);
+            }
+
+            try {
+                const response = await fetch(`/admin/sales-report?${query}`);
+                const data = await response.json();
+
+                salesCount.textContent = data.totalSalesCount;
+                orderAmount.textContent = `$${data.totalOrderAmount}`;
+                discountAmount.textContent = `$${data.totalDiscount}`;
+
+                salesTableBody.innerHTML = "";
+                data.orders.forEach((order) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                        <td>${order.orderId}</td>
+                        <td>$${order.finalAmount.toFixed(2)}</td>
+                        <td>$${order.discount.toFixed(2)}</td>
+                        <td>${order.couponApplied ? "True" : "False"}</td>
+                    `;
+                    salesTableBody.appendChild(row);
+                });
+
+                const paginationContainer = document.querySelector(".pagination");
+                paginationContainer.innerHTML = "";
+                for (let i = 1; i <= data.totalPages; i++) {
+                    const li = document.createElement("li");
+                    li.className = `page-item ${i === data.currentPage ? "active" : ""}`;
+                    li.innerHTML = `<a class="page-link" href="?page=${i}">${i}</a>`;
+                    paginationContainer.appendChild(li);
+                }
+            } catch (error) {
+                console.error("Error fetching sales report:", error);
+            }
+        });
+    });
+</script>
 <%- include("../../views/partials/admin/footer.ejs") %>

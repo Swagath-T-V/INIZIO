@@ -32,6 +32,7 @@ const walletPage = async (req, res) => {
 };
 
 const walletViewAll = async (req, res) => { 
+    
     try {
         const user = req.session.user;
 
@@ -93,7 +94,7 @@ const addToWallet = async (req, res) => {
         
     }
 }
-
+ 
 module.exports = {
     walletPage,
     walletViewAll,
