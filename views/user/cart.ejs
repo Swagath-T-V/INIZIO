@@ -714,10 +714,12 @@
             </span>
           </div>
           <div class="price-row">
+            <%if(offerDiscount){%>
             <span>Offer Discount</span>
             <span class="text-success" id="offer-discount-amount">
               -₹<%= offerDiscount.toFixed(2) %>
             </span>
+            <%}%>
           </div>
           <% if (appliedCoupon) { %>
           <div class="price-row">
@@ -727,19 +729,17 @@
             </span>
           </div>
           <% } %>
-          <div class="price-row">
-            <span>Delivery Charges</span>
-            <span>Free</span>
-          </div>
           <hr />
           <div class="price-row total">
             <span>Total Amount</span>
             <span id="cart-total">₹<%= total.toFixed(2) %></span>
           </div>
           <span class="savings">
+            <% if (appliedCoupon || offerDiscount) { %>
             You save <strong id="savings-amount">
               ₹<%= (offerDiscount + couponDiscount).toFixed(2) %>
             </strong> on this Order
+            <%}%>
           </span>
           <p class="guarantee">
             Safe & Secure Payments. Easy returns. 100% Authentic products.

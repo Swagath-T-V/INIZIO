@@ -11,6 +11,7 @@ const razorpay = require('../../config/razorpay')
 const Wallet = require("../../models/walletSchema")
 const Offer = require("../../models/offerSchema")
 const Coupons = require("../../models/couponSchema")
+const { calculateShippingCharge } = require("../../utils/shippingCharge")
 
 
 
@@ -204,6 +205,7 @@ const getCartPage = async (req, res) => {
   }
 };
 
+
 const applyCoupon = async (req, res) => {
 
   try {
@@ -393,6 +395,7 @@ const removeCoupon = async (req, res) => {
 
   }
 };
+
 
 const addCart = async (req, res) => {
 
@@ -584,12 +587,15 @@ const addCart = async (req, res) => {
 
 
 const cartQuantity = async (req, res) => {
-
   try {
-
     const userId = req.session.user;
     const { productId, action } = req.body;
     const MAX_CART_QUANTITY = 10;
+
+    const user = await User.findById(userId); 
+    if (!user) {
+      return res.status(401).json({ success: false, message: "User not found" });
+    }
 
     const cart = await Cart.findOne({ userId }).populate("appliedCoupon");
     if (!cart) {
@@ -610,7 +616,6 @@ const cartQuantity = async (req, res) => {
     const maxAllowed = Math.min(MAX_CART_QUANTITY, Math.max(0, product.quantity));
 
     if (action === "increment") {
-
       newQuantity += 1;
       if (newQuantity > maxAllowed) {
         return res.status(400).json({
@@ -619,7 +624,6 @@ const cartQuantity = async (req, res) => {
       }
 
     } else if (action === "decrement") {
-
       newQuantity -= 1;
       if (newQuantity < 1) {
         return res.status(400).json({ message: "Quantity cannot be less than 1" });
@@ -645,20 +649,24 @@ const cartQuantity = async (req, res) => {
       if (!itemProduct) continue;
 
       let discountedPrice = item.price;
+
+      const usedOfferIds = user.usedDiscounts
+        .filter((d) => d.productId.toString() === itemProduct._id.toString() && d.offerId)
+        .map((d) => d.offerId.toString());
+
       const applicableOffers = allOffers.filter((offer) => {
         const offerId = offer.applicableTo?._id?.toString();
         return (
-          (offer.offerType === "Category" &&
-            offerId === itemProduct.category?._id?.toString()) ||
-          (offer.offerType === "subCategory" &&
-            offerId === itemProduct.subCategory?._id?.toString()) ||
-          (offer.offerType === "Product" && offerId === itemProduct._id.toString())
+          !usedOfferIds.includes(offer._id.toString()) &&
+          ((offer.offerType === "Category" && offerId === itemProduct.category?._id?.toString()) ||
+            (offer.offerType === "subCategory" && offerId === itemProduct.subCategory?._id?.toString()) ||
+            (offer.offerType === "Product" && offerId === itemProduct._id.toString()))
         );
       });
 
       if (applicableOffers.length > 0) {
         const bestOffer = applicableOffers.reduce((best, current) => {
-          const bestDiscount = best ? best.discountType === "percentage" ? (item.price * best.discountAmount) / 100  : best.discountAmount : 0;
+          const bestDiscount = best ? best.discountType === "percentage" ? (item.price * best.discountAmount) / 100 : best.discountAmount : 0;
           const currentDiscount = current.discountType === "percentage" ? (item.price * current.discountAmount) / 100 : current.discountAmount;
           return currentDiscount > bestDiscount ? current : best;
         }, null);
@@ -679,18 +687,13 @@ const cartQuantity = async (req, res) => {
 
     if (cart.appliedCoupon) {
       const coupon = await Coupons.findById(cart.appliedCoupon);
-
       if (coupon && total >= coupon.minimumPurchase) {
-
         couponDiscount = coupon.offerPrice;
         total -= couponDiscount;
-
       } else {
-
         cart.appliedCoupon = null;
         appliedCoupon = null;
         couponRemoved = true;
-
       }
     }
 
@@ -711,7 +714,6 @@ const cartQuantity = async (req, res) => {
 
     const enhancedCartItems = updatedCart.items.map((item) => {
       const product = item.productId;
-
       if (!product) {
         return {
           ...item.toObject(),
@@ -721,14 +723,17 @@ const cartQuantity = async (req, res) => {
         };
       }
 
+      const usedOfferIds = user.usedDiscounts
+        .filter((d) => d.productId.toString() === product._id.toString() && d.offerId)
+        .map((d) => d.offerId.toString());
+
       const applicableOffers = allOffers.filter((offer) => {
         const offerId = offer.applicableTo?._id?.toString();
         return (
-          (offer.offerType === "Category" &&
-            offerId === product.category?._id?.toString()) ||
-          (offer.offerType === "subCategory" &&
-            offerId === product.subCategory?._id?.toString()) ||
-          (offer.offerType === "Product" && offerId === product._id.toString())
+          !usedOfferIds.includes(offer._id.toString()) &&
+          ((offer.offerType === "Category" && offerId === product.category?._id?.toString()) ||
+            (offer.offerType === "subCategory" && offerId === product.subCategory?._id?.toString()) ||
+            (offer.offerType === "Product" && offerId === product._id.toString()))
         );
       });
 
@@ -737,13 +742,14 @@ const cartQuantity = async (req, res) => {
 
       if (applicableOffers.length > 0) {
         bestOffer = applicableOffers.reduce((best, current) => {
-          const bestDiscount = best ? best.discountType === "percentage" ? (item.price * best.discountAmount) / 100 : best.discountAmount  : 0;
-          const currentDiscount =  current.discountType === "percentage" ? (item.price * current.discountAmount) / 100  : current.discountAmount;
+          const bestDiscount = best ? best.discountType === "percentage" ? (item.price * best.discountAmount) / 100 : best.discountAmount : 0;
+          const currentDiscount = current.discountType === "percentage" ? (item.price * current.discountAmount) / 100 : current.discountAmount;
           return currentDiscount > bestDiscount ? current : best;
         }, null);
 
         if (bestOffer) {
-          const discountAmount =  bestOffer.discountType === "percentage" ? (item.price * bestOffer.discountAmount) / 100  : Math.min(bestOffer.discountAmount, item.price);
+          const discountAmount =
+            bestOffer.discountType === "percentage" ? (item.price * bestOffer.discountAmount) / 100 : Math.min(bestOffer.discountAmount, item.price);
           discountedPrice = Math.max(0, item.price - discountAmount);
         }
       }
@@ -777,15 +783,12 @@ const cartQuantity = async (req, res) => {
       couponRemoved,
       message: couponRemoved ? "Coupon removed due to insufficient cart total" : "Cart updated successfully",
     });
-
+    
   } catch (error) {
-
     console.error("Error in cartQuantity:", error);
     res.status(500).json({ message: "Internal server error" });
-
   }
 };
-
 
 const deleteCart = async (req, res) => {
 
@@ -953,6 +956,18 @@ const cartCheckout = async (req, res) => {
     }
 
     if (cart.totalAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart total is invalid. Please review your cart.",
+      });
+    }
+    const addressDocument = await Address.findOne({ userId });
+    const addresses = addressDocument ? addressDocument.address : [];
+    const defaultAddress = addresses.find((addr) => addr.isDefault) || addresses[0];
+    const shippingCharge = defaultAddress? calculateShippingCharge(defaultAddress.pincode, cart.totalAmount): 0;
+
+    const finalTotal = cart.totalAmount + shippingCharge;
+    if (finalTotal <= 0) {
       return res.status(400).json({
         success: false,
         message: "Cart total is invalid. Please review your cart.",
@@ -1138,13 +1153,16 @@ const checkOut = async (req, res) => {
     const totalAmount = cart.items.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0)
     const Discount = cart.items.reduce((sum, item) => sum + ((item.productId.regularPrice - item.productId.salePrice) * item.quantity), 0)
 
+    const defaultAddress = addresses.find((addr) => addr.isDefault) || addresses[0];
+    const shippingCharge = defaultAddress ? calculateShippingCharge(defaultAddress.pincode, totalAmount): 0;
+
     return res.render("checkOut", {
       user,
       cart,
       address: addresses,
       totalAmount: totalAmount,
-      Discount: Discount
-
+      Discount: Discount,
+      shippingCharge
     })
 
   } catch (error) {
@@ -1294,6 +1312,13 @@ const checkOutSubmit = async (req, res) => {
           return res.status(400).json({ success: false, message: "Cart is empty" });
       }
 
+      if (paymentMethod === "cod" && cart.totalAmount > 1000) {
+        return res.status(400).json({
+          success: false,
+          message: "Cash on Delivery is not available for orders above ₹1000"
+        });
+      }
+
       const usedDiscounts = [];
       const allOffers = await Offer.find({
           isListed: true,
@@ -1352,13 +1377,14 @@ const checkOutSubmit = async (req, res) => {
           price: item.productId.salePrice,
       }));
 
+      const totalPriceBeforeShipping = cart.totalAmount + cart.offerDiscount + cart.couponDiscount;
+      const shippingCharge = calculateShippingCharge(selectedAddress.pincode, totalPriceBeforeShipping);
+
       const totalPrice = cart.totalAmount + cart.offerDiscount + cart.couponDiscount;
         const offerDiscount = cart.offerDiscount;
         const couponDiscount = cart.couponDiscount;
         const discount = offerDiscount + couponDiscount; 
-        const tax = 100;
-        const shipping = 0;
-        const finalAmount = cart.totalAmount  
+        const finalAmount = cart.totalAmount + shippingCharge 
 
         const newOrder = new Order({
             userId: user._id,
@@ -1367,8 +1393,7 @@ const checkOutSubmit = async (req, res) => {
             discount,
             offerDiscount, 
             couponDiscount, 
-            tax,
-            shipping,
+            shippingCharge,
             finalAmount,
             address: {
                 addressType: selectedAddress.addressType,
@@ -1627,6 +1652,7 @@ const successPage = async (req, res) => {
       user,
       orderId: order._id,
       totalAmount: order.finalAmount,
+      shippingCharge: order.shippingCharge,
       paymentMethod: order.paymentMethod,
       address: addressString,
       estimatedDelivery: '7-12 Business Days',
@@ -1665,6 +1691,7 @@ const paymentFailure = async (req, res) => {
       user,
       orderId: orderData._id,
       totalAmount: orderData.finalAmount,
+      shippingCharge: orderData.shippingCharge,
       paymentMethod: orderData.paymentMethod,
       address: addressString,
       estimatedDelivery: '7-12 Business Days',

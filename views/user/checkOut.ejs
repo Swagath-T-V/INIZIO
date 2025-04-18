@@ -396,7 +396,7 @@
                 </div>
               </div>
             <% }) %>
-          <% } else { %>
+          <% } else { %> 
             <p>No addresses found. Please add one.</p>
           <% } %>
         </div>
@@ -448,27 +448,29 @@
       <div class="summary-details">
         <div class="summary-row">
           <span class="summary-label">Total</span>
-          <span class="summary-value">₹ <%= (totalAmount) %></span>
+          <span class="summary-value">₹ <%= totalAmount.toFixed(2) %></span>
         </div>
         <div class="summary-row">
           <span class="summary-label">Offer Discount</span>
-          <span class="summary-value">- ₹ <%= cart.offerDiscount %></span>
+          <span class="summary-value">- ₹ <%= cart.offerDiscount.toFixed(2) %></span>
         </div>
         <div class="summary-row">
           <span class="summary-label">Coupon Discount</span>
-          <span class="summary-value">- ₹ <%= cart.couponDiscount %></span>
+          <span class="summary-value">- ₹ <%= cart.couponDiscount.toFixed(2) %></span>
         </div>
         <div class="summary-row">
           <span class="summary-label">Shipping</span>
-          <span class="summary-value">Free</span>
+          <span class="summary-value">
+          <%= shippingCharge === 0 ? 'Free' : '₹ ' + shippingCharge.toFixed(2) %>
+      </span>
         </div>
-        <div class="summary-row">
+        <!-- <div class="summary-row">
           <span class="summary-label">Tax</span>
           <span class="summary-value">₹ 100.00</span>
-        </div>
+        </div> -->
         <div class="summary-row">
           <span class="summary-label final-price">Total</span>
-          <span class="summary-value final-price">₹ <%= (cart.totalAmount + 100).toFixed(2) %></span>
+          <span class="summary-value final-price">₹ <%= (cart.totalAmount + shippingCharge ).toFixed(2) %></span>
         </div>
       </div>
       <button class="btn-place-order" id="placeOrderBtn">Place Order</button>

@@ -105,6 +105,7 @@
         <h3>Order Summary</h3>
         <p><strong>Order ID:</strong> #<%= orderId %></p>
         <p><strong>Total Amount:</strong> ₹<%= totalAmount.toFixed(2) %></p>
+        <p><strong>Shipping Charge:</strong> <%= shippingCharge === 0 ? 'Free' : '₹ ' + shippingCharge.toFixed(2) %></p>
         <p><strong>Payment Method:</strong> <%= paymentMethod %></p>
         <p><strong>Delivery Address:</strong> <%= address %></p>
         <p><strong>Estimated Delivery:</strong> <%= estimatedDelivery %></p>

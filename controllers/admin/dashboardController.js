@@ -32,6 +32,8 @@ const loadDashboard = async (req, res) => {
             totalOrders: { $sum: 1 },
             totalAmount: { $sum: "$finalAmount" },
             totalDiscount: { $sum: "$discount" },
+            couponDiscount:{$sum:"$couponDiscount"},
+            offerDiscount:{$sum:"$offerDiscount"}
           },
         },
       ]);
@@ -60,7 +62,7 @@ const loadDashboard = async (req, res) => {
           deliveredOrders,
           returned,
         },
-        salesData: salesTotals[0] || { totalOrders: 0, totalAmount: 0, totalDiscount: 0 },
+        salesData: salesTotals[0] || { totalOrders: 0, totalAmount: 0, totalDiscount: 0 ,offerDiscount:0,couponDiscount:0},
         orders,
         currentPage: page,
         totalPages: totalPages,
