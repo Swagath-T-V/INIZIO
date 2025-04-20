@@ -1011,7 +1011,8 @@
                             addToCartBtn.textContent = 'Add to Cart';
 
                             if (response.success) {
-                                Swal.fire('Success', response.message || 'Added to cart successfully!', 'success').then(() => {
+                                Swal.fire('Success', response.message || 'Added to cart successfully!', 'success')
+                                .then(() => {
                                     window.location.href = response.redirectUrl || '/cart';
                                 });
                             } else {

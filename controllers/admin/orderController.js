@@ -54,6 +54,10 @@ const getOrderPage = async (req, res) => {
                     query.createdAt = { $gte: startDate };
                 }
             }
+            
+            query.$nor = [
+                { paymentMethod: "Razorpay", paymentStatus: "Pending" }
+            ];
 
             const totalOrders = await Order.countDocuments(query);
             const totalPages = Math.ceil(totalOrders / limit);
@@ -176,7 +180,8 @@ const updateOrderStatus = async (req, res) => {
                                     method: "Refund",
                                     status: "Completed",
                                     description: `Refund for order ${order.orderId}, item ${item.product._id}`,
-                                    date: new Date()
+                                    date: new Date(),
+                                    orderId: order._id
                                 }
                             },
                             $set: { lastUpdated: new Date() }

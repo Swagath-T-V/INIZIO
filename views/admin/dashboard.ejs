@@ -2,7 +2,7 @@
 <style>
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 20px;
         margin-bottom: 30px;
     }
@@ -302,14 +302,25 @@
                 <div class="stat-number"><%= stats.deliveredOrders %></div>
             </div>
         </div>
+        
         <div class="stat-card">
             <div class="stat-card-icon"><i class="bi bi-arrow-counterclockwise"></i></div>
             <div class="stat-card-content">
                 <h3>Returned</h3>
-                <div class="stat-number"><%= stats.returned %></div>
+                <div class="stat-number"><%= stats.returnedOrders %></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-card-content">
+                <h3>Cancelled Orders</h3>
+                <div class="stat-number"><%= stats.cancelledOrders %></div>
             </div>
         </div>
     </div>
+
+    
 
     <!-- Sales Report Section -->
     <div class="sales-report">
@@ -327,6 +338,7 @@
                     <input type="date" id="endDate" class="form-control" />
                 </div>
                 <button id="generateReport" class="btn btn-primary">Filter</button>
+                <button id="clearReport" class="btn btn-secondary">Clear</button>
             </div>
         </div>
         <div class="report-content">
@@ -341,11 +353,11 @@
                 </div>
                 <div class="report-stat-card">
                     <h4>Offer Discount</h4>
-                    <p id="orderAmount">$<%= salesData.offerDiscount.toFixed(2) %></p>
+                    <p id="offerDiscountAmount">$<%= salesData.offerDiscount.toFixed(2) %></p>
                 </div>
                 <div class="report-stat-card">
                     <h4>Coupon Discount</h4>
-                    <p id="orderAmount">$<%= salesData.couponDiscount.toFixed(2) %></p>
+                    <p id="couponDiscountAmount">$<%= salesData.couponDiscount.toFixed(2) %></p>
                 </div>
                 <div class="report-stat-card">
                     <h4>Overall Discount</h4>
@@ -393,12 +405,16 @@
 </div>
 
 <script>
+
     document.addEventListener("DOMContentLoaded", () => {
         const reportPeriod = document.getElementById("reportPeriod");
         const customDateRange = document.getElementById("customDateRange");
         const generateReport = document.getElementById("generateReport");
+        const clearReport = document.getElementById("clearReport");
         const salesCount = document.getElementById("salesCount");
-        const orderAmount = document.getElementById("orderAmount"); // Fixed ID
+        const orderAmount = document.getElementById("orderAmount");
+        const offerDiscountAmount = document.getElementById("offerDiscountAmount");
+        const couponDiscountAmount = document.getElementById("couponDiscountAmount");
         const discountAmount = document.getElementById("discountAmount");
         const salesTableBody = document.getElementById("salesTableBody");
 
@@ -424,10 +440,14 @@
                 const response = await fetch(`/admin/sales-report?${query}`);
                 const data = await response.json();
 
+                // Update the DOM with the API response
                 salesCount.textContent = data.totalSalesCount;
                 orderAmount.textContent = `$${data.totalOrderAmount}`;
+                offerDiscountAmount.textContent = `$${data.offerDiscount}`;
+                couponDiscountAmount.textContent = `$${data.couponDiscount}`;
                 discountAmount.textContent = `$${data.totalDiscount}`;
 
+                // Update the sales table
                 salesTableBody.innerHTML = "";
                 data.orders.forEach((order) => {
                     const row = document.createElement("tr");
@@ -441,6 +461,7 @@
                     salesTableBody.appendChild(row);
                 });
 
+                // Update pagination
                 const paginationContainer = document.querySelector(".pagination");
                 paginationContainer.innerHTML = "";
                 for (let i = 1; i <= data.totalPages; i++) {
@@ -453,6 +474,12 @@
                 console.error("Error fetching sales report:", error);
             }
         });
+
+        clearReport.addEventListener("click", () => {
+            location.reload();
+        });
+
     });
+
 </script>
 <%- include("../../views/partials/admin/footer.ejs") %>

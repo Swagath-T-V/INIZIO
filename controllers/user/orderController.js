@@ -97,7 +97,8 @@ const cancelOrder = async(req,res)=>{
                                 method: "Refund",
                                 status: "Completed",
                                 description: `Refund for order ${orderId}`,
-                                date: new Date()
+                                date: new Date(),
+                                orderId: orderId
                             }
                         },
                         $set: { lastUpdated: new Date() }
@@ -124,7 +125,8 @@ const cancelOrder = async(req,res)=>{
                                 method: "Refund",
                                 status: "Completed",
                                 description: `Refund for order ${orderId}`,
-                                date: new Date()
+                                date: new Date(),
+                                orderId: orderId
                             }
                         },
                         $set: { lastUpdated: new Date() }

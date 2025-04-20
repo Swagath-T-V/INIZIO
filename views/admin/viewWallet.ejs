@@ -1,0 +1,365 @@
+<%- include("../../views/partials/admin/header.ejs") %>
+
+    <style>
+        /* Existing styles */
+        .transaction-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .status-block {
+            background-color: #ff4d4d;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+
+        .status-unblock {
+            background-color: #4caf50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+
+        .add-transaction-btn {
+            background-color: var(--purple-light);
+            color: white;
+        }
+
+        /* New balance card styles */
+        .wallet-balance-card {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #6a11cb 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            background: rgba(255, 255, 255, 0.1);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
+        .wallet-balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -60px;
+            background: rgba(255, 255, 255, 0.08);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+        }
+
+        .balance-title {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .balance-currency {
+            font-size: 1.2rem;
+            margin-left: 5px;
+            opacity: 0.9;
+            vertical-align: super;
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 12px;
+        }
+
+        .balance-stat {
+            text-align: center;
+        }
+
+        .balance-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .balance-stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .wallet-id {
+            opacity: 0.7;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .search-btn,
+        .clear-btn {
+            margin-left: 10px;
+            border-radius: 5px;
+        }
+
+        .clear-btn {
+            background-color: #d33;
+            color: white;
+            border: none;
+        }
+
+        .search-btn {
+            background-color: var(--purple-light);
+            color: white;
+            border: none;
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        body:not(.light-mode) .table {
+            --bs-table-bg: var(--gray-dark);
+            --bs-table-color: white;
+            --bs-table-hover-bg: #2c2c2c;
+            --bs-table-border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.light-mode .table {
+            --bs-table-bg: var(--gray-light);
+            --bs-table-color: var(--text-light);
+            --bs-table-hover-bg: #e0e0e0;
+            --bs-table-border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body:not(.light-mode) .table th {
+            background-color: var(--gray-dark);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--purple-light);
+        }
+
+        body.light-mode .table th {
+            background-color: var(--gray-light);
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--purple-light);
+        }
+
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--bs-table-border-color);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--bs-table-hover-bg);
+        }
+
+        body.light-mode .table-hover tbody tr:hover {
+            background-color: #e0e0e0 !important;
+            color: var(--text-light) !important;
+        }
+
+        body.light-mode .table-hover tbody tr:hover td {
+            background-color: #e0e0e0 !important;
+            color: var(--text-light) !important;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode .table tbody tr:hover td,
+        body.light-mode .table tbody tr:hover th {
+            color: var(--text-light) !important;
+        }
+
+        body:not(.light-mode) .table tbody tr:hover td,
+        body:not(.light-mode) .table tbody tr:hover th {
+            color: white !important;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--purple-light) !important;
+            border-color: var(--purple-light) !important;
+            color: white !important;
+        }
+
+        .search-container input.form-control {
+            color: rgb(7, 7, 7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.light-mode .search-container input.form-control {
+            background-color: #ffffff;
+            color: var(--text-light);
+            border: 1px solid #ced4da;
+        }
+
+        body:not(.light-mode) h2 {
+            color: white;
+        }
+
+        body.light-mode h2 {
+            color: var(--text-light);
+        }
+
+        .transaction-actions a,
+        .transaction-actions button {
+            margin-right: 5px;
+        }
+    </style>
+
+    <div class="container-fluid p-4">
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-6">
+                <h2>Wallet Transactions</h2>
+            </div>
+        </div>
+
+        <!-- New Wallet Balance Card -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="wallet-balance-card">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="balance-title">Total Available Balance</h6>
+                            <h2 class="balance-amount">
+                                <span class="balance-currency"><%= wallet.balance.toFixed(2) %> INR</span>
+                            </h2>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <i class="bi bi-wallet2" style="font-size: 2.5rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-6">
+                <div class="search-container d-flex">
+                    <form action="/admin/viewWallet" class="d-flex w-100">
+                        <input type="text" id="searchInput" class="form-control" name="search" placeholder="Search transactions..." value="<%= search %>" />
+                        <input type="hidden" name="id" value="<%= id %>" />
+                        <button type="submit" id="searchButton" class="btn search-btn ms-2">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="/admin/viewWallet?id=<%= id %>" class="btn clear-btn ms-2">
+                            Clear
+                        </a>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="/admin/getWallet" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>TRANSACTION ID</th>
+                        <th>TRANSACTION DATE</th>
+                        <th>TRANSACTION TYPE</th>
+                        <th>METHOD</th>
+                        <th>AMOUNT</th>
+                        <th>VIEW DETAILS</th>
+                    </tr>
+                </thead> 
+                <tbody id="transactionTableBody">
+                    <% if (walletData && walletData.length > 0) { %> <% walletData.forEach((wallet) => { %> 
+                        <% wallet.transactions.forEach((transaction) => { %>
+                            <tr>
+                                <td>
+                                    <%= transaction.transactionId %>
+                                </td>
+                                <td>
+                                    <%= new Date(transaction.date).toLocaleDateString() %>
+                                </td>
+                                <td>
+                                    <% if (transaction.type.toLowerCase() === 'credit') { %>
+                                        <span style="color:#3dfc3d;"><%= transaction.type %></span>
+                                    <% } else if (transaction.type.toLowerCase() === 'debit') { %>
+                                        <span style="color: red;"><%= transaction.type %></span>
+                                    <% } else { %>
+                                        <%= transaction.type %>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <%= transaction.method %>
+                                </td>
+                                <td>
+                                    <%= transaction.amount %>
+                                </td>
+                                <% if(transaction.method !== 'Referral') { %>
+                                <td class="transaction-actions">
+                                    <a href="/admin/viewWalletDetails?transactionId=<%= transaction.transactionId %>" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                                <% } else { %>
+                                    <td></td>
+                                <% } %>
+                            </tr>
+                        <% }) %>
+                    <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6">No transactions found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="container mt-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-20">
+                        <% for(let i=1; i<=totalPages; i++){ %>
+                            <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>&search=<%= encodeURIComponent(search) %>&id=<%= id %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <%- include("../../views/partials/admin/footer.ejs") %>

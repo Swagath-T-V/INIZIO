@@ -1,0 +1,588 @@
+
+
+
+<%- include("../../views/partials/admin/header.ejs") %>
+
+    <title>Transaction Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --bg-light: #ffffff;
+            --text-light: #333333;
+            --bg-dark: #121212;
+            --text-dark: #ffffff;
+            --purple-light: #8a3fff;
+            --purple-dark: #ab66ff;
+            --gray-light: #f4f4f4;
+            --gray-dark: #1e1e1e;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        .txn-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--gray-dark);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .light-mode .txn-container {
+            background-color: var(--gray-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .txn-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .txn-header h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--purple-light);
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .light-mode .txn-header h2 {
+            color: var(--text-light);
+        }
+
+        .txn-back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--purple-light);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .txn-back-button:hover {
+            background-color: var(--purple-dark);
+        }
+
+        .txn-section {
+            margin-bottom: 30px;
+        }
+
+        .txn-section h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--purple-light);
+            padding-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .light-mode .txn-section h3 {
+            color: var(--text-light);
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .txn-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .txn-detail-item {
+            margin-bottom: 15px;
+        }
+
+        .txn-detail-item span {
+            font-weight: 500;
+            color: var(--purple-dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .light-mode .txn-detail-item span {
+            color: var(--text-light);
+        }
+
+        .txn-detail-item p {
+            color: var(--text-dark);
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .light-mode .txn-detail-item p {
+            color: #718096;
+        }
+
+        .txn-source p {
+            color: var(--text-dark);
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .light-mode .txn-source p {
+            color: #718096;
+        }
+
+        .txn-order-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--purple-light);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .txn-order-button:hover {
+            background-color: var(--purple-dark);
+        }
+
+        @media (max-width: 768px) {
+            .txn-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .txn-container {
+                padding: 20px;
+            }
+
+            .txn-header h2 {
+                font-size: 20px;
+            }
+
+            .txn-section h3 {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .txn-container {
+                padding: 15px;
+            }
+
+            .txn-header {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .txn-back-button {
+                order: -1;
+                width: fit-content;
+            }
+
+            .txn-header h2 {
+                margin: 0;
+            }
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--gray-dark);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: translateY(0);
+            animation: slideIn 0.3s ease;
+        }
+
+        .light-mode .modal-content {
+            background-color: var(--bg-light);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .light-mode .modal-close {
+            color: var(--text-light);
+        }
+
+        .modal-close:hover {
+            color: var(--purple-light);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-header h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--purple-light);
+        }
+
+        .light-mode .modal-header h3 {
+            color: var(--text-light);
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--text-dark);
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .light-mode .modal-subtitle {
+            color: #718096;
+        }
+
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h4 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--purple-light);
+            padding-bottom: 8px;
+        }
+
+        .light-mode .modal-section h4 {
+            color: var(--text-light);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .modal-detail-item {
+            margin-bottom: 15px;
+        }
+
+        .modal-detail-item span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--purple-dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .light-mode .modal-detail-item span {
+            color: var(--text-light);
+        }
+
+        .modal-detail-item p {
+            font-size: 14px;
+            color: var(--text-dark);
+            opacity: 0.9;
+        }
+
+        .light-mode .modal-detail-item p {
+            color: #4a5568;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: var(--purple-light);
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .light-mode .status-badge {
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .modal-image-container {
+            text-align: center;
+        }
+
+        .modal-image-container img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-light);
+            object-fit: cover;
+        }
+
+        .light-mode .modal-image-container img {
+            border-color: #e2e8f0;
+        }
+
+        .total-amount {
+            font-weight: 600;
+            color: var(--purple-light);
+        }
+
+        .light-mode .total-amount {
+            color: var(--text-light);
+        }
+
+        .modal-footer {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .modal-action-button {
+            padding: 10px 20px;
+            background-color: var(--purple-light);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .modal-action-button:hover {
+            background-color: var(--purple-dark);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .modal-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .modal-header h3 {
+                font-size: 20px;
+            }
+
+            .modal-section h4 {
+                font-size: 16px;
+            }
+        }
+    </style> 
+    <div class="txn-container">
+        <div class="txn-header">
+            <a href="/admin/viewWallet?id=<%= userId %>" id="offcanvas" aria-label="Back" class="txn-back-button">Back</a>
+            <h2>Transaction Details</h2>
+        </div>
+
+        <!-- User Details -->
+        <div class="txn-section">
+            <h3>User Details</h3>
+            <div class="txn-details-grid">
+                <div>
+                    <div class="txn-detail-item">
+                        <span>Name:</span>
+                        <p><%=user.name%></p>
+                    </div>
+                    <div class="txn-detail-item">
+                        <span>Email:</span>
+                        <p><%=user.email%></p>
+                    </div>
+                </div>
+                <div>
+                    <div class="txn-detail-item">
+                        <span>Phone:</span>
+                        <p><%=user.phone%></p>
+                    </div>
+                    <div class="txn-detail-item">
+                        <span>Address:</span>
+                        <p><%= address.city %>, <%= address.landmark %></p>
+                        <p><%= address.state %>, <%= address.pincode %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Details -->
+        <div class="txn-section">
+            <h3>Transaction Information</h3>
+            <div class="txn-details-grid">
+                <div>
+                    <div class="txn-detail-item">
+                        <span>Transaction ID:</span>
+                        <p><%= transaction.transactionId %></p>
+                    </div>
+                    <div class="txn-detail-item">
+                        <span>Date:</span>
+                        <p><%= transaction.date.toLocaleDateString() %></p>
+                    </div>
+                </div>
+                <div>
+                    <div class="txn-detail-item">
+                        <span>Type:</span>
+                        <p><%= transaction.type %></p>
+                    </div>
+                    <div class="txn-detail-item">
+                        <span>Amount:</span>
+                        <p><%= transaction.amount.toFixed(2) %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Source of Transaction -->
+        <div class="txn-section txn-source">
+            <h3>Source of Transaction</h3>
+            <!-- <p>Refund due to canceled product (Order ID: ORD987654)</p> -->
+            <a href="" class="txn-order-button">View Order Details</a>
+        </div>
+    </div>
+
+
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" aria-label="Close Modal">&times;</span>
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <p class="modal-subtitle">Review the details of order below</p>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h4>Order Information</h4>
+                    <div class="modal-details-grid">
+                        <div class="modal-detail-item">
+                            <span>Order ID:</span>
+                            <p id="modalOrderId"><%= order._id %></p>
+                        </div>
+                        <div class="modal-detail-item">
+                            <span>Status:</span>
+                            <p id="modalStatus" class="status-badge"><%= order.status %></p>
+                        </div>
+                        <div class="modal-detail-item">
+                            <span>Payment Method:</span>
+                            <p id="modalPaymentMethod"><%= order.paymentMethod %></p>
+                        </div>
+                        <div class="modal-detail-item">
+                            <span>Order Date:</span>
+                            <p id="modalOrderDate"><%= order.createdAt.toLocaleDateString() %></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <h4>Order Image</h4>
+                    <div class="modal-image-container">
+                        <% if (order.orderedItems.length > 0 && order.orderedItems[0].product && order.orderedItems[0].product.Images && order.orderedItems[0].product.Images.length > 0) { %>
+                            <img src="/Uploads/product-image/<%= order.orderedItems[0].product.Images[0] %>" alt="Product Image" />
+                        <% } else { %>
+                            <p>No image available</p>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <h4>Cost Breakdown</h4>
+                    <div class="modal-details-grid">
+                        <div class="modal-detail-item">
+                            <span>Discount:</span>
+                            <p id="modalDiscount"><%= order.discount.toFixed(2) %></p>
+                        </div>
+                        <div class="modal-detail-item">
+                            <span>Shipping:</span>
+                            <p id="modalShipping"><%= order.shippingCharge.toFixed(2) %></p>
+                        </div>
+                        <div class="modal-detail-item">
+                            <span>Total:</span>
+                            <p id="modalTotal" class="total-amount"><%= order.finalAmount.toFixed(2) %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <script>
+
+         // Get modal and buttons
+        const modal = document.getElementById('orderDetailsModal');
+        const viewOrderButton = document.querySelector('.txn-order-button');
+        const closeModalButton = document.querySelector('.modal-close');
+
+        // Open modal
+        viewOrderButton.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link behavior
+            modal.style.display = 'flex';
+        });
+
+        // Close modal
+        closeModalButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+        
+
+<%- include("../../views/partials/admin/footer.ejs") %>

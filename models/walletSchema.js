@@ -26,7 +26,7 @@ const walletSchema = new Schema({
         },
         amount: {
             type: Number,
-            required: true        
+            required: true         
         },
         type: {
             type: String,
@@ -35,7 +35,7 @@ const walletSchema = new Schema({
         },
         method: {
             type: String,
-            enum: ["Razorpay", "Cashback", "Refund","OrderPayment","UserAdded"],
+            enum: ["Razorpay", "Cashback", "Refund","OrderPayment","Referral"],
             required: true
         },
         status: {
@@ -50,6 +50,10 @@ const walletSchema = new Schema({
         description: {
             type: String,
             default: "No description provided"
+        },
+        orderId: {
+            type: String,
+            default: null 
         }
     }],
     lastUpdated: {

@@ -4,7 +4,9 @@ const User = require("../../models/userSchema");
 const Offer = require("../../models/offerSchema");
 
 const productDetails = async (req, res) => {
+
     try {
+
         const userId = req.session.user;
         const userData = await User.findById(userId);
         const productId = req.query.id;
@@ -30,6 +32,7 @@ const productDetails = async (req, res) => {
         const usedOfferIdsForProduct = usedDiscountsForProduct.map(discount => discount.offerId?.toString()).filter(id => id);
 
         const offers = allOffers.filter(item => {
+
             const offerId = item.applicableTo?._id?.toString();
             const isApplicable = (
                 (item.offerType === 'Category' && offerId === product.category._id.toString()) ||
@@ -37,8 +40,9 @@ const productDetails = async (req, res) => {
                 (item.offerType === 'Product' && offerId === product._id.toString())
             );
             return isApplicable && !usedOfferIdsForProduct.includes(item._id.toString());
+            
         });
-
+ 
         let bestOffer = null;
         let discountedPrice = product.salePrice;
 

@@ -13,6 +13,7 @@ const orderController = require("../controllers/admin/orderController")
 const couponController  = require("../controllers/admin/couponController")
 const offerController = require('../controllers/admin/offerController')
 const dashboardController =  require("../controllers/admin/dashboardController")
+const walletController =  require("../controllers/admin/walletController")
 
 
 //adminpage error
@@ -89,12 +90,14 @@ router.post('/editOffer',adminAuth,offerController.editOffer)
 router.get("/listOffer",adminAuth,offerController.listOffer)
 router.get("/unlistOffer",adminAuth,offerController.unlistOffer)
 router.patch("/deleteOffer",adminAuth,offerController.deleteOffer)
-
+ 
 //dashboard 
 router.get("/",adminAuth,dashboardController.loadDashboard)
 router.get("/sales-report", dashboardController.getSalesReport);
 
-
-
+//wallet
+router.get("/getWallet",adminAuth,walletController.getWallet)
+router.get("/viewWallet",adminAuth,walletController.viewWallet)
+router.get("/viewWalletDetails",adminAuth,walletController.viewWalletDetails)
 
 module.exports = router

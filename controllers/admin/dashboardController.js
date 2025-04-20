@@ -7,10 +7,20 @@ const loadDashboard = async (req, res) => {
 
     try {
 
-      const totalOrders = await Order.countDocuments();
-      const pendingOrders = await Order.countDocuments({ status: "Pending" });
+      const totalOrders = await Order.countDocuments({
+        status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+        $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
+      });
+
+      const pendingOrders = await Order.countDocuments({
+        status: "Pending",
+        $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
+      });
+
       const deliveredOrders = await Order.countDocuments({ status: "Delivered" });
-      const returned = await Order.countDocuments({status: "Returned" });
+      const returnedOrders = await Order.countDocuments({status: "Returned" });
+      const cancelledOrders = await Order.countDocuments({status: "Cancelled" });
+
   
       const page = parseInt(req.query.page) || 1;
       const limit = 4;
@@ -23,7 +33,8 @@ const loadDashboard = async (req, res) => {
         {
           $match: {
             createdAt: { $gte: startDate },
-            status: { $ne: "Cancelled" },
+            status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+            $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
           },
         },
         {
@@ -32,15 +43,16 @@ const loadDashboard = async (req, res) => {
             totalOrders: { $sum: 1 },
             totalAmount: { $sum: "$finalAmount" },
             totalDiscount: { $sum: "$discount" },
-            couponDiscount:{$sum:"$couponDiscount"},
-            offerDiscount:{$sum:"$offerDiscount"}
+            couponDiscount:{ $sum: "$couponDiscount" },
+            offerDiscount:{ $sum: "$offerDiscount" }
           },
         },
       ]);
   
       const orders = await Order.find({
         createdAt: { $gte: startDate },
-        status: { $ne: "Cancelled" },
+        status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+        $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
       })
         .select("orderId createdAt finalAmount discount couponApplied")
         .sort({ createdAt: -1 }) 
@@ -49,7 +61,8 @@ const loadDashboard = async (req, res) => {
   
       const totalOrdersCount = await Order.countDocuments({
         createdAt: { $gte: startDate },
-        status: { $ne: "Cancelled" },
+        status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+        $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
       });
 
       const totalPages = Math.ceil(totalOrdersCount / limit);
@@ -60,9 +73,10 @@ const loadDashboard = async (req, res) => {
           totalOrders,
           pendingOrders,
           deliveredOrders,
-          returned,
+          returnedOrders,
+          cancelledOrders,
         },
-        salesData: salesTotals[0] || { totalOrders: 0, totalAmount: 0, totalDiscount: 0 ,offerDiscount:0,couponDiscount:0},
+        salesData: salesTotals[0] || { totalOrders: 0, totalAmount: 0, totalDiscount: 0 , offerDiscount: 0 , couponDiscount: 0 },
         orders,
         currentPage: page,
         totalPages: totalPages,
@@ -118,7 +132,8 @@ const getSalesReport = async (req, res) => {
         {
           $match: {
             createdAt: dateFilter,
-            status: { $ne: "Cancelled" },
+            status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+            $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
           },
         },
         {
@@ -127,13 +142,16 @@ const getSalesReport = async (req, res) => {
             totalOrders: { $sum: 1 },
             totalAmount: { $sum: "$finalAmount" },
             totalDiscount: { $sum: "$discount" },
+            couponDiscount:{ $sum: "$couponDiscount" },
+            offerDiscount:{ $sum: "$offerDiscount" }
           },
         },
       ]);
   
       const orders = await Order.find({
         createdAt: dateFilter,
-        status: { $ne: "Cancelled" },
+        status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+        $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
       })
         .select("orderId createdAt finalAmount discount couponApplied")
         .sort({ createdAt: -1 }) 
@@ -142,18 +160,21 @@ const getSalesReport = async (req, res) => {
   
       const totalOrdersCount = await Order.countDocuments({
         createdAt: dateFilter,
-        status: { $ne: "Cancelled" },
+        status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+        $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
       });
 
       const totalPages = Math.ceil(totalOrdersCount / limit);
   
-      const totals = salesTotals[0] || { totalOrders: 0, totalAmount: 0, totalDiscount: 0 };
+      const totals = salesTotals[0] || { totalOrders: 0, totalAmount: 0, totalDiscount: 0 , offerDiscount: 0 , couponDiscount: 0 };
   
       res.json({
         orders,
         totalSalesCount: totals.totalOrders,
         totalOrderAmount: totals.totalAmount.toFixed(2),
         totalDiscount: totals.totalDiscount.toFixed(2),
+        offerDiscount: totals.offerDiscount.toFixed(2),
+        couponDiscount: totals.couponDiscount.toFixed(2),
         currentPage: parseInt(page),
         totalPages: totalPages,
         totalOrdersCount: totalOrdersCount,

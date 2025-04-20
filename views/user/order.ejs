@@ -313,6 +313,7 @@
     }
 </style>
 
+
 <div class="up_main-content order_main-content">
     <div class="order_profile-header">
         <div class="order_profile-info">
@@ -326,9 +327,7 @@
             <h3 class="order_card-title">Order History</h3>
         </div>
         <div class="order_card-body">
-            
-            
-            <% if(orderData && orderData.length > 0) { %>
+            <% if(orderData && orderData.length > 0 ) { %>
                 <table class="order_table">
                     <thead>
                         <tr>
@@ -342,41 +341,43 @@
                     </thead>
                     <tbody id="orderList">
                         <% orderData.forEach(order => { %>
-                        <tr>
-                            <td><%= order.orderId %></td>
-                            <td>
-                                <div class="order_product-images">
-                                    <% if(order.orderedItems && order.orderedItems.length > 0) { %>
-                                        <% order.orderedItems.forEach((item, index) => { %>
-                                            <% if(index < 2 && item.product) { %>
-                                                <% if(item.product.Images && item.product.Images.length > 0) { %>
-                                                    <img src="/uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="<%= item.product.name %>" class="order_product-image">
-                                                <% } else { %>
-                                                    <img src="/img/no-image.png" alt="No Image Available" class="order_product-image">
+                            <% if (order.paymentStatus !== "Pending" || order.paymentMethod === "COD") { %> 
+                            <tr>
+                                <td><%= order.orderId %></td>
+                                <td>
+                                    <div class="order_product-images">
+                                        <% if(order.orderedItems && order.orderedItems.length > 0 ) { %>
+                                            <% order.orderedItems.forEach((item, index) => { %>
+                                                <% if(index < 2 && item.product) { %>
+                                                    <% if(item.product.Images && item.product.Images.length > 0) { %>
+                                                        <img src="/Uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="<%= item.product.name %>" class="order_product-image">
+                                                    <% } else { %>
+                                                        <img src="/img/no-image.png" alt="No Image Available" class="order_product-image">
+                                                    <% } %>
                                                 <% } %>
+                                            <% }) %>
+                                            <% if(order.orderedItems.length > 2) { %>
+                                                <span style="font-size: 12px; color: #4a6ee0; align-self: center;">+<%= order.orderedItems.length - 2 %> more</span>
                                             <% } %>
-                                        <% }) %>
-                                        <% if(order.orderedItems.length > 2) { %>
-                                            <span style="font-size: 12px; color: #4a6ee0; align-self: center;">+<%= order.orderedItems.length - 2 %> more</span>
+                                        <% } else { %>
+                                            <img src="/img/no-image.png" alt="No Image" class="order_product-image">
                                         <% } %>
-                                    <% } else { %>
-                                        <img src="/img/no-image.png" alt="No Image" class="order_product-image">
-                                    <% } %>
-                                </div>
-                            </td>
-                            <td><%= order.createdAt.toISOString().split('T')[0] %></td>
-                            <td>
-                                <span class="order_status order_status-<%= order.status.toLowerCase().replace(/ /g, '-') %>">
-                                    <%= order.status %>
-                                </span>
-                            </td>
-                            <td>₹<%= order.finalAmount.toFixed(2) %></td>
-                            <td>
-                                <div class="order_actions">
-                                    <a href="/orderDetails?orderID=<%= order._id %>" class="order_btn order_btn-view">View</a>
-                                </div>
-                            </td>
-                        </tr>
+                                    </div>
+                                </td>
+                                <td><%= order.createdAt.toISOString().split('T')[0] %></td>
+                                <td>
+                                    <span class="order_status order_status-<%= order.status.toLowerCase().replace(/ /g, '-') %>">
+                                        <%= order.status %>
+                                    </span>
+                                </td>
+                                <td>₹<%= order.finalAmount.toFixed(2) %></td>
+                                <td>
+                                    <div class="order_actions">
+                                        <a href="/orderDetails?orderID=<%= order._id %>" class="order_btn order_btn-view">View</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %> 
                         <% }) %>
                     </tbody>
                 </table>

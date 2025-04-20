@@ -276,7 +276,7 @@
     <div class="invoice-summary">
         <p>Subtotal: ₹<%= order.orderedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2) %></p>
         <p>Tax: ₹<%= order.tax.toFixed(2) %></p>
-        <p>Shipping: ₹<%= order.shipping.toFixed(2) %></p>
+        <p>Shipping: ₹<%= order.shippingCharge.toFixed(2) %></p>
         <p>Discounts: -₹<%= order.discount.toFixed(2) %></p>
         <p class="total">TOTAL: ₹<%= order.finalAmount.toFixed(2) %></p>
     </div>

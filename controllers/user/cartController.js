@@ -402,10 +402,11 @@ const addCart = async (req, res) => {
   try {
 
     const userId = req.session.user;
+    const user = await User.findById(userId)
     const { productId, quantity = 1 } = req.body;
     const MAX_CART_QUANTITY = 10;
 
-    if (!userId) {
+    if (!user) {
       return res.status(401).json({ 
         success: false, 
         message: "Please log in to add items to your cart", 
@@ -587,7 +588,9 @@ const addCart = async (req, res) => {
 
 
 const cartQuantity = async (req, res) => {
+
   try {
+    
     const userId = req.session.user;
     const { productId, action } = req.body;
     const MAX_CART_QUANTITY = 10;
@@ -1486,6 +1489,7 @@ const checkOutSubmit = async (req, res) => {
                           status: "Completed",
                           description: `Payment for order ${newOrder._id}`,
                           date: new Date(),
+                          orderId: newOrder._id
                       },
                   },
                   $set: { lastUpdated: new Date() },
