@@ -112,10 +112,10 @@ const viewWalletDetails = async(req,res)=>{
     console.log(orderId)
 
     const order = await Order.findById(orderId).populate('orderedItems.product')
-    console.log("order",order)
+    // console.log("order",order)
 
     let address = order.address
-    console.log(address)
+    // console.log(address)
       
     return res.render("walletDetails",{
       order,

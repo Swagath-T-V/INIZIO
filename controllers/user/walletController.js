@@ -63,7 +63,7 @@ const addToWallet = async (req, res) => {
         const user = req.session.user
 
         const { amount } = req.body
-        console.log(amount)
+        // console.log(amount)
 
         
         const amountToAdd= parseInt(amount);
