@@ -2,7 +2,7 @@ const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
-
+const ExcelJS = require("exceljs");
 
 
 const loadDashboard = async (req, res) => {
@@ -31,13 +31,9 @@ const loadDashboard = async (req, res) => {
     const limit = 4;
     const skip = (page - 1) * limit;
 
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 30);
-
     const salesTotals = await Order.aggregate([
       {
         $match: {
-          createdAt: { $gte: startDate },
           status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
           $nor: [{ $and: [{ paymentStatus: "Pending" },{ paymentMethod: "Razorpay" }]}],
         },
@@ -55,17 +51,15 @@ const loadDashboard = async (req, res) => {
     ]);
 
     const orders = await Order.find({
-      createdAt: { $gte: startDate },
       status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
       $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }]}],
     })
-      .select("orderId createdAt finalAmount discount couponApplied")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    .select("orderId createdAt finalAmount discount couponApplied")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
 
     const totalOrdersCount = await Order.countDocuments({
-      createdAt: { $gte: startDate },
       status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
       $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }]}],
     });
@@ -179,24 +173,26 @@ const loadDashboard = async (req, res) => {
   } catch (error) {
 
     console.error("Error in loadDashboard:", error);
-    res.redirect("/admin/pageerror");
+    return res.redirect("/admin/pageerror");
 
   }
 };
+
 
 const getSalesReport = async (req, res) => {
 
   try {
 
-    const { period, startDate, endDate, page = 1 } = req.query;
+    const { period, startDate, endDate, page = 1, forPDF } = req.query;
 
-    const limit = 4;
+    const limit = 4; 
     const skip = (parseInt(page) - 1) * limit;
 
     let dateFilter = {};
     const now = new Date();
 
     if (period === "daily") {
+
       dateFilter = {
         $gte: new Date(now.setHours(0, 0, 0, 0)),
         $lte: new Date(now.setHours(23, 59, 59, 999)),
@@ -225,7 +221,7 @@ const getSalesReport = async (req, res) => {
         $match: {
           createdAt: dateFilter,
           status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
-          $nor: [{ $and: [{ paymentStatus: "Pending" },{ paymentMethod: "Razorpay" }]}],
+          $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
         },
       },
       {
@@ -240,23 +236,27 @@ const getSalesReport = async (req, res) => {
       },
     ]);
 
-    const orders = await Order.find({
+    let ordersQuery = Order.find({
       createdAt: dateFilter,
       status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
-      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }]}],
+      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
     })
-      .select("orderId createdAt finalAmount discount couponApplied")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    .select("orderId createdAt finalAmount discount couponApplied")
+    .sort({ createdAt: -1 });
+
+    if (!forPDF) {
+      ordersQuery = ordersQuery.skip(skip).limit(limit);
+    }
+
+    const orders = await ordersQuery;
 
     const totalOrdersCount = await Order.countDocuments({
       createdAt: dateFilter,
       status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
-      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }]}],
+      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
     });
 
-    const totalPages = Math.ceil(totalOrdersCount / limit);
+    const totalPages = forPDF ? 1 : Math.ceil(totalOrdersCount / limit); 
 
     const totals = salesTotals[0] || {
       totalOrders: 0,
@@ -279,12 +279,14 @@ const getSalesReport = async (req, res) => {
     });
 
   } catch (error) {
-
+    
     console.error("Error in getSalesReport:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.redirect("/admin/pageerror");
 
   }
 };
+
+
 const getSalesChart = async (req, res) => {
 
   try {
@@ -345,7 +347,7 @@ const getSalesChart = async (req, res) => {
 
         sales.push(totalSales[0]?.totalAmount || 0);
       }
-      
+
     } else if (period === "yearly") {
 
       const currentYear = now.getFullYear();
@@ -377,15 +379,157 @@ const getSalesChart = async (req, res) => {
   } catch (error) {
 
     console.error("Error in getSalesChart:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.redirect("/admin/pageerror");
 
   }
 };
+
+
+const getSalesReportExcel = async (req, res) => {
+
+  try {
+
+    const { period, startDate, endDate } = req.query;
+
+    let dateFilter = {};
+    const now = new Date();
+
+    if (period === "daily") {
+      dateFilter = {
+        $gte: new Date(now.setHours(0, 0, 0, 0)),
+        $lte: new Date(now.setHours(23, 59, 59, 999)),
+      }
+
+    } else if (period === "weekly") {
+
+      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+      dateFilter = { $gte: startOfWeek };
+
+    } else if (period === "yearly") {
+
+      dateFilter = { $gte: new Date(now.getFullYear(), 0, 1) };
+
+    } else if (period === "custom" && startDate && endDate) {
+
+      dateFilter = {
+        $gte: new Date(startDate),
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+      };
+    }
+
+    // Fetch sales data
+    const salesTotals = await Order.aggregate([
+      {
+        $match: {
+          createdAt: dateFilter,
+          status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+          $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalOrders: { $sum: 1 },
+          totalAmount: { $sum: "$finalAmount" },
+          totalDiscount: { $sum: "$discount" },
+          couponDiscount: { $sum: "$couponDiscount" },
+          offerDiscount: { $sum: "$offerDiscount" },
+        },
+      },
+
+    ]);
+
+    const orders = await Order.find({
+      createdAt: dateFilter,
+      status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
+      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
+    })
+    .select("orderId createdAt finalAmount discount couponApplied")
+    .sort({ createdAt: -1 });
+
+    const totals = salesTotals[0] || {
+      totalOrders: 0,
+      totalAmount: 0,
+      totalDiscount: 0,
+      offerDiscount: 0,
+      couponDiscount: 0,
+    };
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales Report");
+
+    worksheet.columns = [
+      { header: "Date", key: "date", width: 20 }, 
+      { header: "Order ID", key: "orderId", width: 36 }, 
+      { header: "Amount", key: "amount", width: 15 },
+      { header: "Discount", key: "discount", width: 15 },
+      { header: "Coupon Applied", key: "couponApplied", width: 15 },
+    ];
+
+    worksheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
+    worksheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF6A1B9A" }, 
+    };
+
+    worksheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
+
+    orders.forEach((order) => {
+      worksheet.addRow({
+        date: new Date(order.createdAt).toLocaleDateString(),
+        orderId: order.orderId,
+        amount: order.finalAmount.toFixed(2),
+        discount: order.discount.toFixed(2),
+        couponApplied: order.couponApplied ? "True" : "False",
+      });
+    });
+
+    // Add summary section
+    worksheet.addRow([]); 
+    worksheet.addRow(["Summary", "", "", "", ""]);
+    worksheet.mergeCells(worksheet.lastRow.number, 1, worksheet.lastRow.number, 5);
+    worksheet.getRow(worksheet.lastRow.number).font = { bold: true };
+    worksheet.getRow(worksheet.lastRow.number).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFF5F5F5" },
+    };
+
+    worksheet.addRow(["Overall Sales Count", totals.totalOrders, "", "", ""]);
+    worksheet.addRow(["Offer Discount", `₹${totals.offerDiscount.toFixed(2)}`, "", "", ""]);
+    worksheet.addRow(["Coupon Discount", `₹${totals.couponDiscount.toFixed(2)}`, "", "", ""]);
+    worksheet.addRow(["Overall Discount", `₹${totals.totalDiscount.toFixed(2)}`, "", "", ""]);
+    worksheet.addRow(["Overall Order Amount", `₹${totals.totalAmount.toFixed(2)}`, "", "", ""]);
+
+    for (let i = worksheet.lastRow.number - 4; i <= worksheet.lastRow.number; i++) {
+      worksheet.getRow(i).font = { bold: true };
+      worksheet.getRow(i).alignment = { vertical: "middle", horizontal: "left" };
+    }
+
+    // Generate Excel file
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=sales_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+    // Send the Excel file
+    res.send(buffer);
+
+  } catch (error) {
+
+    console.error("Error in getSalesReportExcel:", error);
+    return res.redirect("/admin/pageerror");
+    
+  }
+};
+
 
 module.exports = {
 
   loadDashboard,
   getSalesReport,
   getSalesChart,
+  getSalesReportExcel
 
 };

@@ -93,8 +93,9 @@ router.patch("/deleteOffer",adminAuth,offerController.deleteOffer)
  
 //dashboard 
 router.get("/",adminAuth,dashboardController.loadDashboard)
-router.get("/sales-report", dashboardController.getSalesReport);
-router.get("/sales-chart", dashboardController.getSalesChart);
+router.get("/sales-report",adminAuth,dashboardController.getSalesReport);
+router.get("/sales-chart",adminAuth,dashboardController.getSalesChart);
+router.get("/sales-report-excel",adminAuth,dashboardController.getSalesReportExcel);
 
 //wallet
 router.get("/getWallet",adminAuth,walletController.getWallet)

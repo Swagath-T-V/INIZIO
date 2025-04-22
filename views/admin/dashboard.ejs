@@ -513,6 +513,7 @@
                     <button id="generateReport" class="btn btn-primary">Filter</button>
                     <button id="clearReport" class="btn btn-secondary">Clear</button>
                     <button id="downloadPDF" class="btn btn-download ">Download PDF</button>
+                    <button id="downloadExcel" class="btn btn-download" style="background-color: #28a745;">Download Excel</button>
                 </div>
             </div>
             <div class="report-content">
@@ -574,7 +575,7 @@
                                         <%= order.couponApplied ? 'True' : 'False' %>
                                     </td>
                                 </tr>
-                            <% }) %>
+                                <% }) %>
                         </tbody>
                     </table>
                 </div>
@@ -605,7 +606,6 @@
                         <option value="yearly">Yearly</option>
                     </select>
                     <button id="generateChart" class="btn btn-primary">Generate</button>
-                    <!-- <button id="clearChart" class="btn btn-secondary">Clear</button> -->
                 </div>
             </div>
             <canvas id="salesChart" height="100"></canvas>
@@ -703,6 +703,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
+
         document.addEventListener("DOMContentLoaded", () => {
             const reportPeriod = document.getElementById("reportPeriod");
             const customDateRange = document.getElementById("customDateRange");
@@ -717,7 +718,6 @@
 
             const chartPeriod = document.getElementById("chartPeriod");
             const generateChart = document.getElementById("generateChart");
-            const clearChart = document.getElementById("clearChart");
             const salesChartCanvas = document.getElementById("salesChart");
 
             const downloadPDF = document.getElementById("downloadPDF");
@@ -741,11 +741,11 @@
                     },
                     options: {
                         scales: {
-                            y: { beginAtZero: true, title: { display: true,text: 'Sales Amount ($)' } },
+                            y: { beginAtZero: true, title: { display: true, text: 'Sales Amount ($)' } },
                             x: { title: { display: true, text: 'Period' } }
                         },
                         plugins: {
-                            legend: { display: true}
+                            legend: { display: true }
                         }
                     }
                 });
@@ -785,20 +785,20 @@
                     const data = await response.json();
 
                     salesCount.textContent = data.totalSalesCount;
-                    orderAmount.textContent = `$${data.totalOrderAmount}`;
-                    offerDiscountAmount.textContent = `$${data.offerDiscount}`;
-                    couponDiscountAmount.textContent = `$${data.couponDiscount}`;
-                    discountAmount.textContent = `$${data.totalDiscount}`;
+                    orderAmount.textContent = `₹ ${data.totalOrderAmount}`;
+                    offerDiscountAmount.textContent = `₹ ${data.offerDiscount}`;
+                    couponDiscountAmount.textContent = `₹ ${data.couponDiscount}`;
+                    discountAmount.textContent = `₹ ${data.totalDiscount}`;
 
                     salesTableBody.innerHTML = "";
                     data.orders.forEach((order) => {
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                        <td>${order.orderId}</td>
-                        <td>$${order.finalAmount.toFixed(2)}</td>
-                        <td>$${order.discount.toFixed(2)}</td>
-                        <td>${order.couponApplied ? "True" : "False"}</td>`;
+                            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td>${order.orderId}</td>
+                            <td>₹ ${order.finalAmount.toFixed(2)}</td>
+                            <td>₹ ${order.discount.toFixed(2)}</td>
+                            <td>${order.couponApplied ? "True" : "False"}</td>`;
                         salesTableBody.appendChild(row);
                     });
 
@@ -807,66 +807,156 @@
                     for (let i = 1; i <= data.totalPages; i++) {
                         const li = document.createElement("li");
                         li.className = `page-item ${i === data.currentPage ? "active" : ""}`;
-                        li.innerHTML = `<a class="page-link" href="?page=${i}">${i}</a>`;
+
+                        const pageQuery = new URLSearchParams({ period, page: i });
+                        if (period === "custom" && startDate && endDate) {
+                            pageQuery.append("startDate", startDate);
+                            pageQuery.append("endDate", endDate);
+                        }
+
+                        li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
                         paginationContainer.appendChild(li);
+
+                        li.querySelector("a").addEventListener("click", async (e) => {
+                            e.preventDefault();
+                            const page = e.target.getAttribute("data-page");
+                            const pageQuery = new URLSearchParams({ period, page });
+                            if (period === "custom" && startDate && endDate) {
+                                pageQuery.append("startDate", startDate);
+                                pageQuery.append("endDate", endDate);
+                            }
+
+                            try {
+                                const response = await fetch(`/admin/sales-report?${pageQuery}`);
+                                const data = await response.json();
+
+                                salesCount.textContent = data.totalSalesCount;
+                                orderAmount.textContent = `₹ ${data.totalOrderAmount}`;
+                                offerDiscountAmount.textContent = `₹ ${data.offerDiscount}`;
+                                couponDiscountAmount.textContent = `₹ ${data.couponDiscount}`;
+                                discountAmount.textContent = `₹ ${data.totalDiscount}`;
+
+                                salesTableBody.innerHTML = "";
+                                data.orders.forEach((order) => {
+                                    const row = document.createElement("tr");
+                                    row.innerHTML = `
+                                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td>${order.orderId}</td>
+                                        <td>₹ ${order.finalAmount.toFixed(2)}</td>
+                                        <td>₹ ${order.discount.toFixed(2)}</td>
+                                        <td>${order.couponApplied ? "True" : "False"}</td>`;
+                                    salesTableBody.appendChild(row);
+                                });
+
+                                // Re-render pagination
+                                paginationContainer.innerHTML = "";
+                                for (let j = 1; j <= data.totalPages; j++) {
+                                    const li = document.createElement("li");
+                                    li.className = `page-item ${j === parseInt(page) ? "active" : ""}`;
+                                    const subPageQuery = new URLSearchParams({ period, page: j });
+                                    if (period === "custom" && startDate && endDate) {
+                                        subPageQuery.append("startDate", startDate);
+                                        subPageQuery.append("endDate", endDate);
+                                    }
+                                    li.innerHTML = `<a class="page-link" href="#" data-page="${j}">${j}</a>`;
+                                    paginationContainer.appendChild(li);
+
+                                    li.querySelector("a").addEventListener("click", async (e) => {
+                                        e.preventDefault();
+                                        const subPage = e.target.getAttribute("data-page");
+                                        const subPageQuery = new URLSearchParams({ period, page: subPage });
+                                        if (period === "custom" && startDate && endDate) {
+                                            subPageQuery.append("startDate", startDate);
+                                            subPageQuery.append("endDate", endDate);
+                                        }
+
+                                        const subResponse = await fetch(`/admin/sales-report?${subPageQuery}`);
+                                        const subData = await subResponse.json();
+
+                                        salesCount.textContent = subData.totalSalesCount;
+                                        orderAmount.textContent = `₹ ${subData.totalOrderAmount}`;
+                                        offerDiscountAmount.textContent = `₹ ${subData.offerDiscount}`;
+                                        couponDiscountAmount.textContent = `₹ ${subData.couponDiscount}`;
+                                        discountAmount.textContent = `₹ ${subData.totalDiscount}`;
+
+                                        salesTableBody.innerHTML = "";
+                                        subData.orders.forEach((order) => {
+                                            const row = document.createElement("tr");
+                                            row.innerHTML = `
+                                                <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                                                <td>${order.orderId}</td>
+                                                <td>₹ ${order.finalAmount.toFixed(2)}</td>
+                                                <td>₹ ${order.discount.toFixed(2)}</td>
+                                                <td>${order.couponApplied ? "True" : "False"}</td>`;
+                                            salesTableBody.appendChild(row);
+                                        });
+
+                                        paginationContainer.innerHTML = "";
+                                        for (let k = 1; k <= subData.totalPages; k++) {
+                                            const li = document.createElement("li");
+                                            li.className = `page-item ${k === parseInt(subPage) ? "active" : ""}`;
+                                            const newPageQuery = new URLSearchParams({ period, page: k });
+                                            if (period === "custom" && startDate && endDate) {
+                                                newPageQuery.append("startDate", startDate);
+                                                newPageQuery.append("endDate", endDate);
+                                            }
+                                            li.innerHTML = `<a class="page-link" href="#" data-page="${k}">${k}</a>`;
+                                            paginationContainer.appendChild(li);
+                                            li.querySelector("a").addEventListener("click", arguments.callee);
+                                        }
+                                    });
+                                }
+                            } catch (error) {
+                                console.error("Error fetching sales report:", error);
+                            }
+                        });
                     }
                 } catch (error) {
                     console.error("Error fetching sales report:", error);
                 }
             });
 
-            // Generate chart on button click
             generateChart.addEventListener("click", () => {
                 const period = chartPeriod.value;
                 fetchSalesChart(period);
             });
 
-            // Clear chart
-            // clearChart.addEventListener("click", () => {
-            //     if (salesChart) salesChart.destroy();
-            //     salesChartCanvas.getContext('2d').clearRect(0, 0, salesChartCanvas.width, salesChartCanvas.height);
-            // });
-
-            // Clear report
             clearReport.addEventListener("click", () => {
                 location.reload();
             });
 
-            // Load daily chart by default
             fetchSalesChart("daily");
+
 
             // Generate PDF
             document.getElementById("downloadPDF").addEventListener("click", async () => {
+
                 try {
+                    
                     if (!window.jspdf) {
                         console.error("jsPDF library not loaded");
                         alert("Error: PDF generation library not loaded. Please try again.");
                         return;
                     }
 
-                    // Get filter values
                     const period = document.getElementById("reportPeriod").value;
                     const startDate = document.getElementById("startDate").value;
                     const endDate = document.getElementById("endDate").value;
 
-                    // Build query parameters
-                    const query = new URLSearchParams({ period });
+                    const query = new URLSearchParams({ period, forPDF: "true" });
                     if (period === "custom" && startDate && endDate) {
                         query.append("startDate", startDate);
                         query.append("endDate", endDate);
                     }
 
-                    // Fetch filtered sales data
                     const response = await fetch(`/admin/sales-report?${query}`);
+
                     if (!response.ok) {
                         throw new Error(`Failed to fetch sales report data: ${response.statusText}`);
                     }
+
                     const data = await response.json();
 
-                    // Log response for debugging
-                    console.log("Sales report response:", data);
-
-                    // Validate totalSalesCount
                     const totalSalesCount = Number(data.totalSalesCount) || 0;
                     if (data.orders.length === 0 && totalSalesCount !== 0) {
                         console.warn("Mismatch: No orders found but totalSalesCount is not 0. Forcing to 0.");
@@ -876,80 +966,76 @@
                     // Initialize jsPDF
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF({
-                        unit: 'in',
-                        format: 'a4',
-                        orientation: 'portrait',
+                        unit: "in",
+                        format: "a4",
+                        orientation: "portrait",
                         compress: true,
                         putOnlyUsedFonts: true,
-                        precision: 16
+                        precision: 16,
                     });
 
-                    // Page dimensions (A4: 8.27in x 11.69in)
                     const pageWidth = 8.27;
                     const pageHeight = 11.69;
                     const margin = 0.75;
                     const maxWidth = pageWidth - 2 * margin;
 
-                    // Set font
                     doc.setFont("Helvetica", "normal");
 
-                    // Header: SALES REPORT and INIZIO logo
                     doc.setFontSize(28);
                     doc.setFont("Helvetica", "bold");
-                    doc.setTextColor(44, 44, 44); // #2c2c2c
+                    doc.setTextColor(44, 44, 44);
                     doc.text("SALES REPORT", margin, 0.75);
 
-                    // Logo: INIZIO text in a circle
-                    doc.setFillColor(245, 245, 245); // #f5f5f5
+                    doc.setFillColor(245, 245, 245);
                     doc.circle(pageWidth - margin - 0.35, 0.65, 0.35, "F");
                     doc.setFontSize(10);
-                    doc.setTextColor(102, 102, 102); // #666
+                    doc.setTextColor(102, 102, 102);
                     doc.setFont("Helvetica", "bold");
                     doc.text("INIZIO", pageWidth - margin - 0.35, 0.7, { align: "center" });
 
-                    // Header border
                     doc.setLineWidth(0.02);
-                    doc.setDrawColor(249, 109, 0); // #F96D00
+                    doc.setDrawColor(249, 109, 0);
                     doc.line(margin, 1.1, pageWidth - margin, 1.1);
 
-                    // Table Header
                     let y = 1.4;
                     doc.setFontSize(14);
-                    doc.setTextColor(44, 44, 44); // #2c2c2c
+                    doc.setTextColor(44, 44, 44);
                     doc.setFont("Helvetica", "bold");
                     doc.text("Sales Details", margin, y);
                     y += 0.3;
 
-                    // Define column widths
                     const columnWidths = [1.2, 2.8, 1.0, 1.0, 0.8];
                     const headers = ["Date", "Order ID", "Amount", "Discount", "Coupon"];
                     doc.setFontSize(11);
-                    doc.setTextColor(255, 255, 255); // White
-                    doc.setFillColor(249, 109, 0); // #F96D00
-                    doc.rect(margin, y, maxWidth, 0.3, "F"); // Table header background
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFillColor(249, 109, 0);
+                    doc.rect(margin, y, maxWidth, 0.3, "F");
                     let x = margin;
                     headers.forEach((header, index) => {
                         const align = index >= 2 ? "right" : index === 4 ? "center" : "left";
                         const offset = align === "right" ? columnWidths[index] - 0.1 : align === "center" ? columnWidths[index] / 2 : 0.1;
                         doc.text(header, x + offset, y + 0.2, {
                             align: align,
-                            maxWidth: columnWidths[index] - 0.2
+                            maxWidth: columnWidths[index] - 0.2,
                         });
                         x += columnWidths[index];
                     });
                     y += 0.3;
 
-                    // Table Rows
-                    const rows = data.orders.map(order => [
-                        new Date(order.createdAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+                    const rows = data.orders.map((order) => [
+                        new Date(order.createdAt).toLocaleDateString("en-US", {
+                            month: "2-digit",
+                            day: "2-digit",
+                            year: "numeric",
+                        }),
                         order.orderId,
-                        `$${order.finalAmount.toFixed(2)}`,
-                        `$${order.discount.toFixed(2)}`,
-                        order.couponApplied ? "True" : "False"
+                        `Rs. ${order.finalAmount.toFixed(2)}`,
+                        `Rs. ${order.discount.toFixed(2)}`,
+                        order.couponApplied ? "True" : "False",
                     ]);
 
                     let tableBottomY = y;
-                    let tableTopY = 1.7; // Track the top of the table for vertical lines
+                    let tableTopY = 1.7;
                     if (rows.length === 0) {
                         doc.setFontSize(14);
                         doc.setTextColor(102, 102, 102);
@@ -961,19 +1047,15 @@
                         doc.setTextColor(51, 51, 51);
                         doc.setFont("Helvetica", "normal");
                         rows.forEach((row, index) => {
-                            // Check if we need a new page
                             if (y + 0.3 > pageHeight - margin - 1.5) {
-                                // Draw grid for the current page
                                 doc.setDrawColor(221, 221, 221);
                                 doc.setLineWidth(0.01);
-                                // Vertical lines
                                 x = margin;
                                 columnWidths.forEach((width) => {
                                     doc.line(x, tableTopY, x, tableBottomY);
                                     x += width;
                                 });
                                 doc.line(pageWidth - margin, tableTopY, pageWidth - margin, tableBottomY);
-                                // Horizontal lines
                                 let tempY = tableTopY;
                                 while (tempY <= tableBottomY) {
                                     doc.line(margin, tempY, pageWidth - margin, tempY);
@@ -983,9 +1065,8 @@
                                 doc.addPage();
                                 y = margin;
                                 tableBottomY = y;
-                                tableTopY = y + 0.3; // Update for new page
+                                tableTopY = y + 0.3;
 
-                                // Redraw table header on new page
                                 doc.setFontSize(14);
                                 doc.setTextColor(44, 44, 44);
                                 doc.setFont("Helvetica", "bold");
@@ -1001,7 +1082,7 @@
                                     const offset = align === "right" ? columnWidths[i] - 0.1 : align === "center" ? columnWidths[i] / 2 : 0.1;
                                     doc.text(header, x + offset, y + 0.2, {
                                         align: align,
-                                        maxWidth: columnWidths[i] - 0.2
+                                        maxWidth: columnWidths[i] - 0.2,
                                     });
                                     x += columnWidths[i];
                                 });
@@ -1015,7 +1096,7 @@
                                 const offset = align === "right" ? columnWidths[cellIndex] - 0.1 : align === "center" ? columnWidths[cellIndex] / 2 : 0.1;
                                 doc.text(cell, x + offset, y + 0.2, {
                                     align: align,
-                                    maxWidth: columnWidths[cellIndex] - 0.2
+                                    maxWidth: columnWidths[cellIndex] - 0.2,
                                 });
                                 x += columnWidths[cellIndex];
                             });
@@ -1023,17 +1104,14 @@
                             tableBottomY = y;
                         });
 
-                        // Draw table grid after all rows
                         doc.setDrawColor(221, 221, 221);
                         doc.setLineWidth(0.01);
-                        // Vertical lines
                         x = margin;
                         columnWidths.forEach((width) => {
                             doc.line(x, tableTopY, x, tableBottomY);
                             x += width;
                         });
                         doc.line(pageWidth - margin, tableTopY, pageWidth - margin, tableBottomY);
-                        // Horizontal lines
                         let tempY = tableTopY;
                         while (tempY <= tableBottomY) {
                             doc.line(margin, tempY, pageWidth - margin, tempY);
@@ -1041,7 +1119,6 @@
                         }
                     }
 
-                    // Draw table grid for empty table
                     if (rows.length === 0) {
                         doc.setDrawColor(221, 221, 221);
                         doc.setLineWidth(0.01);
@@ -1055,49 +1132,78 @@
                         doc.line(margin, tableBottomY, pageWidth - margin, tableBottomY);
                     }
 
-                    // Summary Section
                     if (tableBottomY + 1.5 > pageHeight - margin) {
                         doc.addPage();
                         tableBottomY = margin;
                     }
-                    // Increase spacing when no orders are available
-                    y = rows.length === 0 ? tableBottomY + 1.0 : tableBottomY + 0.6; // More spacing when no orders
+                    y = rows.length === 0 ? tableBottomY + 1.0 : tableBottomY + 0.6;
                     doc.setFontSize(12);
-                    doc.setTextColor(85, 85, 85); // #555
+                    doc.setTextColor(85, 85, 85);
                     doc.setFont("Helvetica", "normal");
 
-                    // Debug y position and totalSalesCount
-                    console.log("Rendering summary at y:", y, "totalSalesCount:", data.totalSalesCount);
-
-                    // Format summary values
                     const totalOrderAmount = parseFloat(data.totalOrderAmount || 0).toFixed(2);
                     const offerDiscount = parseFloat(data.offerDiscount || 0).toFixed(2);
                     const couponDiscount = parseFloat(data.couponDiscount || 0).toFixed(2);
                     const totalDiscount = parseFloat(data.totalDiscount || 0).toFixed(2);
 
-                    // Render summary with explicit validation
                     doc.text(`Overall Sales Count: ${data.totalSalesCount || 0}`, margin, y);
                     y += 0.25;
-                    doc.text(`Offer Discount: $${offerDiscount}`, margin, y);
+                    doc.text(`Offer Discount: Rs. ${offerDiscount}`, margin, y);
                     y += 0.25;
-                    doc.text(`Coupon Discount: $${couponDiscount}`, margin, y);
+                    doc.text(`Coupon Discount: Rs. ${couponDiscount}`, margin, y);
                     y += 0.25;
-                    doc.text(`Overall Discount: $${totalDiscount}`, margin, y);
+                    doc.text(`Overall Discount: Rs. ${totalDiscount}`, margin, y);
                     y += 0.25;
                     doc.setFont("Helvetica", "bold");
-                    doc.setFillColor(249, 109, 0); // #F96D00
-                    doc.setTextColor(255, 255, 255); // White
+                    doc.setFillColor(249, 109, 0);
+                    doc.setTextColor(255, 255, 255);
                     doc.rect(margin, y, 3.5, 0.3, "F");
-                    doc.text(`Overall Order Amount: $${totalOrderAmount}`, margin + 0.1, y + 0.2);
+                    doc.text(`Overall Order Amount: Rs. ${totalOrderAmount}`, margin + 0.1, y + 0.2);
 
-                    // Save the PDF
-                    doc.save(`sales_report_${new Date().toISOString().split('T')[0]}.pdf`);
+                    doc.save(`sales_report_${new Date().toISOString().split("T")[0]}.pdf`);
                 } catch (error) {
                     console.error("Error generating PDF:", error);
                     alert("Failed to generate PDF: " + error.message);
                 }
             });
+
+
+            document.getElementById("downloadExcel").addEventListener("click", async () => {
+                try {
+                    const period = document.getElementById("reportPeriod").value;
+                    const startDate = document.getElementById("startDate").value;
+                    const endDate = document.getElementById("endDate").value;
+
+                    const query = new URLSearchParams({ period });
+                    if (period === "custom" && startDate && endDate) {
+                        query.append("startDate", startDate);
+                        query.append("endDate", endDate);
+                    }
+
+                    const response = await fetch(`/admin/sales-report-excel?${query}`);
+                    if (!response.ok) {
+                        throw new Error("Failed to generate Excel report");
+                    }
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `sales_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+
+                } catch (error) {
+
+                    console.error("Error downloading Excel:", error);
+                    alert("Failed to download Excel report: " + error.message);
+
+                }
+            });
+
         });
     </script>
 
-<%- include("../../views/partials/admin/footer.ejs") %>
+    <%- include("../../views/partials/admin/footer.ejs") %>
