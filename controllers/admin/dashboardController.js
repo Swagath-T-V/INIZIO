@@ -11,16 +11,12 @@ const loadDashboard = async (req, res) => {
 
     const totalOrders = await Order.countDocuments({
       status: { $nin: ["Cancelled", "Payment Failed", "Returned"] },
-      $nor: [
-        { $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] },
-      ],
+      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
     });
 
     const pendingOrders = await Order.countDocuments({
       status: "Pending",
-      $nor: [
-        { $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] },
-      ],
+      $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
     });
 
     const deliveredOrders = await Order.countDocuments({ status: "Delivered" });
@@ -417,7 +413,6 @@ const getSalesReportExcel = async (req, res) => {
       };
     }
 
-    // Fetch sales data
     const salesTotals = await Order.aggregate([
       {
         $match: {

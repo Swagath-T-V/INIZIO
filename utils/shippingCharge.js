@@ -14,7 +14,7 @@ const calculateShippingCharge = (pincode , totalAmount) => {
 
     return pincodeZone[pincode] || fixedShippingCharge
 }
-
+ 
 module.exports = {
     calculateShippingCharge
 }

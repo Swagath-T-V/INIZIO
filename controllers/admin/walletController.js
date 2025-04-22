@@ -109,7 +109,7 @@ const viewWalletDetails = async(req,res)=>{
     // console.log(user)
 
     const orderId = transaction.orderId
-    console.log(orderId)
+    // console.log(orderId)
 
     const order = await Order.findById(orderId).populate('orderedItems.product')
     // console.log("order",order)
@@ -132,7 +132,7 @@ const viewWalletDetails = async(req,res)=>{
     return res.redirect("/admin/pageerror");
     
   }
-}
+} 
 
 module.exports = {
 
