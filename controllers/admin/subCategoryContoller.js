@@ -7,7 +7,7 @@ const subCategoryInfo =async(req,res)=>{
         
         let search =req.query.search || ""
         const page = parseInt(req.query.page) || 1
-        const limit =3
+        const limit = 6
         const skip =(page-1)*limit
 
         const subCategoryData = await SubCategory.find({
@@ -17,7 +17,7 @@ const subCategoryInfo =async(req,res)=>{
         .sort({createdAt:-1})   
         .skip(skip)
         .limit(limit)
-
+ 
         const totalSubCategory = await SubCategory.countDocuments({ isDelete: false})
         const totalPages = Math.ceil(totalSubCategory/limit)
 
@@ -34,6 +34,7 @@ const subCategoryInfo =async(req,res)=>{
         
         console.log("Error in subCategoryInfo",error)
         res.redirect("/admin/pageerror")
+        
     }
 
 }
@@ -45,7 +46,9 @@ const addSubCategory = async (req, res) => {
         if (req.method === 'POST') {
             const { name, description } = req.body;
 
-            const existingSubCategory = await SubCategory.findOne({ name });
+            const existingSubCategory = await SubCategory.findOne({ 
+                name: { $regex: new RegExp('^' + name + '$','i')}
+            })
 
             if (existingSubCategory && existingSubCategory.isDelete === true) {
 
@@ -69,10 +72,7 @@ const addSubCategory = async (req, res) => {
 
             await newSubCategory.save();
 
-            return res.status(200).json({
-                success: true,
-                message: "SubCategory added successfully",
-            });
+            return res.status(200).json({success: true, message: "SubCategory added successfully"});
         }
 
         res.render("addSubCategory", {
@@ -97,6 +97,7 @@ const getListSubCategory = async (req, res) => {
 
     } catch (error) {
 
+        console.log("error in getEditSubCategory", error);
         res.status(500).json({ success: false, message: 'Failed to unlist the subCategory.' });
 
     }
@@ -148,16 +149,15 @@ const editSubCategory = async (req, res) => {
         const id = req.params.id;
         const { subCategoryName, description } = req.body;
 
-        const existingSubCategory = await SubCategory.findOne({ 
-            name: subCategoryName
+        const existingSubCategory = await SubCategory.findOne({
+            name: { $regex: new RegExp('^' + subCategoryName + '$', 'i') },
+            _id: { $ne: id }
         });
 
-        if (existingSubCategory) {
-            return res.status(200).json({
-                success: true,
-                message: "SubCategory updated sucessfully",
-                redirectUrl:"/admin/subCategory"
-            });
+        if (existingSubCategory && existingSubCategory.isDelete === false) {
+
+            return res.status(400).json({success: false,message: "subCategory name already exists"});
+
         }
 
         const updateSubCategory = await SubCategory.findByIdAndUpdate(id, {
@@ -166,26 +166,18 @@ const editSubCategory = async (req, res) => {
         }, { new: true });
 
         if (updateSubCategory) {
-            return res.status(200).json({
-                success: true,
-                message: "SubCategory updated successfully",
-                redirectUrl: "/admin/subCategory" 
-            });
+
+            return res.status(200).json({success: true, message: "SubCategory updated successfully", redirectUrl: "/admin/subCategory" });
 
         } else {
 
-            return res.status(400).json({
-                success: false,
-                message: "SubCategory not found"
-            });
+            return res.status(400).json({success: false,message: "SubCategory not found" });
         }
 
     } catch (error) {
 
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        console.log("error in editSubCategory",error)
+        return res.status(500).json({success: false, message: "Internal server error"});
 
     }
 };
@@ -200,7 +192,7 @@ const deleteSubCategory = async(req,res)=> {
             { $set: { isDelete: true } },
             { new: true }
         );
-
+ 
         if (updatedSubCategory) {
 
             res.status(200).json({ success: true, message: "SubCategory soft deleted successfully" })
@@ -218,9 +210,10 @@ const deleteSubCategory = async(req,res)=> {
         
     }
 }
-
+ 
 
 module.exports = {
+
     subCategoryInfo,
     addSubCategory,
     getListSubCategory,

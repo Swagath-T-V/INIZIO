@@ -27,44 +27,36 @@
         color: white;
         border: none;
     }
-
     .table-dark {
         transition: background-color 0.3s ease, color 0.3s ease;
     }
-
     body.light-mode .table-dark {
         background-color: var(--gray-light);
         color: var(--text-light);
     }
-
     body.light-mode .table-dark thead th {
         background-color: var(--gray-light);
         color: var(--text-light);
         border-color: #dee2e6;
     }
-
     body.light-mode .table-dark tbody td {
         background-color: var(--gray-light);
         color: var(--text-light);
         border-color: #dee2e6;
     }
-
     body.light-mode h2.text-white {
         color: var(--text-light) !important;
     }
-
     body.light-mode .pagination .page-link {
         background-color: var(--gray-light);
         color: var(--text-light);
         border-color: #dee2e6;
     }
-
     body.light-mode .pagination .page-item.active .page-link {
         background-color: var(--purple-light);
         color: white;
         border-color: var(--purple-light);
     }
-
     .error-message {
         color: red;
         font-size: 0.9em;
@@ -85,19 +77,19 @@
                     <form id="categoryForm" onsubmit="return handleFormSubmit(event)" novalidate>
                         <div class="mb-3">
                             <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" aria-describedby="name-error" required>
                             <div class="error-message" id="name-error" style="display: none;"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <textarea class="form-control" id="description" name="description" aria-describedby="description-error" rows="3"></textarea>
                             <div class="error-message" id="description-error" style="display: none;"></div>
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
                             <a href="/admin/category" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary" style="background-color: var(--purple-light);">Save Category</button>
+                            <button type="submit" class="btn btn-primary add-category-btn">Save Category</button>
                         </div>
                     </form>
                 </div>
@@ -106,82 +98,119 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
     function handleFormSubmit(event) {
-    event.preventDefault();  
+        event.preventDefault();
 
-    clearErrorMessage();
+        clearErrorMessage();
 
-    if (!validateForm()) {
-        return false; 
+        if (!validateForm()) {
+            return false;
+        }
+
+        const name = document.getElementById("name").value.trim();
+        const description = document.getElementById("description").value.trim();
+
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = 'Saving...';
+        submitButton.disabled = true;
+
+        fetch("/admin/addCategory", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, description })
+        })
+        .then(response => {
+            return response.json().then(data => {
+                if (!response.ok) {
+                    throw new Error(data.message || "Failed to add category");
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: data.message || "Category added successfully",
+            }).then(() => {
+                window.location.href = data.redirectUrl || "/admin/category";
+            });
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "An error occurred while adding the category",
+            });
+        })
+        .finally(() => {
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+        });
+
+        return false;
     }
-
-    const name = document.getElementById("name").value.trim();
-    const description = document.getElementById("description").value.trim();
-
-    const submitButton = event.target.querySelector('button[type="submit"]');
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = 'Saving...';
-    submitButton.disabled = true;
-
-    fetch("/admin/addCategory", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, description })
-    })
-    .then(response => {
-        return response.json().then(data => {
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to add category");
-            }
-            return data;
-        });
-    })
-    .then(data => {
-        Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: data.message || "Category added successfully",
-        }).then(() => {
-            window.location.href = "/admin/category"; 
-        });
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: error.message || "An error occurred while adding the category",
-        });
-    })
-    .finally(() => {
-        submitButton.innerHTML = originalText;
-        submitButton.disabled = false;
-    });
-
-    return false;
-}
 
     function validateForm() {
         const name = document.getElementById("name").value.trim();
         const description = document.getElementById("description").value.trim();
         let isValid = true;
 
-        if (name === "") {
-            displayErrorMessage("name-error", "Please enter a category name");
+        // Name validation
+        if (!name) {
+            displayErrorMessage("name-error", "Category name is required");
             isValid = false;
         } else if (name.length < 3) {
-            displayErrorMessage("name-error", "Category name should be at least 3 characters long");
+            displayErrorMessage("name-error", "Category name must be at least 3 characters long");
             isValid = false;
-        } else if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
-            displayErrorMessage("name-error", "Category name should contain only alphanumeric characters");
+        } else if (name.length > 20) {
+            displayErrorMessage("name-error", "Category name cannot exceed 20 characters");
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s-]*[a-zA-Z0-9]+)*$/.test(name)) {
+            displayErrorMessage("name-error", "Category name can only contain letters, numbers, single spaces, or single hyphens between alphanumeric characters");
+            isValid = false;
+        } else if (/^\s|\s$/.test(name)) {
+            displayErrorMessage("name-error", "Category name cannot start or end with spaces");
+            isValid = false;
+        } else if (/\s{2,}/.test(name)) {
+            displayErrorMessage("name-error", "Category name cannot contain multiple consecutive spaces");
+            isValid = false;
+        } else if (/-{2,}/.test(name)) {
+            displayErrorMessage("name-error", "Category name cannot contain multiple consecutive hyphens");
+            isValid = false;
+        } else if (/^-|-$/.test(name)) {
+            displayErrorMessage("name-error", "Category name cannot start or end with a hyphen");
             isValid = false;
         }
 
-        if (description === "") {
-            displayErrorMessage("description-error", "Please enter a description");
+        // Description validation
+        if (!description) {
+            displayErrorMessage("description-error", "Description is required");
+            isValid = false;
+        } else if (description.length < 5) {
+            displayErrorMessage("description-error", "Description must be at least 5 characters long");
+            isValid = false;
+        } else if (description.length > 100) {
+            displayErrorMessage("description-error", "Description cannot exceed 100 characters");
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s.,!?-]*[a-zA-Z0-9]+)*$/.test(description)) {
+            displayErrorMessage("description-error", "Description can only contain letters, numbers, single spaces, or basic punctuation between alphanumeric characters");
+            isValid = false;
+        } else if (/^\s|\s$/.test(description)) {
+            displayErrorMessage("description-error", "Description cannot start or end with spaces");
+            isValid = false;
+        } else if (/-{2,}/.test(description)) {
+            displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
+            isValid = false;
+        } else if (/^-|-$/.test(description)) {
+            displayErrorMessage("description-error", "Description cannot start or end with a hyphen");
             isValid = false;
         }
 

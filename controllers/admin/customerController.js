@@ -3,14 +3,14 @@ const env = require("dotenv").config()
 const nodemailer = require("nodemailer")
 
 const customerInfo = async(req,res)=>{
-
+ 
     try {
         
         let search =req.query.search || ""
         let page =parseInt(req.query.page) || ""
         if(page<1)page=1
 
-        const limit = 3
+        const limit = 6
         
         const userData = await User.find({
             isAdmin:false,

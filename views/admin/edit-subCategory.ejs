@@ -1,62 +1,98 @@
 <%- include("../../views/partials/admin/header.ejs") %>
+<style>
+    
+    .mt-4 {
+        margin-top: 1.5rem !important;
+        margin-bottom: 15px;
+    }
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+    }
+</style>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 mt-60">
-            <form id="editCategoryForm" method="post" action="/admin/editSubCategory/<%= subCategory._id %>">
-                <div class="d-grid text-end mt-30 col-md-5">
-                    <button class="btn btn-primary" type="submit">Update category</button>
-                </div>
+            <form id="editSubCategoryForm" method="post" novalidate>
                 <div class="mb-4 mt-30">
-                    <label for="product_name" class="form-label">Name</label>
-                    <input type="text" name="subCategoryName" value="<%= subCategory.name %>" class="form-control border" />
+                    <label for="subCategoryName" class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" name="subCategoryName" id="subCategoryName" value="<%= subCategory.name %>" class="form-control border" required />
+                    <div class="error-message" id="name-error" style="display: none;"></div>
                 </div>
-                
+
                 <div class="mb-4">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control border"><%= subCategory.description %></textarea>
+                    <label for="description" class="form-label">Description</label>
+                    <textarea name="description" id="description" class="form-control border"><%= subCategory.description %></textarea>
+                    <div class="error-message" id="description-error" style="display: none;"></div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-primary" type="submit">Update SubCategory</button>
                 </div>
             </form>
+            <div>
+                <a href="/admin/subCategory" class="btn btn-secondary">Cancel</a>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<script>
-    $(document).ready(function() {
-        $('#editCategoryForm').on('submit', function(e) {
-            e.preventDefault();  
 
-            var subCategoryName = $("input[name='subCategoryName']").val();
-            var description = $("textarea[name='description']").val();
+<script>
+    
+    $(document).ready(function () {
+        $('#editSubCategoryForm').on('submit', function (e) {
+            e.preventDefault();
+
+            clearErrorMessages();
+
+            if (!validateForm()) {
+                return false;
+            }
+
+            var subCategoryName = $("#subCategoryName").val().trim();
+            var description = $("#description").val().trim();
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = 'Updating...';
+            submitButton.disabled = true;
 
             $.ajax({
-                type: "POST",
-                url: "/admin/editSubCategory/<%= subCategory._id %>", 
+                method: "POST",
+                url: "/admin/editSubCategory/<%= subCategory._id %>",
                 data: {
                     subCategoryName: subCategoryName,
                     description: description
                 },
-                success: function(response) {
+                success: function (response) {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
                     if (response.success) {
                         Swal.fire({
                             icon: "success",
-                            title: response.message, 
+                            title: response.message,
                             showConfirmButton: false,
                             timer: 1500
                         }).then(() => {
-                            window.location.href = response.redirectUrl; 
+                            window.location.href = response.redirectUrl;
                         });
                     } else {
                         Swal.fire({
                             icon: "error",
                             title: "Error",
-                            text: response.message, 
+                            text: response.message,
                         });
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
                     let errorMessage = "Please try again.";
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
@@ -70,6 +106,80 @@
                 }
             });
         });
+
+        // Validation function
+        function validateForm() {
+            const name = document.getElementById("subCategoryName").value.trim();
+            const description = document.getElementById("description").value.trim();
+            let isValid = true;
+
+            // Name validation
+            if (!name) {
+                displayErrorMessage("name-error", "Category name is required");
+                isValid = false;
+            } else if (name.length < 3) {
+                displayErrorMessage("name-error", "Category name must be at least 3 characters long");
+                isValid = false;
+            } else if (name.length > 20) {
+                displayErrorMessage("name-error", "Category name cannot exceed 20 characters");
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s-]*[a-zA-Z0-9]+)*$/.test(name)) {
+                displayErrorMessage("name-error", "Category name can only contain letters, numbers, single spaces, or single hyphens between alphanumeric characters");
+                isValid = false;
+            } else if (/^\s|\s$/.test(name)) {
+                displayErrorMessage("name-error", "Category name cannot start or end with spaces");
+                isValid = false;
+            } else if (/\s{2,}/.test(name)) {
+                displayErrorMessage("name-error", "Category name cannot contain multiple consecutive spaces");
+                isValid = false;
+            } else if (/-{2,}/.test(name)) {
+                displayErrorMessage("name-error", "Category name cannot contain multiple consecutive hyphens");
+                isValid = false;
+            } else if (/^-|-$/.test(name)) {
+                displayErrorMessage("name-error", "Category name cannot start or end with a hyphen");
+                isValid = false;
+            }
+
+            // Description validation
+            if (!description) {
+                displayErrorMessage("description-error", "Description is required");
+                isValid = false;
+            } else if (description.length < 5) {
+                displayErrorMessage("description-error", "Description must be at least 5 characters long");
+                isValid = false;
+            } else if (description.length > 100) {
+                displayErrorMessage("description-error", "Description cannot exceed 100 characters");
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s.,!?-]*[a-zA-Z0-9]+)*$/.test(description)) {
+                displayErrorMessage("description-error", "Description can only contain letters, numbers, single spaces, or basic punctuation between alphanumeric characters");
+                isValid = false;
+            } else if (/^\s|\s$/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot start or end with spaces");
+                isValid = false;
+            } else if (/-{2,}/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
+                isValid = false;
+            } else if (/^-|-$/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot start or end with a hyphen");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function displayErrorMessage(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.innerText = message;
+            errorElement.style.display = "block";
+        }
+
+        function clearErrorMessages() {
+            const errorElements = document.getElementsByClassName("error-message");
+            Array.from(errorElements).forEach((element) => {
+                element.innerText = "";
+                element.style.display = "none";
+            });
+        }
     });
 </script>
 
