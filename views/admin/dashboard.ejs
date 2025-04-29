@@ -519,14 +519,8 @@
             <div class="report-content">
                 <div class="report-stats">
                     <div class="report-stat-card">
-                        <h4>Overall Sales Count</h4>
-                        <p id="salesCount">
-                            <%= salesData.totalOrders %>
-                        </p>
-                    </div>
-                    <div class="report-stat-card">
-                        <h4>Overall Order Amount</h4>
-                        <p id="orderAmount">₹ <%= salesData.totalAmount.toFixed(2) %>
+                        <h4>Total Amount</h4>
+                        <p id="totalAmount">₹ <%= salesData.totalAmount.toFixed(2) %>
                         </p>
                     </div>
                     <div class="report-stat-card">
@@ -540,8 +534,18 @@
                         </p>
                     </div>
                     <div class="report-stat-card">
-                        <h4>Overall Discount</h4>
-                        <p id="discountAmount">₹ <%= salesData.totalDiscount.toFixed(2) %>
+                        <h4>Returned Amount</h4>
+                        <p id="returnedAmount">₹ <%= salesData.returnedAmount.toFixed(2) %>
+                        </p>
+                    </div>
+                    <div class="report-stat-card">
+                        <h4>Cancelled Amount</h4>
+                        <p id="cancelledAmount">₹ <%= salesData.cancelledAmount.toFixed(2) %>
+                        </p>
+                    </div>
+                    <div class="report-stat-card">
+                        <h4>Net Amount</h4>
+                        <p id="netAmount">₹ <%= salesData.netAmount.toFixed(2) %>
                         </p>
                     </div>
                 </div>
@@ -560,22 +564,23 @@
                             <% orders.forEach(order=> { %>
                                 <tr>
                                     <td>
-                                        <%= new Date(order.createdAt).toLocaleDateString() %>
+                                        <%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric' ,
+                                            month: 'long' , year: 'numeric' }) %>
                                     </td>
                                     <td>
                                         <%= order.orderId %>
                                     </td>
                                     <td>
-                                        ₹ <%= order.finalAmount.toFixed(2) %>
+                                        ₹ <%= order.totalPrice.toFixed(2) %>
                                     </td>
                                     <td>
                                         ₹ <%= order.discount.toFixed(2) %>
                                     </td>
                                     <td>
-                                        <%= order.couponApplied ? 'True' : 'False' %>
+                                        <%= order.couponApplied ? 'Applied' : 'Not Applied' %>
                                     </td>
                                 </tr>
-                                <% }) %>
+                            <% }) %>
                         </tbody>
                     </table>
                 </div>
@@ -617,7 +622,8 @@
         <div class="top-items-grid">
             <!-- Top Products -->
             <div class="top-items-container">
-                <h2 class="top-items-header"><i class="bi bi-award"></i> Top 7 Best Selling Products</h2>
+                <h2 class="top-items-header"><i class="bi bi-award"></i> Top <%= topProducts.length %> Best Selling
+                        Products</h2>
                 <% topProducts.forEach((product, index)=> { %>
                     <div class="top-item-card">
                         <div class="top-item-rank">
@@ -640,61 +646,86 @@
                 <% }) %>
             </div>
 
-            <!-- Top Categories and Subcategories -->
+            <!-- Top Brands -->
             <div class="top-items-container">
-                <h2 class="top-items-header"><i class="bi bi-grid-3x3-gap"></i> Top Categories & Subcategories</h2>
-
-                <!-- Categories Section -->
-                <div class="category-section">
-                    <h3 class="category-header">Top 3 Categories</h3>
-                    <% topCategories.forEach((category, index)=> { %>
-                        <div class="top-item-card">
-                            <div class="top-item-rank">
-                                <%= index + 1 %>
+                <h2 class="top-items-header"><i class="bi bi-bookmark-star"></i> Top <%= topBrands.length %> Brands</h2>
+                <% topBrands.forEach((brand, index)=> { %>
+                    <div class="top-item-card">
+                        <div class="top-item-rank">
+                            <%= index + 1 %>
+                        </div>
+                        <div class="top-item-info">
+                            <div class="top-item-title">
+                                <%= brand.name %>
                             </div>
-                            <div class="top-item-info">
-                                <div class="top-item-title">
-                                    <%= category.name %>
-                                </div>
-                                <div class="top-item-subtitle">
-                                    <%= category.description %>
-                                </div>
-                            </div>
-                            <div class="top-item-stats">
-                                <div class="top-item-value">
-                                    <%= category.totalSold %>
-                                </div>
-                                <div class="top-item-label">Units Sold</div>
+                            <div class="top-item-subtitle">
+                                <%= brand.description %>
                             </div>
                         </div>
-                    <% }) %>
-                </div>
+                        <div class="top-item-stats">
+                            <div class="top-item-value">
+                                <%= brand.totalSold %>
+                            </div>
+                            <div class="top-item-label">Units Sold</div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
 
-                <!-- Subcategories Section -->
-                <div class="category-section">
-                    <h3 class="category-header">Top 3 Subcategories</h3>
-                    <% topSubcategories.forEach((subcategory, index)=> { %>
-                        <div class="top-item-card">
-                            <div class="top-item-rank">
-                                <%= index + 1 %>
+        <div class="top-items-grid">
+            <!-- Top Categories -->
+            <div class="top-items-container">
+                <h2 class="top-items-header"><i class="bi bi-grid-3x3-gap"></i> Top <%= topCategories.length %>
+                        Categories</h2>
+                <% topCategories.forEach((category, index)=> { %>
+                    <div class="top-item-card">
+                        <div class="top-item-rank">
+                            <%= index + 1 %>
+                        </div>
+                        <div class="top-item-info">
+                            <div class="top-item-title">
+                                <%= category.name %>
                             </div>
-                            <div class="top-item-info">
-                                <div class="top-item-title">
-                                    <%= subcategory.name %>
-                                </div>
-                                <div class="top-item-subtitle">
-                                    <%= subcategory.description %>
-                                </div>
-                            </div>
-                            <div class="top-item-stats">
-                                <div class="top-item-value">
-                                    <%= subcategory.totalSold %>
-                                </div>
-                                <div class="top-item-label">Units Sold</div>
+                            <div class="top-item-subtitle">
+                                <%= category.description %>
                             </div>
                         </div>
-                    <% }) %>
-                </div>
+                        <div class="top-item-stats">
+                            <div class="top-item-value">
+                                <%= category.totalSold %>
+                            </div>
+                            <div class="top-item-label">Units Sold</div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+            <!-- Top Subcategories -->
+            <div class="top-items-container">
+                <h2 class="top-items-header"><i class="bi bi-grid"></i> Top <%= topSubcategories.length %> Subcategories
+                </h2>
+                <% topSubcategories.forEach((subcategory, index)=> { %>
+                    <div class="top-item-card">
+                        <div class="top-item-rank">
+                            <%= index + 1 %>
+                        </div>
+                        <div class="top-item-info">
+                            <div class="top-item-title">
+                                <%= subcategory.name %>
+                            </div>
+                            <div class="top-item-subtitle">
+                                <%= subcategory.description %>
+                            </div>
+                        </div>
+                        <div class="top-item-stats">
+                            <div class="top-item-value">
+                                <%= subcategory.totalSold %>
+                            </div>
+                            <div class="top-item-label">Units Sold</div>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
         </div>
     </div>
@@ -703,17 +734,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-
         document.addEventListener("DOMContentLoaded", () => {
             const reportPeriod = document.getElementById("reportPeriod");
             const customDateRange = document.getElementById("customDateRange");
             const generateReport = document.getElementById("generateReport");
             const clearReport = document.getElementById("clearReport");
-            const salesCount = document.getElementById("salesCount");
-            const orderAmount = document.getElementById("orderAmount");
-            const offerDiscountAmount = document.getElementById("offerDiscountAmount");
-            const couponDiscountAmount = document.getElementById("couponDiscountAmount");
-            const discountAmount = document.getElementById("discountAmount");
             const salesTableBody = document.getElementById("salesTableBody");
 
             const chartPeriod = document.getElementById("chartPeriod");
@@ -721,6 +746,7 @@
             const salesChartCanvas = document.getElementById("salesChart");
 
             const downloadPDF = document.getElementById("downloadPDF");
+            const downloadExcel = document.getElementById("downloadExcel");
 
             let salesChart;
 
@@ -728,211 +754,139 @@
             const initChart = (labels, data) => {
                 if (salesChart) salesChart.destroy();
                 salesChart = new Chart(salesChartCanvas, {
-                    type: 'bar',
+                    type: "bar",
                     data: {
                         labels: labels,
-                        datasets: [{
-                            label: 'Total Sales ($)',
-                            data: data,
-                            backgroundColor: 'rgba(106, 27, 154, 0.6)',
-                            borderColor: 'rgba(106, 27, 154, 1)',
-                            borderWidth: 1
-                        }]
+                        datasets: [
+                            {
+                                label: "Total Sales (₹)",
+                                data: data,
+                                backgroundColor: "rgba(106, 27, 154, 0.6)",
+                                borderColor: "rgba(106, 27, 154, 1)",
+                                borderWidth: 1,
+                            },
+                        ],
                     },
                     options: {
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Sales Amount ($)' } },
-                            x: { title: { display: true, text: 'Period' } }
+                            y: { beginAtZero: true, title: { display: true, text: "Sales Amount (₹)" } },
+                            x: { title: { display: true, text: "Period" } },
                         },
                         plugins: {
-                            legend: { display: true }
-                        }
-                    }
+                            legend: { display: true },
+                        },
+                    },
                 });
             };
 
-            // Fetch and render sales chart
             const fetchSalesChart = async (period) => {
                 try {
                     const response = await fetch(`/admin/sales-chart?period=${period}`);
+                    if (!response.ok) throw new Error(`Failed to fetch chart data: ${response.statusText}`);
                     const data = await response.json();
                     initChart(data.labels, data.sales);
                 } catch (error) {
                     console.error("Error fetching sales chart data:", error);
+                    alert("Failed to load sales chart: " + error.message);
                 }
             };
 
-            // Show/hide custom date range for report
+            const renderPagination = (totalPages, currentPage, period, startDate, endDate) => {
+                const paginationContainer = document.querySelector(".pagination");
+                paginationContainer.innerHTML = "";
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = document.createElement("li");
+                    li.className = `page-item ${i === currentPage ? "active" : ""}`;
+                    const pageQuery = new URLSearchParams({ period, page: i });
+                    if (period === "custom" && startDate && endDate) {
+                        pageQuery.append("startDate", startDate);
+                        pageQuery.append("endDate", endDate);
+                    }
+                    li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                    paginationContainer.appendChild(li);
+                    li.querySelector("a").addEventListener("click", async (e) => {
+                        e.preventDefault();
+                        const page = e.target.getAttribute("data-page");
+                        await fetchSalesReport(period, page, startDate, endDate);
+                    });
+                }
+            };
+
+            const fetchSalesReport = async (period, page, startDate, endDate) => {
+                try {
+                    const query = new URLSearchParams({ period, page });
+                    if (period === "custom" && startDate && endDate) {
+                        query.append("startDate", startDate);
+                        query.append("endDate", endDate);
+                    }
+
+                    const response = await fetch(`/admin/sales-report?${query}`);
+                    if (!response.ok) throw new Error(`Failed to fetch report: ${response.statusText}`);
+                    const data = await response.json();
+
+                    document.getElementById("totalAmount").textContent = `₹ ${data.totalAmount}`;
+                    document.getElementById("offerDiscountAmount").textContent = `₹ ${data.offerDiscount}`;
+                    document.getElementById("couponDiscountAmount").textContent = `₹ ${data.couponDiscount}`;
+                    document.getElementById("returnedAmount").textContent = `₹ ${data.returnedAmount}`;
+                    document.getElementById("cancelledAmount").textContent = `₹ ${data.cancelledAmount}`;
+                    document.getElementById("netAmount").textContent = `₹ ${data.netAmount}`;
+
+                    salesTableBody.innerHTML = "";
+                    data.orders.forEach((order) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                <td>${new Date(order.createdAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                        })}</td>
+                <td>${order.orderId}</td>
+                <td>₹ ${order.totalPrice.toFixed(2)}</td>
+                <td>₹ ${order.discount.toFixed(2)}</td>
+                <td>${order.couponApplied ? "Applied" : "Not Applied"}</td>`;
+                        salesTableBody.appendChild(row);
+                    });
+
+                    renderPagination(data.totalPages, data.currentPage, period, startDate, endDate);
+                } catch (error) {
+                    console.error("Error fetching sales report:", error);
+                    alert("Failed to load sales report: " + error.message);
+                }
+            };
+
             reportPeriod.addEventListener("change", () => {
                 customDateRange.style.display = reportPeriod.value === "custom" ? "flex" : "none";
             });
 
-            // Fetch and render sales report
+            // Generate report
             generateReport.addEventListener("click", async () => {
                 const period = reportPeriod.value;
                 const startDate = document.getElementById("startDate").value;
                 const endDate = document.getElementById("endDate").value;
                 const page = new URLSearchParams(window.location.search).get("page") || 1;
 
-                const query = new URLSearchParams({ period, page });
-                if (period === "custom") {
-                    query.append("startDate", startDate);
-                    query.append("endDate", endDate);
+                if (period === "custom" && (!startDate || !endDate)) {
+                    alert("Please select both start and end dates for custom period.");
+                    return;
                 }
 
-                try {
-                    const response = await fetch(`/admin/sales-report?${query}`);
-                    const data = await response.json();
-
-                    salesCount.textContent = data.totalSalesCount;
-                    orderAmount.textContent = `₹ ${data.totalOrderAmount}`;
-                    offerDiscountAmount.textContent = `₹ ${data.offerDiscount}`;
-                    couponDiscountAmount.textContent = `₹ ${data.couponDiscount}`;
-                    discountAmount.textContent = `₹ ${data.totalDiscount}`;
-
-                    salesTableBody.innerHTML = "";
-                    data.orders.forEach((order) => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                            <td>${order.orderId}</td>
-                            <td>₹ ${order.finalAmount.toFixed(2)}</td>
-                            <td>₹ ${order.discount.toFixed(2)}</td>
-                            <td>${order.couponApplied ? "True" : "False"}</td>`;
-                        salesTableBody.appendChild(row);
-                    });
-
-                    const paginationContainer = document.querySelector(".pagination");
-                    paginationContainer.innerHTML = "";
-                    for (let i = 1; i <= data.totalPages; i++) {
-                        const li = document.createElement("li");
-                        li.className = `page-item ${i === data.currentPage ? "active" : ""}`;
-
-                        const pageQuery = new URLSearchParams({ period, page: i });
-                        if (period === "custom" && startDate && endDate) {
-                            pageQuery.append("startDate", startDate);
-                            pageQuery.append("endDate", endDate);
-                        }
-
-                        li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
-                        paginationContainer.appendChild(li);
-
-                        li.querySelector("a").addEventListener("click", async (e) => {
-                            e.preventDefault();
-                            const page = e.target.getAttribute("data-page");
-                            const pageQuery = new URLSearchParams({ period, page });
-                            if (period === "custom" && startDate && endDate) {
-                                pageQuery.append("startDate", startDate);
-                                pageQuery.append("endDate", endDate);
-                            }
-
-                            try {
-                                const response = await fetch(`/admin/sales-report?${pageQuery}`);
-                                const data = await response.json();
-
-                                salesCount.textContent = data.totalSalesCount;
-                                orderAmount.textContent = `₹ ${data.totalOrderAmount}`;
-                                offerDiscountAmount.textContent = `₹ ${data.offerDiscount}`;
-                                couponDiscountAmount.textContent = `₹ ${data.couponDiscount}`;
-                                discountAmount.textContent = `₹ ${data.totalDiscount}`;
-
-                                salesTableBody.innerHTML = "";
-                                data.orders.forEach((order) => {
-                                    const row = document.createElement("tr");
-                                    row.innerHTML = `
-                                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                                        <td>${order.orderId}</td>
-                                        <td>₹ ${order.finalAmount.toFixed(2)}</td>
-                                        <td>₹ ${order.discount.toFixed(2)}</td>
-                                        <td>${order.couponApplied ? "True" : "False"}</td>`;
-                                    salesTableBody.appendChild(row);
-                                });
-
-                                // Re-render pagination
-                                paginationContainer.innerHTML = "";
-                                for (let j = 1; j <= data.totalPages; j++) {
-                                    const li = document.createElement("li");
-                                    li.className = `page-item ${j === parseInt(page) ? "active" : ""}`;
-                                    const subPageQuery = new URLSearchParams({ period, page: j });
-                                    if (period === "custom" && startDate && endDate) {
-                                        subPageQuery.append("startDate", startDate);
-                                        subPageQuery.append("endDate", endDate);
-                                    }
-                                    li.innerHTML = `<a class="page-link" href="#" data-page="${j}">${j}</a>`;
-                                    paginationContainer.appendChild(li);
-
-                                    li.querySelector("a").addEventListener("click", async (e) => {
-                                        e.preventDefault();
-                                        const subPage = e.target.getAttribute("data-page");
-                                        const subPageQuery = new URLSearchParams({ period, page: subPage });
-                                        if (period === "custom" && startDate && endDate) {
-                                            subPageQuery.append("startDate", startDate);
-                                            subPageQuery.append("endDate", endDate);
-                                        }
-
-                                        const subResponse = await fetch(`/admin/sales-report?${subPageQuery}`);
-                                        const subData = await subResponse.json();
-
-                                        salesCount.textContent = subData.totalSalesCount;
-                                        orderAmount.textContent = `₹ ${subData.totalOrderAmount}`;
-                                        offerDiscountAmount.textContent = `₹ ${subData.offerDiscount}`;
-                                        couponDiscountAmount.textContent = `₹ ${subData.couponDiscount}`;
-                                        discountAmount.textContent = `₹ ${subData.totalDiscount}`;
-
-                                        salesTableBody.innerHTML = "";
-                                        subData.orders.forEach((order) => {
-                                            const row = document.createElement("tr");
-                                            row.innerHTML = `
-                                                <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                                                <td>${order.orderId}</td>
-                                                <td>₹ ${order.finalAmount.toFixed(2)}</td>
-                                                <td>₹ ${order.discount.toFixed(2)}</td>
-                                                <td>${order.couponApplied ? "True" : "False"}</td>`;
-                                            salesTableBody.appendChild(row);
-                                        });
-
-                                        paginationContainer.innerHTML = "";
-                                        for (let k = 1; k <= subData.totalPages; k++) {
-                                            const li = document.createElement("li");
-                                            li.className = `page-item ${k === parseInt(subPage) ? "active" : ""}`;
-                                            const newPageQuery = new URLSearchParams({ period, page: k });
-                                            if (period === "custom" && startDate && endDate) {
-                                                newPageQuery.append("startDate", startDate);
-                                                newPageQuery.append("endDate", endDate);
-                                            }
-                                            li.innerHTML = `<a class="page-link" href="#" data-page="${k}">${k}</a>`;
-                                            paginationContainer.appendChild(li);
-                                            li.querySelector("a").addEventListener("click", arguments.callee);
-                                        }
-                                    });
-                                }
-                            } catch (error) {
-                                console.error("Error fetching sales report:", error);
-                            }
-                        });
-                    }
-                } catch (error) {
-                    console.error("Error fetching sales report:", error);
-                }
+                await fetchSalesReport(period, page, startDate, endDate);
             });
 
+            // Generate chart
             generateChart.addEventListener("click", () => {
                 const period = chartPeriod.value;
                 fetchSalesChart(period);
             });
 
+            // Clear report
             clearReport.addEventListener("click", () => {
                 location.reload();
             });
 
-            fetchSalesChart("daily");
-
-
             // Generate PDF
-            document.getElementById("downloadPDF").addEventListener("click", async () => {
-
+            downloadPDF.addEventListener("click", async () => {
                 try {
-                    
                     if (!window.jspdf) {
                         console.error("jsPDF library not loaded");
                         alert("Error: PDF generation library not loaded. Please try again.");
@@ -943,6 +897,11 @@
                     const startDate = document.getElementById("startDate").value;
                     const endDate = document.getElementById("endDate").value;
 
+                    if (period === "custom" && (!startDate || !endDate)) {
+                        alert("Please select both start and end dates for custom period.");
+                        return;
+                    }
+
                     const query = new URLSearchParams({ period, forPDF: "true" });
                     if (period === "custom" && startDate && endDate) {
                         query.append("startDate", startDate);
@@ -950,28 +909,17 @@
                     }
 
                     const response = await fetch(`/admin/sales-report?${query}`);
-
                     if (!response.ok) {
                         throw new Error(`Failed to fetch sales report data: ${response.statusText}`);
                     }
 
                     const data = await response.json();
 
-                    const totalSalesCount = Number(data.totalSalesCount) || 0;
-                    if (data.orders.length === 0 && totalSalesCount !== 0) {
-                        console.warn("Mismatch: No orders found but totalSalesCount is not 0. Forcing to 0.");
-                        data.totalSalesCount = 0;
-                    }
-
-                    // Initialize jsPDF
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF({
                         unit: "in",
                         format: "a4",
                         orientation: "portrait",
-                        compress: true,
-                        putOnlyUsedFonts: true,
-                        precision: 16,
                     });
 
                     const pageWidth = 8.27;
@@ -979,48 +927,50 @@
                     const margin = 0.75;
                     const maxWidth = pageWidth - 2 * margin;
 
-                    doc.setFont("Helvetica", "normal");
-
-                    doc.setFontSize(28);
+                    doc.setFontSize(24);
                     doc.setFont("Helvetica", "bold");
                     doc.setTextColor(44, 44, 44);
-                    doc.text("SALES REPORT", margin, 0.75);
+                    doc.text("SALES REPORT", margin, 1);
 
                     doc.setFillColor(245, 245, 245);
-                    doc.circle(pageWidth - margin - 0.35, 0.65, 0.35, "F");
+                    doc.circle(pageWidth - margin - 0.35, 0.75, 0.35, "F");
                     doc.setFontSize(10);
                     doc.setTextColor(102, 102, 102);
                     doc.setFont("Helvetica", "bold");
-                    doc.text("INIZIO", pageWidth - margin - 0.35, 0.7, { align: "center" });
+                    doc.text("INIZIO", pageWidth - margin - 0.35, 0.8, { align: "center" });
 
                     doc.setLineWidth(0.02);
                     doc.setDrawColor(249, 109, 0);
-                    doc.line(margin, 1.1, pageWidth - margin, 1.1);
+                    doc.line(margin, 1.3, pageWidth - margin, 1.3);
 
-                    let y = 1.4;
+                    let y = 1.8;
                     doc.setFontSize(14);
                     doc.setTextColor(44, 44, 44);
                     doc.setFont("Helvetica", "bold");
                     doc.text("Sales Details", margin, y);
-                    y += 0.3;
+                    y += 0.4;
 
-                    const columnWidths = [1.2, 2.8, 1.0, 1.0, 0.8];
                     const headers = ["Date", "Order ID", "Amount", "Discount", "Coupon"];
+                    const columnWidths = [1.3, 2.3, 1.3, 1.3, 1.0];
+                    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+                    const tableX = margin;
+                    const tableY = y;
+
+                    doc.setFillColor(249, 109, 0);
+                    doc.rect(tableX, tableY, tableWidth, 0.3, "F");
+
                     doc.setFontSize(11);
                     doc.setTextColor(255, 255, 255);
-                    doc.setFillColor(249, 109, 0);
-                    doc.rect(margin, y, maxWidth, 0.3, "F");
-                    let x = margin;
+                    doc.setFont("Helvetica", "bold");
+
+                    let xPos = tableX;
                     headers.forEach((header, index) => {
-                        const align = index >= 2 ? "right" : index === 4 ? "center" : "left";
-                        const offset = align === "right" ? columnWidths[index] - 0.1 : align === "center" ? columnWidths[index] / 2 : 0.1;
-                        doc.text(header, x + offset, y + 0.2, {
-                            align: align,
-                            maxWidth: columnWidths[index] - 0.2,
-                        });
-                        x += columnWidths[index];
+                        const align = index >= 2 ? "right" : "left";
+                        const cellWidth = columnWidths[index];
+                        const textX = align === "right" ? xPos + cellWidth - 0.1 : xPos + 0.1;
+                        doc.text(header, textX, tableY + 0.2, { align });
+                        xPos += cellWidth;
                     });
-                    y += 0.3;
 
                     const rows = data.orders.map((order) => [
                         new Date(order.createdAt).toLocaleDateString("en-US", {
@@ -1029,136 +979,116 @@
                             year: "numeric",
                         }),
                         order.orderId,
-                        `Rs. ${order.finalAmount.toFixed(2)}`,
-                        `Rs. ${order.discount.toFixed(2)}`,
-                        order.couponApplied ? "True" : "False",
+                        `Rs. ${Number(order.totalPrice || 0).toFixed(2)}`,
+                        `Rs. ${Number(order.discount || 0).toFixed(2)}`,
+                        order.couponApplied ? "Applied" : "Not Applied",
                     ]);
 
-                    let tableBottomY = y;
-                    let tableTopY = 1.7;
-                    if (rows.length === 0) {
-                        doc.setFontSize(14);
-                        doc.setTextColor(102, 102, 102);
-                        doc.setFont("Helvetica", "bold");
-                        doc.text("No orders available for the selected period.", margin, y + 0.2);
-                        tableBottomY = y + 0.3;
-                    } else {
-                        doc.setFontSize(10);
-                        doc.setTextColor(51, 51, 51);
-                        doc.setFont("Helvetica", "normal");
-                        rows.forEach((row, index) => {
-                            if (y + 0.3 > pageHeight - margin - 1.5) {
-                                doc.setDrawColor(221, 221, 221);
-                                doc.setLineWidth(0.01);
-                                x = margin;
-                                columnWidths.forEach((width) => {
-                                    doc.line(x, tableTopY, x, tableBottomY);
-                                    x += width;
-                                });
-                                doc.line(pageWidth - margin, tableTopY, pageWidth - margin, tableBottomY);
-                                let tempY = tableTopY;
-                                while (tempY <= tableBottomY) {
-                                    doc.line(margin, tempY, pageWidth - margin, tempY);
-                                    tempY += 0.3;
-                                }
+                    y = tableY + 0.3;
+                    let tableBottom = y;
 
-                                doc.addPage();
-                                y = margin;
-                                tableBottomY = y;
-                                tableTopY = y + 0.3;
+                    doc.setFontSize(10);
+                    doc.setTextColor(51, 51, 51);
+                    doc.setFont("Helvetica", "normal");
 
-                                doc.setFontSize(14);
-                                doc.setTextColor(44, 44, 44);
-                                doc.setFont("Helvetica", "bold");
-                                doc.text("Sales Details (Continued)", margin, y);
-                                y += 0.3;
-                                doc.setFontSize(11);
-                                doc.setTextColor(255, 255, 255);
-                                doc.setFillColor(249, 109, 0);
-                                doc.rect(margin, y, maxWidth, 0.3, "F");
-                                x = margin;
-                                headers.forEach((header, i) => {
-                                    const align = i >= 2 ? "right" : i === 4 ? "center" : "left";
-                                    const offset = align === "right" ? columnWidths[i] - 0.1 : align === "center" ? columnWidths[i] / 2 : 0.1;
-                                    doc.text(header, x + offset, y + 0.2, {
-                                        align: align,
-                                        maxWidth: columnWidths[i] - 0.2,
-                                    });
-                                    x += columnWidths[i];
-                                });
-                                y += 0.3;
-                                tableBottomY = y;
+                    rows.forEach((row) => {
+                        if (y + 0.3 > pageHeight - margin - 1.5) {
+                            doc.setDrawColor(100, 100, 100);
+                            doc.setLineWidth(0.01);
+
+                            let xLine = tableX;
+                            columnWidths.forEach(width => {
+                                doc.line(xLine, tableY, xLine, tableBottom);
+                                xLine += width;
+                            });
+                            doc.line(xLine, tableY, xLine, tableBottom);
+
+                            for (let yLine = tableY; yLine <= tableBottom; yLine += 0.3) {
+                                doc.line(tableX, yLine, tableX + tableWidth, yLine);
                             }
 
-                            x = margin;
-                            row.forEach((cell, cellIndex) => {
-                                const align = cellIndex >= 2 ? "right" : cellIndex === 4 ? "center" : "left";
-                                const offset = align === "right" ? columnWidths[cellIndex] - 0.1 : align === "center" ? columnWidths[cellIndex] / 2 : 0.1;
-                                doc.text(cell, x + offset, y + 0.2, {
-                                    align: align,
-                                    maxWidth: columnWidths[cellIndex] - 0.2,
-                                });
-                                x += columnWidths[cellIndex];
+                            doc.addPage();
+                            y = margin + 0.5;
+                            tableY = y - 0.3;
+                            tableBottom = y;
+
+                            doc.setFontSize(14);
+                            doc.setTextColor(44, 44, 44);
+                            doc.setFont("Helvetica", "bold");
+                            doc.text("Sales Details (Continued)", margin, margin);
+
+                            doc.setFillColor(249, 109, 0);
+                            doc.rect(tableX, y - 0.3, tableWidth, 0.3, "F");
+
+                            doc.setFontSize(11);
+                            doc.setTextColor(255, 255, 255);
+                            xPos = tableX;
+                            headers.forEach((header, index) => {
+                                const align = index >= 2 ? "right" : "left";
+                                const cellWidth = columnWidths[index];
+                                const textX = align === "right" ? xPos + cellWidth - 0.1 : xPos + 0.1;
+                                doc.text(header, textX, y - 0.1, { align });
+                                xPos += cellWidth;
                             });
-                            y += 0.3;
-                            tableBottomY = y;
-                        });
-
-                        doc.setDrawColor(221, 221, 221);
-                        doc.setLineWidth(0.01);
-                        x = margin;
-                        columnWidths.forEach((width) => {
-                            doc.line(x, tableTopY, x, tableBottomY);
-                            x += width;
-                        });
-                        doc.line(pageWidth - margin, tableTopY, pageWidth - margin, tableBottomY);
-                        let tempY = tableTopY;
-                        while (tempY <= tableBottomY) {
-                            doc.line(margin, tempY, pageWidth - margin, tempY);
-                            tempY += 0.3;
                         }
-                    }
 
-                    if (rows.length === 0) {
-                        doc.setDrawColor(221, 221, 221);
-                        doc.setLineWidth(0.01);
-                        x = margin;
-                        columnWidths.forEach((width) => {
-                            doc.line(x, 1.7, x, tableBottomY);
-                            x += width;
+                        xPos = tableX;
+                        row.forEach((cell, index) => {
+                            const align = index >= 2 ? "right" : "left";
+                            const cellWidth = columnWidths[index];
+                            const textX = align === "right" ? xPos + cellWidth - 0.1 : xPos + 0.1;
+
+                            const cellText = doc.splitTextToSize(cell, cellWidth - 0.2)[0];
+                            doc.text(cellText, textX, y + 0.2, { align });
+                            xPos += cellWidth;
                         });
-                        doc.line(pageWidth - margin, 1.7, pageWidth - margin, tableBottomY);
-                        doc.line(margin, 1.7, pageWidth - margin, 1.7);
-                        doc.line(margin, tableBottomY, pageWidth - margin, tableBottomY);
+
+                        y += 0.3;
+                        tableBottom = y;
+                    });
+
+                    doc.setDrawColor(100, 100, 100);
+                    doc.setLineWidth(0.01);
+
+                    let xLine = tableX;
+                    columnWidths.forEach(width => {
+                        doc.line(xLine, tableY, xLine, tableBottom);
+                        xLine += width;
+                    });
+                    doc.line(xLine, tableY, xLine, tableBottom);
+
+                    for (let yLine = tableY; yLine <= tableBottom; yLine += 0.3) {
+                        doc.line(tableX, yLine, tableX + tableWidth, yLine);
                     }
 
-                    if (tableBottomY + 1.5 > pageHeight - margin) {
-                        doc.addPage();
-                        tableBottomY = margin;
-                    }
-                    y = rows.length === 0 ? tableBottomY + 1.0 : tableBottomY + 0.6;
+                    y += 0.5;
                     doc.setFontSize(12);
                     doc.setTextColor(85, 85, 85);
                     doc.setFont("Helvetica", "normal");
 
-                    const totalOrderAmount = parseFloat(data.totalOrderAmount || 0).toFixed(2);
+                    const totalAmount = parseFloat(data.totalAmount || 0).toFixed(2);
                     const offerDiscount = parseFloat(data.offerDiscount || 0).toFixed(2);
                     const couponDiscount = parseFloat(data.couponDiscount || 0).toFixed(2);
-                    const totalDiscount = parseFloat(data.totalDiscount || 0).toFixed(2);
+                    const returnedAmount = parseFloat(data.returnedAmount || 0).toFixed(2);
+                    const cancelledAmount = parseFloat(data.cancelledAmount || 0).toFixed(2);
+                    const netAmount = parseFloat(data.netAmount || 0).toFixed(2);
 
-                    doc.text(`Overall Sales Count: ${data.totalSalesCount || 0}`, margin, y);
+                    doc.text(`Total Amount: Rs. ${totalAmount}`, margin, y);
                     y += 0.25;
                     doc.text(`Offer Discount: Rs. ${offerDiscount}`, margin, y);
                     y += 0.25;
                     doc.text(`Coupon Discount: Rs. ${couponDiscount}`, margin, y);
                     y += 0.25;
-                    doc.text(`Overall Discount: Rs. ${totalDiscount}`, margin, y);
+                    doc.text(`Returned Amount: Rs. ${returnedAmount}`, margin, y);
                     y += 0.25;
-                    doc.setFont("Helvetica", "bold");
+                    doc.text(`Cancelled Amount: Rs. ${cancelledAmount}`, margin, y);
+                    y += 0.4;
+
                     doc.setFillColor(249, 109, 0);
+                    doc.rect(margin, y - 0.2, 3.5, 0.3, "F");
                     doc.setTextColor(255, 255, 255);
-                    doc.rect(margin, y, 3.5, 0.3, "F");
-                    doc.text(`Overall Order Amount: Rs. ${totalOrderAmount}`, margin + 0.1, y + 0.2);
+                    doc.setFont("Helvetica", "bold");
+                    doc.text(`Net Amount: Rs. ${netAmount}`, margin + 0.1, y);
 
                     doc.save(`sales_report_${new Date().toISOString().split("T")[0]}.pdf`);
                 } catch (error) {
@@ -1167,12 +1097,21 @@
                 }
             });
 
-
-            document.getElementById("downloadExcel").addEventListener("click", async () => {
+            // Generate Excel
+            downloadExcel.addEventListener("click", async () => {
                 try {
+                    const downloadButton = document.getElementById("downloadExcel");
+                    downloadButton.disabled = true;
+                    downloadButton.textContent = "Generating...";
+
                     const period = document.getElementById("reportPeriod").value;
                     const startDate = document.getElementById("startDate").value;
                     const endDate = document.getElementById("endDate").value;
+
+                    if (period === "custom" && (!startDate || !endDate)) {
+                        alert("Please select both start and end dates for custom period.");
+                        return;
+                    }
 
                     const query = new URLSearchParams({ period });
                     if (period === "custom" && startDate && endDate) {
@@ -1182,28 +1121,32 @@
 
                     const response = await fetch(`/admin/sales-report-excel?${query}`);
                     if (!response.ok) {
-                        throw new Error("Failed to generate Excel report");
+                        const errorText = await response.text();
+                        throw new Error(`Failed to generate Excel report: ${errorText || response.statusText}`);
                     }
 
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `sales_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    a.download = `sales_report_${new Date().toISOString().split("T")[0]}.xlsx`;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
                     window.URL.revokeObjectURL(url);
-
                 } catch (error) {
-
                     console.error("Error downloading Excel:", error);
                     alert("Failed to download Excel report: " + error.message);
-
+                } finally {
+                    const downloadButton = document.getElementById("downloadExcel");
+                    downloadButton.disabled = false;
+                    downloadButton.textContent = "Download Excel";
                 }
             });
 
+            // Initial chart load
+            fetchSalesChart("daily");
         });
     </script>
 
-    <%- include("../../views/partials/admin/footer.ejs") %>
+<%- include("../../views/partials/admin/footer.ejs") %>

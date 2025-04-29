@@ -614,9 +614,9 @@
             <div class="cart-item-details">
               <h5><%= item.product.name %></h5>
               <p class="text-muted seller">
-                Seller: <%= item.product.brand || "Generic" %>
+                Seller: VoltMart
               </p>
-              <p class="text-muted delivery">Delivery by Thu Mar 27 | Free</p>
+              <p class="text-muted delivery">Delivery by Thu May 27 </p>
 
               <% let stockStatus='in-stock' ; 
                 let stockMessage=`In Stock (${item.product.quantity} available)`; 
@@ -671,10 +671,7 @@
                 <i class="fa fa-check-circle"></i>
                 <span>You save <strong>₹<%= ((item.product.salePrice - item.discountedPrice)).toFixed(2) %></strong>on this item</span>
               </div>
-              <% } else { %>
-              <div class="offer-badge-container">
-                <span class="offer-detail">No offers available</span>
-              </div>
+              
               <% } %>
 
               <div class="cart-actions">

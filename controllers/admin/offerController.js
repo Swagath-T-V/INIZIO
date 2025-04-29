@@ -2,12 +2,13 @@ const Offer = require("../../models/offerSchema")
 const Product = require('../../models/productSchema')
 const SubCategory = require("../../models/subCategorySchema")
 const Category = require("../../models/categorySchema")
+const Brand = require("../../models/brandSchema")
 
 
 const getOffer = async(req,res)=>{
 
     try {
-
+ 
         const search = req.query.search || ""
         const page = parseInt(req.query.page || 1)
         const limit = 4
@@ -56,12 +57,14 @@ const getAddOffer = async(req,res)=>{
         const product = await Product.find({isDelete:false,isListed:true})
         const category = await Category.find({isDelete:false,isListed:true})
         const subCategory = await SubCategory.find({isDelete:false,isListed:true})
+        const brand = await Brand.find({ isDelete: false, isListed: true });
 
         return res.render("addOffer",{
             activePage:'offers',
             product,
             category,
-            subCategory 
+            subCategory,
+            brand 
         })
         
     } catch (error) {
@@ -78,7 +81,10 @@ const addOffer = async(req,res)=>{
 
         const {offerName,description,discountType,discountAmount,validFrom,validUpto,offerType,applicableTo} = req.body 
 
-        const existingOffer = await Offer.findOne({offerName})
+        const existingOffer = await Offer.findOne({
+            offerName: { $regex: new RegExp('^' + offerName + '$', 'i') }
+        });
+        
         if(existingOffer && existingOffer.isDelete === true){
 
             existingOffer.isDelete = false;
@@ -136,14 +142,16 @@ const getEditOffer = async(req,res)=>{
         const product = await Product.find({isDelete:false,isListed:true})
         const category = await Category.find({isDelete:false,isListed:true})
         const subCategory = await SubCategory.find({isDelete:false,isListed:true})
+        const brand = await Brand.find({isDelete:false,isListed:true})
 
         return res.render("edit-offer",{
             activePage:"offers",
             offer,
             product,
             category,
-            subCategory
-        })
+            subCategory,
+            brand
+        }) 
 
 
         
@@ -162,8 +170,11 @@ const editOffer = async(req,res)=>{
         const {offerId} = req.body
 
         const {offerName,description,discountType,discountAmount,validFrom,validUpto,offerType,applicableTo} = req.body
-
-        const existingOffer =await Offer.findOne({offerName,isDelete: false, _id: { $ne: offerId }})
+        const existingOffer = await Offer.findOne({
+            offerName: { $regex: new RegExp('^' + offerName + '$', 'i') },
+            isDelete: false,
+            _id: { $ne: offerId }
+        });
         if (existingOffer ) {
             return res.status(400).json({
                 success: false,

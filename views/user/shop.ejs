@@ -33,16 +33,14 @@
         text-align: center;
         white-space: nowrap;
     }
-    .btn.fill{
+    .btn.fill {
         font-size: 8px;
-        
     }
     .btn.btn-primary {
-    background: #dbcc8f;
-    border: 1px solid #dbcc8f;
-    color: #000000;
+        background: #dbcc8f;
+        border: 1px solid #dbcc8f;
+        color: #000000;
     }
-    
 </style>
 
 <div class="hero-wrap hero-bread" style="background-image: url('/homeImages/banner.avif');">
@@ -63,13 +61,14 @@
                 <form action="/shop" method="GET" class="search-form d-flex">
                     <input type="hidden" name="category" value="<%= selectedCategory || 'all' %>">
                     <input type="hidden" name="subCategory" value="<%= selectedSubCategory || 'all' %>">
+                    <input type="hidden" name="brand" value="<%= selectedBrand || 'all' %>"> <!-- Add brand -->
                     <input type="hidden" name="priceFrom" value="<%= priceFrom || '' %>">
                     <input type="hidden" name="priceTo" value="<%= priceTo || '' %>">
                     <input type="hidden" name="sort" value="<%= sort || '' %>">
 
                     <input type="text" name="query" class="form-control" placeholder="Search products..." value="<%= query || '' %>">
                     <button type="submit" class="btn btn-primary mx-2">Search</button>
-                    <% if (query || selectedCategory !== 'all' || selectedSubCategory !== 'all' || priceFrom || priceTo || sort) { %>
+                    <% if (query || selectedCategory !== 'all' || selectedSubCategory !== 'all' || selectedBrand !== 'all' || priceFrom || priceTo || sort) { %>
                         <a href="/shop?clear=true" class="btn btn-secondary">Clear</a>
                     <% } %>
                 </form>
@@ -95,7 +94,7 @@
                             <div class="col-sm-12 col-md-12 col-lg-4 ftco-animate d-flex">
                                 <div class="product d-flex flex-column">
                                     <a href="/productDetails?id=<%= product._id %>" class="img-prod">
-                                        <img class="img-fluid" src="/uploads/product-image/<%= product.Images[0] %>" alt="<%= product.name %>">
+                                        <img class="img-fluid" src="/Uploads/product-image/<%= product.Images[0] %>" alt="<%= product.name %>">
                                         <div class="overlay"></div>
                                     </a>
                                     <div class="text py-3 pb-4 px-3">
@@ -115,7 +114,7 @@
                                         </div>
                                         <h3><a href="#"><%= product.name %></a></h3>
                                         <div class="pricing">
-                                            <p class="price">₹ <%= product.salePrice %> <span><strike>₹<%= product.regularPrice %></strike></span></p>
+                                            <p class="price">₹ <%= product.salePrice %></p>
                                         </div>
                                         <p class="bottom-area d-flex px-3">
                                             <% 
@@ -153,13 +152,13 @@
                     <div class="col text-center">
                         <div class="block-27">
                             <ul>
-                                <li><a href="?page=<%= currentPage - 1 > 0 ? currentPage - 1 : 1 %><%= typeof query !== 'undefined' && query ? '&query=' + query : '' %><%= sort ? '&sort=' + sort : '' %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedSubCategory ? '&subCategory=' + selectedSubCategory : '' %><%= priceFrom ? '&priceFrom=' + priceFrom : '' %><%= priceTo ? '&priceTo=' + priceTo : '' %>"><</a></li>
+                                <li><a href="?page=<%= currentPage - 1 > 0 ? currentPage - 1 : 1 %><%= typeof query !== 'undefined' && query ? '&query=' + query : '' %><%= sort ? '&sort=' + sort : '' %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedSubCategory ? '&subCategory=' + selectedSubCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceFrom ? '&priceFrom=' + priceFrom : '' %><%= priceTo ? '&priceTo=' + priceTo : '' %>"><</a></li>
                                 <% for(let i = 1; i <= totalPages; i++) { %>
                                     <li <%= currentPage === i ? 'class="active"' : '' %>>
-                                        <a href="?page=<%= i %><%= typeof query !== 'undefined' && query ? '&query=' + query : '' %><%= sort ? '&sort=' + sort : '' %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedSubCategory ? '&subCategory=' + selectedSubCategory : '' %><%= priceFrom ? '&priceFrom=' + priceFrom : '' %><%= priceTo ? '&priceTo=' + priceTo : '' %>"><%= i %></a>
+                                        <a href="?page=<%= i %><%= typeof query !== 'undefined' && query ? '&query=' + query : '' %><%= sort ? '&sort=' + sort : '' %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedSubCategory ? '&subCategory=' + selectedSubCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceFrom ? '&priceFrom=' + priceFrom : '' %><%= priceTo ? '&priceTo=' + priceTo : '' %>"><%= i %></a>
                                     </li>
                                 <% } %>
-                                <li><a href="?page=<%= currentPage + 1 <= totalPages ? currentPage + 1 : totalPages %><%= typeof query !== 'undefined' && query ? '&query=' + query : '' %><%= sort ? '&sort=' + sort : '' %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedSubCategory ? '&subCategory=' + selectedSubCategory : '' %><%= priceFrom ? '&priceFrom=' + priceFrom : '' %><%= priceTo ? '&priceTo=' + priceTo : '' %>">></a></li>
+                                <li><a href="?page=<%= currentPage + 1 <= totalPages ? currentPage + 1 : totalPages %><%= typeof query !== 'undefined' && query ? '&query=' + query : '' %><%= sort ? '&sort=' + sort : '' %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedSubCategory ? '&subCategory=' + selectedSubCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceFrom ? '&priceFrom=' + priceFrom : '' %><%= priceTo ? '&priceTo=' + priceTo : '' %>">></a></li>
                             </ul>
                         </div>
                     </div>
@@ -169,7 +168,6 @@
             <div class="col-md-4 col-lg-2">
                 <div class="sidebar">
                     <form id="filterForm" action="/shop" method="GET">
-
                         <input type="hidden" name="query" value="<%= query || '' %>">
                         <input type="hidden" name="sort" value="<%= sort || '' %>">
 
@@ -239,26 +237,52 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!-- Add Brand Filter Section -->
+                        <div class="sidebar-box-2">
+                            <h2 class="heading" style="color: black;">Brands</h2>
+                            <div class="fancy-collapse-panel">
+                                <div class="panel-group" style="color: black;">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <label style="display: block; margin: 5px 0;">
+                                                <input type="radio" 
+                                                       name="brand" 
+                                                       value="all" 
+                                                       <%= selectedBrand === 'all' || !selectedBrand ? 'checked' : '' %>
+                                                       onchange="this.form.submit()">
+                                                All
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <% brand.forEach(b => { %>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <label style="display: block; margin: 5px 0;">
+                                                    <input type="radio" 
+                                                           name="brand" 
+                                                           value="<%= b._id %>" 
+                                                           <%= selectedBrand === b._id.toString() ? 'checked' : '' %>
+                                                           onchange="this.form.submit()">
+                                                    <%= b.name %>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        </div>
                         <div class="sidebar-box-2">
                             <h2 class="heading" style="color: black;">Price Range</h2>
                             <div class="colorlib-form-2" style="color: black; padding: 10px 20px;">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <!-- Price range slider container -->
                                         <div id="price-range-slider" class="mb-3"></div>
-                                        
-                                        <!-- Price display section -->
                                         <div class="price-range-display d-flex justify-content-between mb-3">
                                             <span>₹<span id="priceFromDisplay"><%= priceFrom || '0' %></span></span>
                                             <span>₹<span id="priceToDisplay"><%= priceTo || '10000' %></span></span>
                                         </div>
-                                        
-                                        <!-- Hidden inputs for form submission -->
                                         <input type="hidden" name="priceFrom" id="priceFromInput" value="<%= priceFrom || '0' %>">
                                         <input type="hidden" name="priceTo" id="priceToInput" value="<%= priceTo || '10000' %>">
-                                        
-                                        <!-- Apply button -->
                                         <div class="text-center mt-3">
                                             <button type="button" class="btn fill btn-primary" id="applyPriceFilter">Apply Filter</button>
                                         </div>
@@ -278,122 +302,116 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addToCartButtons = document.querySelectorAll(".add-to-cart");
+        
+        addToCartButtons.forEach((addToCartBtn) => {
+            addToCartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (addToCartBtn.classList.contains('disabled-btn')) return;
 
-        document.addEventListener('DOMContentLoaded',()=>{
-			const addToCartButtons = document.querySelectorAll(".add-to-cart")
-			
-			addToCartButtons.forEach((addToCartBtn)=>{
-				addToCartBtn.addEventListener('click',(e)=>{
-					e.preventDefault()
-					if(addToCartBtn.classList.contains('disabled-btn')) return;
+                const productId = addToCartBtn.dataset.productId;
+                const quantity = 1;
 
-					const productId = addToCartBtn.dataset.productId
-					const quantity = 1;
+                addToCartBtn.classList.add('loading');
+                addToCartBtn.textContent = 'Adding...';
 
-					addToCartBtn.classList.add('loading');
-      				addToCartBtn.textContent = 'Adding...';
+                $.ajax({
+                    url: "/cartAdd",
+                    method: "post",
+                    data: { productId, quantity },
+                    success: () => {
+                        addToCartBtn.classList.remove('loading');
+                        addToCartBtn.textContent = 'Add to Cart';
+                        window.location.href = '/cart';
+                    },
+                    error: () => {
+                        addToCartBtn.classList.remove('loading');
+                        addToCartBtn.textContent = 'Add to Cart';
+                        Swal.fire('Error', 'Failed to add to cart. Try again.', 'error');
+                    }
+                });
+            });
+        });
+    });
 
-					$.ajax({
-						url:"/cartAdd",
-						method:"post",
-						data:{productId,quantity},
-						success:()=>{
-							addToCartBtn.classList.remove('loading');
-							addToCartBtn.textContent = 'Add to Cart';
-							window.location.href = '/cart';
-						},
-						error:()=>{
-							addToCartBtn.classList.remove('loading');
-							addToCartBtn.textContent = 'Add to Cart';
-							Swal.fire('Error', 'Failed to add to cart. Try again.', 'error');
-						}
-					})
-				})
+    document.addEventListener('DOMContentLoaded', () => {
+        const wishlistButtons = document.querySelectorAll('.wishlist-btn');
 
-			})
-		})
+        wishlistButtons.forEach((wishlistBtn) => {
+            wishlistBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (wishlistBtn.classList.contains('disabled-btn')) return;
 
-		document.addEventListener('DOMContentLoaded', () => {
-  			const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+                const productId = wishlistBtn.dataset.productId;
+                const isAdded = wishlistBtn.classList.contains('added');
 
-			wishlistButtons.forEach((wishlistBtn) => {
-				wishlistBtn.addEventListener('click', (e) => {
-				e.preventDefault();
-				if (wishlistBtn.classList.contains('disabled-btn')) return;
+                wishlistBtn.classList.add('loading');
+                wishlistBtn.innerHTML = `<span>${isAdded ? 'Removing...' : 'Adding...'} <i class="fas fa-heart ml-1"></i></span>`;
 
-				const productId = wishlistBtn.dataset.productId;
-				const isAdded = wishlistBtn.classList.contains('added');
+                $.ajax({
+                    url: '/addWishlist',
+                    method: 'POST',
+                    data: { productId },
+                    success: (response) => {
+                        wishlistBtn.classList.remove('loading');
+                        if (response.redirectUrl || !response.success) {
+                            window.location.href = response.redirectUrl || '/login';
+                            return;
+                        } else if (response.added === true) {
+                            wishlistBtn.classList.add('added');
+                            wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
+                            Swal.fire('Success', 'Added to wishlist!', 'success');
+                        } else if (response.added === false) {
+                            wishlistBtn.classList.remove('added');
+                            wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+                            Swal.fire('Success', 'Removed from wishlist!', 'success');
+                        } else {
+                            wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+                            Swal.fire('Error', response.message || 'Failed to update wishlist', 'error');
+                        }
+                    },
+                    error: () => {
+                        wishlistBtn.classList.remove('loading');
+                        wishlistBtn.innerHTML = `<span>${isAdded ? 'Added' : 'Wishlist'} <i class="fas fa-heart ml-1"></i></span>`;
+                        Swal.fire('Error', 'Failed to update wishlist. Try again.', 'error');
+                    },
+                });
+            });
 
-				wishlistBtn.classList.add('loading');
-				wishlistBtn.innerHTML = `<span>${isAdded ? 'Removing...' : 'Adding...'} <i class="fas fa-heart ml-1"></i></span>`;
-
-				$.ajax({
-					url: '/addWishlist',
-					method: 'POST',
-					data: { productId },
-					success: (response) => {
-					wishlistBtn.classList.remove('loading');
-					if (response.redirectUrl || !response.success) {
-						window.location.href = response.redirectUrl || '/login';
-						return;
-					}else if (response.added === true) {
-						wishlistBtn.classList.add('added');
-						wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
-						Swal.fire('Success', 'Added to wishlist!', 'success');
-					} else if(response.added === false){
-						wishlistBtn.classList.remove('added');
-						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-						Swal.fire('Success', 'Removed from wishlist!', 'success');
-					}else{
-						wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-      					Swal.fire('Error', response.message || 'Failed to update wishlist', 'error');
-					}
-					},
-					error: () => {
-					wishlistBtn.classList.remove('loading');
-					wishlistBtn.innerHTML = `<span>${isAdded ? 'Added' : 'Wishlist'} <i class="fas fa-heart ml-1"></i></span>`;
-					Swal.fire('Error', 'Failed to update wishlist. Try again.', 'error');
-					},
-				});
-				});
-
-				// Check initial wishlist state
-				const productId = wishlistBtn.dataset.productId;
-				$.ajax({
-				url: '/checkWishlist',
-				method: 'GET',
-				data: { productId },
-				success: (response) => {
-					if (response.inWishlist) {
-					wishlistBtn.classList.add('added');
-					wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
-					} else {
-					wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-					}
-				},
-				error: () => {
-					wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
-				},
-				});
-			});
-		});
+            const productId = wishlistBtn.dataset.productId;
+            $.ajax({
+                url: '/checkWishlist',
+                method: 'GET',
+                data: { productId },
+                success: (response) => {
+                    if (response.inWishlist) {
+                        wishlistBtn.classList.add('added');
+                        wishlistBtn.innerHTML = '<span>Added <i class="fas fa-heart ml-1"></i></span>';
+                    } else {
+                        wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+                    }
+                },
+                error: () => {
+                    wishlistBtn.innerHTML = '<span>Wishlist <i class="fas fa-heart ml-1"></i></span>';
+                },
+            });
+        });
+    });
 
     function applySort(element) {
         const sortValue = element.value;
         const url = new URL(window.location.href);
         url.searchParams.set('sort', sortValue);
-        url.searchParams.set('page', 1); 
+        url.searchParams.set('page', 1);
         window.location.href = url.toString();
     }
-    
-    // Price Range Slider Implementation
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Get the elements
         const priceSlider = document.getElementById('price-range-slider');
         const priceFromDisplay = document.getElementById('priceFromDisplay');
         const priceToDisplay = document.getElementById('priceToDisplay');
@@ -401,18 +419,16 @@
         const priceToInput = document.getElementById('priceToInput');
         const applyButton = document.getElementById('applyPriceFilter');
         
-        // Set initial values
         const minPrice = 0;
-        const maxPrice = 10000;
+        const maxPrice = 100000;
         const currentPriceFrom = `<%= priceFrom || 0 %>`;
-        const currentPriceTo = `<%= priceTo || 10000 %>`;
+        const currentPriceTo = `<%= priceTo || 100000 %>`;
         
-        // Initialize noUiSlider
         if (priceSlider) {
             noUiSlider.create(priceSlider, {
                 start: [currentPriceFrom, currentPriceTo],
                 connect: true,
-                step: 100,
+                step: 1000,
                 range: {
                     'min': minPrice,
                     'max': maxPrice
@@ -427,7 +443,6 @@
                 }
             });
             
-            // Update display values when slider changes
             priceSlider.noUiSlider.on('update', function(values, handle) {
                 if (handle === 0) {
                     priceFromDisplay.textContent = values[0];
@@ -438,14 +453,11 @@
                 }
             });
             
-            // Apply button event listener
             applyButton.addEventListener('click', function() {
                 document.getElementById('filterForm').submit();
             });
         }
     });
-    
-    
 </script>
 
 <%- include("../../views/partials/user/footer.ejs") %>

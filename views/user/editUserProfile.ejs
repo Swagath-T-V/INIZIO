@@ -1,4 +1,5 @@
 <%- include("../../views/partials/userProfile/header.ejs") %>
+
 <style>
     .up_tab-content {
         display: none;
@@ -37,63 +38,69 @@
     }
 
     .up_profile-avatar {
-        position: relative;
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        overflow: hidden;
-        cursor: pointer;
-        margin-bottom: 15px;
-        border: 3px solid var(--up-primary-color);
-    }
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    margin-bottom: 15px;
+    border: 3px solid var(--up-primary-color);
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+}
 
-    .up_default-avatar {
-        width: 100%;
-        height: 100%;
-        background-color: #e8ecef;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 45px;
-        color: var(--up-secondary-color);
-    }
+.up_default-avatar {
+    width: 100%;
+    height: 100%;
+    background-color: #e8ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+    color: var(--up-secondary-color);
+    text-align: center; 
+    line-height: 110px; 
+}
 
-    .up_profile-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: none;
-    }
+.up_profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .up_profile-avatar input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-    }
+.up_profile-avatar input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1; 
+}
 
-    .up_change-image-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: rgba(255, 255, 255, 0.85);
-        color: var(--up-primary-color);
-        text-align: center;
-        padding: 6px 0;
-        font-size: 13px;
-        font-weight: 600;
-        border-top: 1px solid var(--up-border);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
+.up_change-image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--up-primary-color);
+    text-align: center;
+    padding: 6px 0;
+    font-size: 13px;
+    font-weight: 600;
+    border-top: 1px solid var(--up-border);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2; 
+}
 
-    .up_profile-avatar:hover .up_change-image-overlay {
-        opacity: 1;
-    }
+.up_profile-avatar:hover .up_change-image-overlay {
+    opacity: 1;
+}
 
     .up_form-group {
         margin-bottom: 25px;
@@ -153,6 +160,17 @@
         box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
     }
 
+    .up_btn-danger {
+        background-color: #dc3545;
+        color: white;
+        margin-left: 0px;
+    }
+
+    .up_btn-danger:hover {
+        background-color: #c82333;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+
     .up_change-password {
         color: var(--up-primary-color);
         text-decoration: none;
@@ -171,6 +189,38 @@
             font-size: 14px;
         }
     }
+    .up_error-message {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .modal-body {
+        padding: 1rem;
+        overflow: hidden;
+    }
+
+    #cropProfileImage {
+        display: block;
+        max-width: 100%;
+        max-height: 70vh;
+    }
+
+    .cropper-container {
+        max-height: 70vh;
+    }
+
+    .cropper-view-box, 
+    .cropper-face {
+        border-radius: 50%;
+    }
+
+    .crop-container {
+        height: 400px;
+        max-width: 100%;
+        position: relative;
+    }
 </style>
 
 <div class="up_main-content">
@@ -181,37 +231,61 @@
                 <h2 class="up_card-title">Profile Information</h2>
             </div>
             <div class="up_card-body">
-                <form id="profile-form" action="/change-profile" method="post" novalidate>
+                <form id="profile-form" action="/change-profile" method="post" enctype="multipart/form-data" novalidate>
                     <div class="up_form-group">
                         <label for="profile-image" class="up_form-label">Profile Image</label>
                         <div class="up_profile-avatar">
-                            <div class="up_default-avatar" id="default-avatar-edit">
+                            <div class="up_default-avatar" id="default-avatar-edit" <%= user.profileImage ? 'style="display:none;"' : '' %>>
                                 <span>👤</span>
                             </div>
-                            <!-- <img id="profile-image-preview" src="default-profile.jpg" alt="Profile Image">
+                            <img id="profile-image-preview" src="<%= user.profileImage ? user.profileImage : '' %>" style=`<%= user.profileImage ? 'display:block;' : 'display:none;' %>`/>
+                            <input type="file" id="profile-image" name="profileImage" accept="image/jpeg,image/jpg,image/png">
                             <div class="up_change-image-overlay">Change Image</div>
-                            <input type="file" id="profile-image" accept="image/*"> -->
                         </div>
+                        <button type="button" id="remove-image-btn" class="up_btn up_btn-danger" style=`<%= user.profileImage ? 'display:block;' : 'display:none;' %>`>Remove Image</button>
+                        <div id="image-error" class="up_error-message"></div>
                     </div>
                     <div class="up_form-group">
                         <label for="first-name" class="up_form-label">Full Name</label>
                         <input type="text" id="first-name" name="name" class="up_form-control" value="<%= user.name %>">
+                        <div id="name-error" class="up_error-message"></div>
                     </div>
                     <div class="up_form-group">
                         <label for="phone" class="up_form-label">Phone Number</label>
                         <input type="tel" id="phone" name="phone" class="up_form-control" value="<%= user.phone %>">
+                        <div id="phone-error" class="up_error-message"></div>
                     </div>
                     <div class="up_form-group">
                         <label for="email" class="up_form-label">Email Address</label>
                         <input type="email" id="email" class="up_form-control" name="email" value="<%= user.email %>">
+                        <div id="email-error" class="up_error-message"></div>
                         <small style="display: block; margin-top: 5px; color: var(--up-secondary-color);">Changing email will require verification</small>
                     </div>
                     <button type="submit" class="up_btn up_btn-primary" id="update-profile">Update Profile</button>
-                    <button type="button" class="up_btn up_btn-secondary" id="cancel-update"><a href="/userProfile">Cancel</a></button>
+                    <a href="/userProfile" class="up_btn up_btn-secondary">Cancel</a>
                 </form>
                 
                 <div style="margin-top: 20px">
-                    <button class="up_btn up_btn-primary"><a href="/forgot-password">Change Password</a></button>
+                    <a href="/getChangePassword" class="up_btn up_btn-primary">Change Password</a>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="modal fade" id="cropProfileModal" tabindex="-1" aria-labelledby="cropProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropProfileModalLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="crop-container">
+                        <img id="cropProfileImage" style="max-width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="cropProfileBtn">Crop</button>
                 </div>
             </div>
         </div>
@@ -219,139 +293,459 @@
 </div>
 </div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('profile-form');
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('profile-form');
+        const nameInput = document.getElementById('first-name');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        const imageInput = document.getElementById('profile-image');
+        const imagePreview = document.getElementById('profile-image-preview');
+        const defaultAvatar = document.getElementById('default-avatar-edit');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        const nameError = document.getElementById('name-error');
+        const phoneError = document.getElementById('phone-error');
+        const emailError = document.getElementById('email-error');
+        const imageError = document.getElementById('image-error');
 
-    form.addEventListener('submit', function (event) {
-        event.preventDefault(); 
+        let cropper = null;
+        let cropModal = null;
 
-        const name = document.getElementById('first-name').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const email = document.getElementById('email').value.trim();
-
-        if (!name) {
+        try {
+            cropModal = new bootstrap.Modal(document.getElementById('cropProfileModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            console.log('Modal initialized successfully');
+        } catch (e) {
+            console.error('Error initializing modal:', e);
             Swal.fire({
                 icon: 'error',
-                title: 'Validation Error',
-                text: 'Full Name is required.',
+                title: 'Error',
+                text: 'Failed to initialize modal. Please refresh the page.',
                 heightAuto: false,
                 scrollbarPadding: false
             });
-            return;
         }
 
-        if (name.length < 2) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Full Name must be at least 2 characters long.',
-                heightAuto: false,
-                scrollbarPadding: false
+        if (imagePreview.src && imagePreview.src !== window.location.href) {
+            imagePreview.style.display = 'block';
+            defaultAvatar.style.display = 'none';
+            removeImageBtn.style.display = 'block';
+        } else {
+            imagePreview.style.display = 'none';
+            defaultAvatar.style.display = 'block';
+            removeImageBtn.style.display = 'none';
+        }
+
+        function initializeCropper(cropImage) {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                responsive: true,
+                background: false,
+                zoomable: true,
+                scalable: true,
+                movable: true,
+                cropBoxResizable: true,
+                cropBoxMovable: true,
+                minContainerWidth: 250,
+                minContainerHeight: 250,
+                minCropBoxWidth: 100,
+                minCropBoxHeight: 100,
+                guides: true,
+                center: true,
+                highlight: true
             });
-            return;
         }
 
-        const phoneRegex = /^\d{10}$/;
-        if (!phone) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Phone Number is required.',
-                heightAuto: false,
-                scrollbarPadding: false
-            });
-            return;
-        }
+        imageInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!allowedTypes.includes(file.type)) {
+                    imageError.style.display = 'block';
+                    imageError.innerHTML = 'Only JPG, JPEG, or PNG images are allowed';
+                    imageInput.value = '';
+                    return;
+                }
+                if (file.size > 5000000) {
+                    imageError.style.display = 'block';
+                    imageError.innerHTML = 'Image size must be less than 5MB';
+                    imageInput.value = '';
+                    return;
+                }
+                imageError.style.display = 'none';
 
-        if (!phoneRegex.test(phone)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Phone Number must be a valid 10-digit number.',
-                heightAuto: false,
-                scrollbarPadding: false
-            });
-            return;
-        }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const cropImage = document.getElementById('cropProfileImage');
+                    cropImage.src = e.target.result;
+                    cropImage.onload = function () {
+                        cropModal.show();
+                        setTimeout(() => {
+                            initializeCropper(cropImage);
+                        }, 300);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Email Address is required.',
-                heightAuto: false,
-                scrollbarPadding: false
-            });
-            return;
-        }
+        document.getElementById('cropProfileBtn').addEventListener('click', function () {
+            console.log('Crop button clicked');
+            if (!cropper) {
+                console.error('Cropper not initialized');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Cropper not initialized. Please try selecting the image again.',
+                    heightAuto: false,
+                    scrollbarPadding: false
+                });
+                return;
+            }
 
-        if (!emailRegex.test(email)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Validation Error',
-                text: 'Please enter a valid Email Address.',
-                heightAuto: false,
-                scrollbarPadding: false
-            });
-            return;
-        }
+            try {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 300,
+                    height: 300,
+                    fillColor: '#fff',
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                });
 
-        $.ajax({
-            url: '/change-profile',
-            type: 'POST',
-            data: $(form).serialize(), 
-            success: function (response) {
-                if (response.requiresOTP) {
+                if (!canvas) {
+                    console.error('Failed to get cropped canvas');
                     Swal.fire({
-                        icon: 'info',
-                        title: 'Email Verification',
-                        text: response.message,
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to crop image. Please try again.',
                         heightAuto: false,
                         scrollbarPadding: false
-                    }).then(() => {
-                        window.location.href = response.redirectUrl;
                     });
-                } else if (response.redirectUrl) {
-                    if (response.success) {
+                    return;
+                }
+
+                console.log('Canvas created, converting to blob');
+                canvas.toBlob(function (blob) {
+                    if (!blob) {
+                        console.error('Failed to create blob');
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Profile Updated',
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to process cropped image. Please try again.',
+                            heightAuto: false,
+                            scrollbarPadding: false
+                        });
+                        return;
+                    }
+
+                    console.log('Blob created, size:', blob.size);
+                    const imageUrl = URL.createObjectURL(blob);
+                    imagePreview.src = imageUrl;
+                    imagePreview.style.display = 'block';
+                    defaultAvatar.style.display = 'none';
+                    removeImageBtn.style.display = 'block';
+                    console.log('Preview updated with cropped image');
+
+                    try {
+                        const fileName = imageInput.files[0]?.name || 'profile.jpg';
+                        const newFile = new File([blob], fileName, {
+                            type: 'image/jpeg',
+                            lastModified: new Date().getTime()
+                        });
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(newFile);
+                        imageInput.files = dataTransfer.files;
+                        console.log('File input updated with cropped image:', fileName);
+
+                        imageInput.dispatchEvent(new Event('change'));
+                    } catch (e) {
+                        console.error('Error updating file input:', e);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update file input. Please try again.',
+                            heightAuto: false,
+                            scrollbarPadding: false
+                        });
+                        return;
+                    }
+
+                    try {
+                        cropModal.hide();
+                        console.log('Modal hidden');
+                    } catch (e) {
+                        console.error('Error hiding modal:', e);
+                    }
+                }, 'image/jpeg', 0.95);
+            } catch (e) {
+                console.error('Error during crop operation:', e);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while cropping the image. Please try again.',
+                    heightAuto: false,
+                    scrollbarPadding: false
+                });
+            }
+        });
+
+        document.getElementById('cropProfileModal').addEventListener('hidden.bs.modal', function () {
+            console.log('Modal hidden event triggered');
+            try {
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                    console.log('Cropper destroyed');
+                }
+                const cropImage = document.getElementById('cropProfileImage');
+                cropImage.src = '';
+                console.log('Crop image src cleared');
+            } catch (e) {
+                console.error('Error during modal cleanup:', e);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to remove your profile image?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, remove it!',
+                heightAuto: false,
+                scrollbarPadding: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/delete-profile-image',
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.success) {
+                                imagePreview.src = '';
+                                imagePreview.style.display = 'none';
+                                defaultAvatar.style.display = 'block';
+                                removeImageBtn.style.display = 'none';
+                                imageInput.value = '';
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Image Removed',
+                                    text: response.message,
+                                    timer: 1500,
+                                    heightAuto: false,
+                                    scrollbarPadding: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message || 'Failed to remove image.',
+                                    heightAuto: false,
+                                    scrollbarPadding: false
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            const errorMessage = xhr.responseJSON?.message || 'An error occurred while removing the image.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage,
+                                heightAuto: false,
+                                scrollbarPadding: false
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        function nameValidateChecking() {
+            const nameval = nameInput.value;
+            const namePattern = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+            const invalidChars = /[-$#@!%^&*()_+={}[\]|\\:;"'<>?,./~`0-9]/;
+
+            if (!nameval) {
+                nameError.style.display = 'block';
+                nameError.innerHTML = 'Please enter name';
+                return false;
+            }
+            if (nameval !== nameval.trim()) {
+                nameError.style.display = 'block';
+                nameError.innerHTML = 'Name cannot start or end with spaces';
+                return false;
+            }
+            if (!namePattern.test(nameval)) {
+                nameError.style.display = 'block';
+                nameError.innerHTML = 'Name can only contain letters and single spaces';
+                return false;
+            }
+            if (invalidChars.test(nameval)) {
+                nameError.style.display = 'block';
+                nameError.innerHTML = 'Name cannot contain special characters or numbers';
+                return false;
+            }
+            if (nameval.length < 2) {
+                nameError.style.display = 'block';
+                nameError.innerHTML = 'Name must be at least 2 characters long';
+                return false;
+            }
+            if (nameval.length > 50) {
+                nameError.style.display = 'block';
+                nameError.innerHTML = 'Name cannot exceed 50 characters';
+                return false;
+            }
+            nameError.style.display = 'none';
+            return true;
+        }
+
+        function emailValidateChecking() {
+            const emailval = emailInput.value.trim();
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const consecutiveSpecial = /[._-]{2,}/;
+            const repeatingChar = /(.)\1{2,}/;
+
+            if (!emailval) {
+                emailError.style.display = 'block';
+                emailError.innerHTML = 'Please enter emailId';
+                return false;
+            }
+            if (!emailval.includes('@')) {
+                emailError.style.display = 'block';
+                emailError.innerHTML = 'Email must contain @ symbol';
+                return false;
+            }
+            if (!emailPattern.test(emailval)) {
+                emailError.style.display = 'block';
+                emailError.innerHTML = 'Invalid emailId';
+                return false;
+            }
+            if (/^\.|\.$/.test(emailval.split('@')[0])) {
+                emailError.style.display = 'block';
+                emailError.innerHTML = 'Email cannot start or end with a dot';
+                return false;
+            }
+            if (consecutiveSpecial.test(emailval)) {
+                emailError.style.display = 'block';
+                emailError.innerHTML = 'Email cannot contain consecutive dots, underscores, or hyphens';
+                return false;
+            }
+            if (repeatingChar.test(emailval.split('@')[0])) {
+                emailError.style.display = 'block';
+                emailError.innerHTML = 'Email local part cannot consist of the same repeating character (e.g., "aaa")';
+                return false;
+            }
+            emailError.style.display = 'none';
+            return true;
+        }
+
+        function phoneValidateChecking() {
+            const phoneval = phoneInput.value.trim();
+            const cleaned = phoneval.replace(/\D/g, '');
+            const validIndianMobile = /^[6-9]\d{9}$/;
+
+            if (!cleaned) {
+                phoneError.style.display = 'block';
+                phoneError.innerHTML = 'Please enter phone number';
+                return false;
+            }
+            if (!validIndianMobile.test(cleaned)) {
+                phoneError.style.display = 'block';
+                phoneError.innerHTML = 'Invalid phone number (must be 10 digits, start with 6-9)';
+                return false;
+            }
+            if (/^(\d)\1{9}$/.test(cleaned)) {
+                phoneError.style.display = 'block';
+                phoneError.innerHTML = 'Phone number cannot have all repeating digits.';
+                return false;
+            }
+            phoneError.style.display = 'none';
+            return true;
+        }
+
+        nameInput.addEventListener('input', nameValidateChecking);
+        emailInput.addEventListener('input', emailValidateChecking);
+        phoneInput.addEventListener('input', phoneValidateChecking);
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const isNameValid = nameValidateChecking();
+            const isEmailValid = emailValidateChecking();
+            const isPhoneValid = phoneValidateChecking();
+
+            if (!isNameValid || !isEmailValid || !isPhoneValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please fix the errors in the form.',
+                    heightAuto: false,
+                    scrollbarPadding: false
+                });
+                return;
+            }
+
+            const formData = new FormData(form);
+            $.ajax({
+                url: '/change-profile',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.requiresOTP) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Email Verification',
                             text: response.message,
-                            showConfirmButton: false,
-                            timer: 1500,
                             heightAuto: false,
                             scrollbarPadding: false
                         }).then(() => {
                             window.location.href = response.redirectUrl;
                         });
                     } else {
-                        window.location.href = response.redirectUrl;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Profile Updated',
+                            text: response.message,
+                            timer: 1500,
+                            heightAuto: false,
+                            scrollbarPadding: false
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        });
                     }
+                },
+                error: function (xhr) {
+                    const errorMessage = xhr.responseJSON?.message || 'An error occurred while updating your profile.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        heightAuto: false,
+                        scrollbarPadding: false
+                    });
                 }
-            },
-            error: function (xhr) {
-                let errorMessage = 'An error occurred while updating your profile.';
-                try {
-                    const response = xhr.responseJSON || {};
-                    errorMessage = response.message || errorMessage;
-                } catch (e) {
-                    console.error('Error parsing error response:', e);
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                    heightAuto: false,
-                    scrollbarPadding: false
-                });
-            }
+            });
         });
     });
-});
 </script>
 
 <%- include("../../views/partials/userProfile/footer.ejs") %>

@@ -222,7 +222,7 @@
                                 <%= data[i].phone %>
                             </td>
                             <td>
-                                <%= data[i].createdOn.toLocaleDateString() %>
+                                <%= data[i].createdOn.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %>
                             </td>
                             <td>
                                 <% if(data[i].isBlocked===false){ %>

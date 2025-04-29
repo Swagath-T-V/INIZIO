@@ -32,6 +32,29 @@
             --gray-dark: #1e1e1e;
         }
 
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple-light);
+            border-radius: 4px;
+        }
+
+        .light-mode ::-webkit-scrollbar-track {
+            background: var(--gray-light);
+        }
+
+        .light-mode ::-webkit-scrollbar-thumb {
+            background: var(--purple-light);
+            border-radius: 4px;
+        }
+
         html, body {
             height: 100%;
             overflow: hidden;
@@ -50,12 +73,6 @@
             color: var(--text-light);
         }
 
-        .dashboard-container {
-            display: flex;
-            flex-grow: 1;
-            overflow: hidden;
-        }
-
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -66,6 +83,7 @@
             top: 0;
             transition: background-color 0.3s ease;
             z-index: 10;
+            overflow-y: auto; 
         }
 
         .light-mode .sidebar {
@@ -107,14 +125,6 @@
         .light-mode .sidebar-menu-item.active {
             background-color: var(--purple-light);
             color: white;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            width: calc(100% - 250px);
-            padding: 20px;
-            overflow-y: auto;
-            flex-grow: 1;
         }
 
         .header {
@@ -209,20 +219,31 @@
             }
         }
         .clicked, .active, .selected {
-            /* background-color: var(--purple-light) !important; */
             color: white !important;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-grow: 1;
+            min-height: 100%;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 20px;
+            overflow-y: auto;
+            min-height: calc(100vh - 40px);
         }
 
         @media (max-width: 768px) {
             .sidebar {
                 width: 200px;
+                overflow-y: auto; /* Maintain scrollbar in smaller screens */
             }
             .main-content {
                 margin-left: 200px;
                 width: calc(100% - 200px);
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
             }
         }
 
@@ -230,6 +251,7 @@
             .sidebar {
                 width: 0;
                 transform: translateX(-100%);
+                overflow-y: auto; /* Maintain scrollbar in mobile view */
             }
             .sidebar.active {
                 width: 200px;
@@ -247,12 +269,14 @@
         <div class="sidebar">
             <div class="sidebar-logo">INIZIO</div>
             <ul class="sidebar-menu">
+
                 <li class="sidebar-menu-item <%= activePage === 'dashboard' ? 'active' : '' %>" data-tab="dashboard">
                     <a href="/admin" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">📊</span>
                         Dashboard
                     </a>
                 </li>
+
                 <li class="sidebar-menu-item <%= activePage === 'users' ? 'active' : '' %>" data-tab="users">
                     <a href="/admin/users" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">👥</span>
@@ -273,6 +297,13 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item <%= activePage === 'brand' ? 'active' : '' %>" data-tab="brand">
+                    <a href="/admin/brand" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🏷️</span>
+                        Brand
+                    </a>
+                </li>
+
                 <li class="sidebar-menu-item <%= activePage === 'product' ? 'active' : '' %>" data-tab="product">
                     <a href="/admin/product" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">📦</span>
@@ -287,6 +318,13 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item <%= activePage === 'offers' ? 'active' : '' %>" data-tab="offers">
+                    <a href="/admin/offer" style="color: inherit; text-decoration: none;">
+                        <span class="sidebar-menu-icon">🎁</span>
+                        Offers
+                    </a>
+                </li>
+
                 <li class="sidebar-menu-item <%= activePage === 'coupons' ? 'active' : '' %>" data-tab="coupons">
                     <a href="/admin/coupon" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">🏷️</span>
@@ -294,13 +332,8 @@
                     </a>
                 </li>
                 
-                <li class="sidebar-menu-item <%= activePage === 'offers' ? 'active' : '' %>" data-tab="offers">
-                    <a href="/admin/offer" style="color: inherit; text-decoration: none;">
-                        <span class="sidebar-menu-icon">🎁</span>
-                        Offers
-                    </a>
-                </li>
-                <li class="sidebar-menu-item <%= activePage === 'wallet' ? 'active' : '' %>" data-tab="offers">
+
+                <li class="sidebar-menu-item <%= activePage === 'wallet' ? 'active' : '' %>" data-tab="wallet">
                     <a href="/admin/getWallet" style="color: inherit; text-decoration: none;">
                         <span class="sidebar-menu-icon">💼</span>
                         Wallet
@@ -325,6 +358,7 @@
                         Logout
                     </a>
                 </li>
+                
             </ul>
         </div>
 

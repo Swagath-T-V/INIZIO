@@ -139,78 +139,72 @@
                 },
                 body: JSON.stringify({ name, description })
             })
-            .then(response => {
-                return response.json().then(data => {
-                    if (!response.ok) {
-                        throw new Error(data.message || "Failed to add subCategory");
-                    }
-                    return data;
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || "Failed to add subCategory");
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: data.message || "SubCategory added successfully",
+                    }).then(() => {
+                        window.location.href = "/admin/subCategory";
+                    });
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: error.message || "An error occurred while adding the subCategory",
+                    });
+                })
+                .finally(() => {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
                 });
-            })
-            .then(data => {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: data.message || "SubCategory added successfully",
-                }).then(() => {
-                    window.location.href = "/admin/subCategory";
-                });
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: error.message || "An error occurred while adding the subCategory",
-                });
-            })
-            .finally(() => {
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-            });
 
             return false;
         }
 
-        
 
-        // Validation function
+
         function validateForm() {
             const name = document.getElementById("name").value.trim();
             const description = document.getElementById("description").value.trim();
             let isValid = true;
 
-            // Name validation
             if (!name) {
-                displayErrorMessage("name-error", "Category name is required");
+                displayErrorMessage("name-error", "Subcategory name is required");
                 isValid = false;
             } else if (name.length < 3) {
-                displayErrorMessage("name-error", "Category name must be at least 3 characters long");
+                displayErrorMessage("name-error", "Subcategory name must be at least 3 characters long");
                 isValid = false;
             } else if (name.length > 20) {
-                displayErrorMessage("name-error", "Category name cannot exceed 20 characters");
-                isValid = false;
-            } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s-]*[a-zA-Z0-9]+)*$/.test(name)) {
-                displayErrorMessage("name-error", "Category name can only contain letters, numbers, single spaces, or single hyphens between alphanumeric characters");
+                displayErrorMessage("name-error", "Subcategory name cannot exceed 20 characters");
                 isValid = false;
             } else if (/^\s|\s$/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot start or end with spaces");
+                displayErrorMessage("name-error", "Subcategory name cannot start or end with spaces");
                 isValid = false;
             } else if (/\s{2,}/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot contain multiple consecutive spaces");
+                displayErrorMessage("name-error", "Subcategory name cannot contain multiple consecutive spaces");
                 isValid = false;
             } else if (/-{2,}/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot contain multiple consecutive hyphens");
+                displayErrorMessage("name-error", "Subcategory name cannot contain multiple consecutive hyphens");
                 isValid = false;
             } else if (/^-|-$/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot start or end with a hyphen");
+                displayErrorMessage("name-error", "Subcategory name cannot start or end with a hyphen");
                 isValid = false;
-            } else if (/(.)\1{4}/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot contain five identical characters in a row");
+            } else if (/[^a-zA-Z0-9\s-]/.test(name)) {
+                displayErrorMessage("name-error", "Subcategory name can only contain letters, numbers, spaces, or hyphens");
                 isValid = false;
             }
 
-            // Description validation
             if (!description) {
                 displayErrorMessage("description-error", "Description is required");
                 isValid = false;
@@ -220,20 +214,17 @@
             } else if (description.length > 100) {
                 displayErrorMessage("description-error", "Description cannot exceed 100 characters");
                 isValid = false;
-            } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s.,!?-]*[a-zA-Z0-9]+)*$/.test(description)) {
-                displayErrorMessage("description-error", "Description can only contain letters, numbers, single spaces, or basic punctuation between alphanumeric characters");
-                isValid = false;
             } else if (/^\s|\s$/.test(description)) {
                 displayErrorMessage("description-error", "Description cannot start or end with spaces");
-                isValid = false;
-            } else if (/-{2,}/.test(description)) {
-                displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
                 isValid = false;
             } else if (/^-|-$/.test(description)) {
                 displayErrorMessage("description-error", "Description cannot start or end with a hyphen");
                 isValid = false;
-            } else if (/(.)\1{4}/.test(description)) {
-                displayErrorMessage("description-error", "Description cannot contain five identical characters in a row");
+            } else if (/-{2,}/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
+                isValid = false;
+            } else if (/[^a-zA-Z0-9\s.,!?'"():;-]/.test(description) || /[.,!?'"():;-]{2,}/.test(description)) {
+                displayErrorMessage("description-error", "Description can only contain letters, numbers, spaces and basic punctuation");
                 isValid = false;
             }
 

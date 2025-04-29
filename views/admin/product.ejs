@@ -168,7 +168,7 @@
         <div class="col-md-6">
             <div class="search-container d-flex">
                 <form action="/admin/product" class="d-flex w-100">
-                    <input type="text" id="searchInput" class="form-control" name="search" placeholder="Search brands..." value="">
+                    <input type="text" id="searchInput" class="form-control" name="search" placeholder="Search brands..." value="<%= search %>">
                     <button type="submit" id="searchButton" class="btn search-btn ms-2">
                         <i class="bi bi-search"></i>
                     </button>
@@ -188,6 +188,7 @@
                     <th>PRODUCT IMAGE</th>
                     <th>SUBCATEGORY</th>
                     <th>CATEGORY</th>
+                    <th>BRAND</th>
                     <th>SALE PRICE</th>
                     <th>QUANTITY</th>
                     <th>List/Unlist</th>
@@ -203,6 +204,7 @@
                     </td>
                     <td><%= data[i].subCategory.name %></td>
                     <td><%= data[i].category.name %></td>
+                    <td><%= data[i].brand.name %></td>
                     <td><%= data[i].salePrice %></td>
                     <td><%= data[i].quantity %></td>
                     <td class="text-start">
@@ -268,15 +270,32 @@ function confirmListProduct(productId) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Listed!', 'The product has been listed.', 'success')
-                        .then(() => location.reload());
+                    Swal.fire({
+                        title: 'Listed!',
+                        text: 'The product has been listed.',
+                        icon: 'success',
+                        background: isDarkMode ? '#2c2c2c' : '#fff',
+                        color: isDarkMode ? '#ffffff' : '#000000'
+                    }).then(() => location.reload());
                 } else {
-                    Swal.fire('Error!', data.message || 'Something went wrong!', 'error');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Something went wrong!',
+                        icon: 'error',
+                        background: isDarkMode ? '#2c2c2c' : '#fff',
+                        color: isDarkMode ? '#ffffff' : '#000000'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error!', 'Failed to list the product.', 'error');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to list the product.',
+                    icon: 'error',
+                    background: isDarkMode ? '#2c2c2c' : '#fff',
+                    color: isDarkMode ? '#ffffff' : '#000000'
+                });
             });
         }
     });
@@ -303,15 +322,32 @@ function confirmUnlistProduct(productId) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Unlisted!', 'The product has been unlisted.', 'success')
-                        .then(() => location.reload());
+                    Swal.fire({
+                        title: 'Unlisted!',
+                        text: 'The product has been unlisted.',
+                        icon: 'success',
+                        background: isDarkMode ? '#2c2c2c' : '#fff',
+                        color: isDarkMode ? '#ffffff' : '#000000'
+                    }).then(() => location.reload());
                 } else {
-                    Swal.fire('Error!', data.message || 'Something went wrong!', 'error');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Something went wrong!',
+                        icon: 'error',
+                        background: isDarkMode ? '#2c2c2c' : '#fff',
+                        color: isDarkMode ? '#ffffff' : '#000000'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error!', 'Failed to unlist the product.', 'error');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to unlist the product.',
+                    icon: 'error',
+                    background: isDarkMode ? '#2c2c2c' : '#fff',
+                    color: isDarkMode ? '#ffffff' : '#000000'
+                });
             });
         }
     });
@@ -336,15 +372,32 @@ function confirmDeleteProduct(productId) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        Swal.fire('Deleted!', 'The product has been soft deleted.', 'success')
-                            .then(() => location.reload());
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'The product has been soft deleted.',
+                            icon: 'success',
+                            background: isDarkMode ? '#2c2c2c' : '#fff',
+                            color: isDarkMode ? '#ffffff' : '#000000'
+                        }).then(() => location.reload());
                     } else {
-                        Swal.fire('Error!', data.message || 'Something went wrong!', 'error');
-                    }
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message || 'Something went wrong!',
+                            icon: 'error',
+                            background: isDarkMode ? '#2c2c2c' : '#fff',
+                            color: isDarkMode ? '#ffffff' : '#000000'
+                        });
+                    } 
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error!', 'Failed to delete the product.', 'error');
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to delete the product.',
+                        icon: 'error',
+                        background: isDarkMode ? '#2c2c2c' : '#fff',
+                        color: isDarkMode ? '#ffffff' : '#000000'
+                    });
                 });
         }
     });

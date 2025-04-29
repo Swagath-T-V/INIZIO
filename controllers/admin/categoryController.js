@@ -1,96 +1,111 @@
 const Category = require("../../models/categorySchema")
 
 
-const categoryInfo =async(req,res)=>{
+const categoryInfo = async (req, res) => {
 
     try {
-        
-        let search =req.query.search || ""
+
+        let search = req.query.search || ""
         const page = parseInt(req.query.page) || 1
         const limit = 6
-        const skip =(page-1)*limit
+        const skip = (page - 1) * limit
 
         const categoryData = await Category.find({
             name: { $regex: search, $options: "i" },
-            isDelete:false
+            isDelete: false
         })
-        .sort({createdAt:-1})   
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
 
-        const totalCategory = await Category.countDocuments({ isDelete: false})
-        const totalPages = Math.ceil(totalCategory/limit)
+        const totalCategory = await Category.countDocuments({
+            name: { $regex: search, $options: "i" },
+            isDelete: false
+        });
 
-        res.render("category",{
-            cat:categoryData,
-            currentPage:page,
-            totalPages:totalPages,
-            totalCategory:totalCategory,
-            search:search,
-            activePage:"category"
+        const totalPages = Math.ceil(totalCategory / limit)
+
+        res.render("category", {
+            cat: categoryData,
+            currentPage: page,
+            totalPages: totalPages,
+            totalCategory: totalCategory,
+            search: search,
+            activePage: "category"
         })
 
     } catch (error) {
-        
-        console.log("Error in categoryInfo",error)
+
+        console.log("Error in categoryInfo", error)
         res.redirect("/admin/pageerror")
     }
 
 }
 
+
+const getAddCategory = async (req, res) => {
+
+    try {
+
+        return res.render("addCategory", {
+            activePage: "category"
+        })
+
+    } catch (error) {
+
+        console.log("error in getAddCategory", error)
+        return res.redirect("/admin/pageerror")
+
+    }
+}
+
+
 const addCategory = async (req, res) => {
 
     try {
 
-        if (req.method === 'POST') {
+        const { name, description } = req.body;
 
-            const { name, description } = req.body;
+        const existingCategory = await Category.findOne({
+            name: { $regex: new RegExp('^' + name + '$', 'i') }
+        })
 
-            const existingCategory = await Category.findOne({ 
-                name: { $regex: new RegExp('^' + name + '$','i')}
-            })
+        if (existingCategory && existingCategory.isDelete === true) {
 
-            if (existingCategory && existingCategory.isDelete === true) {
+            existingCategory.isDelete = false;
+            existingCategory.description = description;
+            existingCategory.isListed = true;
+            await existingCategory.save();
 
-                existingCategory.isDelete = false; 
-                existingCategory.description = description; 
-                existingCategory.isListed = true; 
-                await existingCategory.save();
-                
-                return res.json({ success: true, message: 'Category restored successfully' });
+            return res.json({ success: true, message: 'Category restored successfully' });
 
-            }else if (existingCategory && existingCategory.isDelete === false) {
+        } else if (existingCategory && existingCategory.isDelete === false) {
 
-                return res.status(400).json({ success: false, message: 'Category name already exists' });
-
-            }
-
-            const newCategory = new Category({
-
-                name,
-                description,
-
-            });
-
-            await newCategory.save();
-
-            return res.status(200).json({success: true,message: "Category added successfully"});
-
+            return res.status(400).json({ success: false, message: 'Category name already exists' });
         }
 
-        res.render("addCategory", {
+        const newCategory = new Category({
 
-            activePage: 'category'
+            name,
+            description,
 
         });
 
+        await newCategory.save();
+
+        return res.status(200).json({ success: true, message: "Category added successfully" });
+
+
+
     } catch (error) {
-        
+
         console.log("Error in addCategory", error);
         res.status(500).json({ error: "Server error occurred" });
 
     }
+
 };
+
 
 
 const getListCategory = async (req, res) => {
@@ -107,6 +122,7 @@ const getListCategory = async (req, res) => {
 
     }
 };
+
 
 const getUnlistCategory = async (req, res) => {
 
@@ -125,23 +141,23 @@ const getUnlistCategory = async (req, res) => {
 
 
 
-const getEditCategory = async(req,res)=>{
+const getEditCategory = async (req, res) => {
 
     try {
 
         const id = req.query.id
-        const category = await Category.findOne({_id:id})
-        res.render("edit-category",{
-            category:category,
+        const category = await Category.findOne({ _id: id })
+        res.render("edit-category", {
+            category: category,
             activePage: 'category'
         })
-        
+
 
     } catch (error) {
 
-        console.log("error in getEditCategory",error)
+        console.log("error in getEditCategory", error)
         res.redirect("/admin/pageerror")
-        
+
     }
 
 }
@@ -152,7 +168,7 @@ const editCategory = async (req, res) => {
 
         const id = req.params.id;
         const { categoryName, description } = req.body;
-        
+
         const existingCategory = await Category.findOne({
             name: { $regex: new RegExp('^' + categoryName + '$', 'i') },
             _id: { $ne: id }
@@ -160,7 +176,7 @@ const editCategory = async (req, res) => {
 
         if (existingCategory && existingCategory.isDelete === false) {
 
-            return res.status(400).json({success: false,message: "Category name already exists"});
+            return res.status(400).json({ success: false, message: "Category name already exists" });
 
         }
 
@@ -170,28 +186,28 @@ const editCategory = async (req, res) => {
         }, { new: true });
 
         if (updateCategory) {
-            
-            return res.status(200).json({success: true, message: "Category updated successfully",redirectUrl: "/admin/category" });
-            
-        } else { 
-            
-            return res.status(400).json({success: false,message: "Category not found"});
+
+            return res.status(200).json({ success: true, message: "Category updated successfully", redirectUrl: "/admin/category" });
+
+        } else {
+
+            return res.status(400).json({ success: false, message: "Category not found" });
         }
 
     } catch (error) {
 
         console.log("Error in editCategory", error);
-        return res.status(500).json({success: false,message: "Internal server error"});
+        return res.status(500).json({ success: false, message: "Internal server error" });
 
     }
 };
 
-const deleteCategory = async(req,res)=> {
+const deleteCategory = async (req, res) => {
 
     try {
 
         const { categoryId } = req.params;
-        
+
         const updatedCategory = await Category.findByIdAndUpdate(
             categoryId,
             { $set: { isDelete: true } },
@@ -213,17 +229,18 @@ const deleteCategory = async(req,res)=> {
         console.error("Error in softDeleteCategory", error);
         res.status(500).json({ success: false, message: "Internal server error" });
 
-    } 
+    }
 }
 
 
 module.exports = {
     categoryInfo,
+    getAddCategory,
     addCategory,
     getListCategory,
     getUnlistCategory,
     getEditCategory,
     editCategory,
     deleteCategory
-    
+
 }

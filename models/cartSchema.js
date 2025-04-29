@@ -14,17 +14,17 @@ const cartSchema = new Schema({
             required: true
         },
         quantity: {
-            type: Number, 
+            type: Number,
             default: 1,
             min: 1
         },
         price: {
             type: Number,
-            required: true 
+            required: true
         },
         totalPrice: {
             type: Number,
-            required: true 
+            required: true
         },
         status: {
             type: String,
@@ -55,8 +55,13 @@ const cartSchema = new Schema({
         type: Number,
         default: 0,
         min: 0
-    }
+    },
+    offerAmount: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
 }, { timestamps: true });
- 
+
 const Cart = mongoose.model('Cart', cartSchema);
 module.exports = Cart;

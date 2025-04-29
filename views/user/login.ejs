@@ -172,16 +172,16 @@
         
         <h1 class="title">Login Page</h1>
         
-        <form method="post" action="/login" id="loginForm" onsubmit=" return validateLoginForm()" novalidate>
+        <form method="post" action="/login" id="loginForm" novalidate>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <input type="email" id="email" name="email" placeholder="Enter your email" >
                 <div class="error-message" id="error1"></div>
             </div>
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <input type="password" id="password" name="password" placeholder="Enter your password" >
                 <div class="error-message" id="error2"></div>
             </div>
             <div class="form-group">
@@ -209,15 +209,41 @@
         const error2 = document.getElementById("error2");
 
         function emailValidateChecking() {
-            const emailval = emailid.value;
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-            if (emailval.trim() === "") {
+            const emailval = emailid.value.trim();
+            const consecutiveSpecial = /[._-]{2,}/;
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const repeatedCharPattern = /(.)\1{2,}/;
+
+            if (emailval === "") {
                 error1.style.display = "block";
                 error1.innerHTML = "Please enter emailId";
-            } else if (!emailPattern.test(emailval)) {
+                return;
+            }
+
+            if (!emailval.includes("@")) {
+                error1.style.display = "block";
+                error1.innerHTML = "Email must contain '@' symbol";
+                return;
+            }
+
+            const [localPart, domainPart] = emailval.split('@');
+
+            if (!emailPattern.test(emailval)) {
                 error1.style.display = "block";
                 error1.innerHTML = "Invalid emailId";
-            } else {
+            } else if (
+                localPart.startsWith('.') || localPart.endsWith('.') ||
+                domainPart.startsWith('.') || domainPart.endsWith('.')
+            ) {
+                error1.style.display = "block";
+                error1.innerHTML = "Email cannot start or end with a dot";
+            } else if (consecutiveSpecial.test(emailval)) {
+                error1.style.display = "block";
+                error1.innerHTML = "Email cannot contain consecutive dots, underscores, or hyphens";
+            } else if (repeatedCharPattern.test(localPart)) {
+                error1.style.display = "block";
+                error1.innerHTML = "Email local part cannot consist of the same repeating character (e.g., 'aaa')";
+            }else {
                 error1.style.display = "none";
                 error1.innerHTML = "";
             }
@@ -225,18 +251,37 @@
 
     
         function passValidateChecking() {
-            const passval = passid.value;
-            const alpha = /[a-zA-Z]/;
-            const digit = /\d/;
+            const passval = passid.value.trim();
+
+            const lengthCheck = passval.length >= 8;
+            const upperCheck = /[A-Z]/.test(passval);
+            const lowerCheck = /[a-z]/.test(passval);
+            const digitCheck = /\d/.test(passval);
+            const specialCheck = /[!@#$%^&*(),.?":{}|<>]/.test(passval);
+            const spaceCheck = /\s/.test(passval);
+            const repeatedCharPattern = /(.)\1{2,}/;
+
             if (passval === "") {
                 error2.style.display = "block";
                 error2.innerHTML = "Please enter password";
-            } else if (passval.length < 8) {
+            } else if (!lengthCheck) {
                 error2.style.display = "block";
-                error2.innerHTML = "Password should contain at least 8 characters";
-            } else if (!alpha.test(passval) || !digit.test(passval)) {
+                error2.innerHTML = "Password must be at least 8 characters long";
+            } else if (!upperCheck || !lowerCheck) {
                 error2.style.display = "block";
-                error2.innerHTML = "Password should contain both alphabets and digits";
+                error2.innerHTML = "Password must contain both uppercase and lowercase letters";
+            } else if (!digitCheck) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password must contain at least one digit";
+            } else if (!specialCheck) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password must contain at least one special character";
+            } else if (spaceCheck) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password should not contain spaces";
+            } else if (repeatedCharPattern.test(passval)) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password cannot consist of the same repeating character (e.g., 'aaa')";
             } else {
                 error2.style.display = "none";
                 error2.innerHTML = "";

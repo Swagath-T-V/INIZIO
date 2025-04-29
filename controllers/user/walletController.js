@@ -31,10 +31,11 @@ const walletPage = async (req, res) => {
     }
 };
 
-const walletViewAll = async (req, res) => { 
-    
+const walletViewAll = async (req, res) => {
+
     try {
-        const user = req.session.user;
+        const userId = req.session.user;
+        const user = await User.findById(userId)
 
         const wallet = await Wallet.findOne({ userId: user }).populate('userId');
 
@@ -43,10 +44,11 @@ const walletViewAll = async (req, res) => {
         }
 
         const sortedTransactions = (wallet.transactions)
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
 
         res.render('walletViewAll', {
-            wallet: {...wallet.toObject(),transactions: sortedTransactions},
+            user,
+            wallet: { ...wallet.toObject(), transactions: sortedTransactions },
             activePage: 'wallet'
         });
 
@@ -65,8 +67,8 @@ const addToWallet = async (req, res) => {
         const { amount } = req.body
         // console.log(amount)
 
-        
-        const amountToAdd= parseInt(amount);
+
+        const amountToAdd = parseInt(amount);
         // console.log("amountToAdda",amountToAdd)
 
         let wallet = await Wallet.findOne({ userId: user });
@@ -85,16 +87,16 @@ const addToWallet = async (req, res) => {
 
         await wallet.save();
 
-        return res.status(200).json({success:true,message:"amount added successfully"})
+        return res.status(200).json({ success: true, message: "amount added successfully" })
 
     } catch (error) {
 
         console.log("Error in addToWallet", error);
-        return res.status(500).json({success:false,message:'internal server error'})
-        
+        return res.status(500).json({ success: false, message: 'internal server error' })
+
     }
 }
- 
+
 module.exports = {
     walletPage,
     walletViewAll,

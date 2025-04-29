@@ -343,11 +343,10 @@
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Discount Type</label>
                                 <select class="form-select" name="discountType" id="discountType">
-                                    <option value="flat">Flat</option>
                                     <option value="percentage">Percentage</option>
                                 </select>
                                 <div id="discountType-error" class="error-message"></div>
-                            </div>
+                            </div> 
 
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Discount Amount</label>
@@ -378,6 +377,7 @@
                                     <option value="Category">Category</option>
                                     <option value="subCategory">SubCategory</option>
                                     <option value="Product">Product</option>
+                                    <option value="Brand">Brand</option>
                                 </select>
                                 <div id="offerType-error" class="error-message"></div>
                             </div>
@@ -409,9 +409,10 @@
 
 <script>
 
-const products = JSON.parse('<%- JSON.stringify(product) %>');
-const categories = JSON.parse('<%- JSON.stringify(category) %>');
-const subCategories = JSON.parse('<%- JSON.stringify(subCategory) %>');
+const products = <%- JSON.stringify(product) %>;
+const categories = <%- JSON.stringify(category) %>;
+const subCategories = <%- JSON.stringify(subCategory) %>;
+const brands = <%- JSON.stringify(brand) %>;
 
 function updateApplicableTo() {
         const offerType = document.getElementById("offerType").value;
@@ -431,9 +432,13 @@ function updateApplicableTo() {
             products.forEach(prod => {
                 applicableTo.innerHTML += `<option value="${prod._id}">${prod.name}</option>`;
             });
+        }else if (offerType === "Brand") { 
+            brands.forEach(brand => {
+                applicableTo.innerHTML += `<option value="${brand._id}">${brand.name}</option>`;
+            });
         }
     }
-
+ 
 function handleFormSubmit(event){
     event.preventDefault()
 
@@ -528,54 +533,93 @@ function validateForm() {
     let isValid = true;
 
     if (!offerName) {
-        displayErrorMessage('offerName-error', 'Please enter an offer name');
-        isValid = false;
-    }
+                displayErrorMessage("offerName-error", "Please enter an offer name");
+                isValid = false;
+            } else if (offerName.length < 3) {
+                displayErrorMessage("offerName-error", "Offer name must be at least 3 characters long");
+                isValid = false;
+            } else if (offerName.length > 20) {
+                displayErrorMessage("offerName-error", "Offer name cannot exceed 20 characters");
+                isValid = false;
+            } else if (/^\s|\s$/.test(offerName)) {
+                displayErrorMessage("offerName-error", "Offer name cannot start or end with spaces");
+                isValid = false;
+            } else if (/\s{2,}/.test(offerName)) {
+                displayErrorMessage("offerName-error", "Offer name cannot contain multiple consecutive spaces");
+                isValid = false;
+            } else if (/-{2,}/.test(offerName)) {
+                displayErrorMessage("offerName-error", "Offer name cannot contain multiple consecutive hyphens");
+                isValid = false;
+            } else if (/^-|-$/.test(offerName)) {
+                displayErrorMessage("offerName-error", "Offer name cannot start or end with a hyphen");
+                isValid = false;
+            } else if (/[^a-zA-Z0-9\s-]/.test(offerName)) {
+                displayErrorMessage("offerName-error", "Offer name can only contain letters, numbers, spaces, or hyphens");
+                isValid = false;
+            }
 
-    if (!description) {
-        displayErrorMessage('description-error', 'Please enter a description');
-        isValid = false;
-    }
+            if (!description) {
+                displayErrorMessage("description-error", "Description is required");
+                isValid = false;
+            } else if (description.length < 5) {
+                displayErrorMessage("description-error", "Description must be at least 5 characters long");
+                isValid = false;
+            } else if (description.length > 100) {
+                displayErrorMessage("description-error", "Description cannot exceed 100 characters");
+                isValid = false;
+            } else if (/^\s|\s$/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot start or end with spaces");
+                isValid = false;
+            } else if (/^-|-$/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot start or end with a hyphen");
+                isValid = false;
+            } else if (/-{2,}/.test(description)) {
+                displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
+                isValid = false;
+            } else if (/[^a-zA-Z0-9\s.,!?-]/.test(description)) {
+                displayErrorMessage("description-error", "Description can only contain letters, numbers, spaces, or basic punctuation");
+                isValid = false;
+            }
 
-    if (!discountType) {
-        displayErrorMessage('discountType-error', 'Please select a discount type');
-        isValid = false;
-    }
+            if (!discountType) {
+                displayErrorMessage('discountType-error', 'Please select a discount type');
+                isValid = false;
+            }
 
-    if (!discountAmount || discountAmount <= 0) {
-        displayErrorMessage('discountAmount-error', 'Please enter a valid discount amount');
-        isValid = false;
-    } else if (discountType === 'percentage' && discountAmount > 100) {
-        displayErrorMessage('discountAmount-error', 'Percentage discount cannot exceed 100');
-        isValid = false;
-    }
+            if (!discountAmount || discountAmount <= 0) {
+                displayErrorMessage('discountAmount-error', 'Please enter a valid discount amount');
+                isValid = false;
+            } else if (discountAmount > 100) {
+                displayErrorMessage('discountAmount-error', 'Percentage discount cannot exceed 100');
+                isValid = false;
+            }
 
-    const today = new Date().toISOString().split('T')[0];
-    if (!validFrom) {
-        displayErrorMessage('validFrom-error', 'Please select a start date');
-        isValid = false;
-    } else if (validFrom < today) {
-        displayErrorMessage('validFrom-error', 'Start date cannot be in the past');
-        isValid = false;
-    }
+            const today = new Date().toISOString().split('T')[0];
+            if (!validFrom) {
+                displayErrorMessage('validFrom-error', 'Please select a start date');
+                isValid = false;
+            } else if (validFrom < today) {
+                displayErrorMessage('validFrom-error', 'Start date cannot be in the past');
+                isValid = false;
+            }
 
-    if (!validUpto) {
-        displayErrorMessage('validUpto-error', 'Please select an end date');
-        isValid = false;
-    } else if (validUpto <= validFrom) {
-        displayErrorMessage('validUpto-error', 'End date must be after start date');
-        isValid = false;
-    }
+            if (!validUpto) {
+                displayErrorMessage('validUpto-error', 'Please select an end date');
+                isValid = false;
+            } else if (validUpto <= validFrom) {
+                displayErrorMessage('validUpto-error', 'End date must be after start date');
+                isValid = false;
+            }
 
-    if (!offerType) {
-        displayErrorMessage('offerType-error', 'Please select an offer type');
-        isValid = false;
-    }
+            if (!offerType) {
+                displayErrorMessage('offerType-error', 'Please select an offer type');
+                isValid = false;
+            }
 
-    if (!applicableTo) {
-        displayErrorMessage('applicableTo-error', 'Please select an applicable item');
-        isValid = false;
-    }
+            if (!applicableTo) {
+                displayErrorMessage('applicableTo-error', 'Please select an applicable item');
+                isValid = false;
+            }
 
     return isValid;
 }

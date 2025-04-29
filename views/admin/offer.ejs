@@ -201,19 +201,15 @@
                                 </td>
                                 <td>
                                     <%= offer.applicableTo.name %>
+                                </td> 
+                                <td>
+                                    <%=offer.validFrom.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })%>
                                 </td>
                                 <td>
-                                    <%=offer.validFrom.toLocaleDateString()%>
+                                    <%=offer.validUpto.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })%>
                                 </td>
                                 <td>
-                                    <%=offer.validUpto.toLocaleDateString()%>
-                                </td>
-                                <td>
-                                    <% if(offer.discountType == 'percentage' ){%>
-                                        <%=offer.discountAmount%>%
-                                    <%}else{%>
-                                        <%=offer.discountAmount%>
-                                    <%}%>
+                                    <%= offer.discountAmount %>%
                                 </td>
                                 <td>
                                 <% if (new Date(offer.validUpto) >= new Date()) { %>
@@ -245,7 +241,7 @@
                         <% }) %>
                     <% } else { %>
                         <tr>
-                            <td colspan="8" class="text-center">No offer found</td>
+                            <td colspan="9" class="text-center">No offer found</td>
                         </tr>
                     <% } %>
 
@@ -285,7 +281,7 @@
                 background: isDarkMode ? '#2c2c2c' : '#fff',
                 color: isDarkMode ? '#ffffff' : '#000000'
             }).then((result) => {
-                if (result.isConfirmed) {
+                if (result.isConfirmed) { 
                     fetch(`/admin/listOffer?id=${offerId}`, {
                         method: 'GET'
                     })
@@ -431,4 +427,4 @@
     </script>
     
 
-    <%- include("../../views/partials/admin/footer.ejs") %> 
+<%- include("../../views/partials/admin/footer.ejs") %> 

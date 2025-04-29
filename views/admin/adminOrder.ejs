@@ -314,10 +314,7 @@
                                         <td colspan="4" class="text-end fw-medium">Shipping:</td>
                                         <td>₹ <%= orderData.shippingCharge.toFixed(2) %></td>
                                     </tr>
-                                    <tr>
-                                        <td colspan="4" class="text-end fw-medium">Tax:</td>
-                                        <td>₹ <%= orderData.tax.toFixed(2) %></td>
-                                    </tr>
+                                   
                                     <tr>
                                         <td colspan="4" class="text-end fw-bold">Total:</td>
                                         <td class="fw-bold">₹ <%= orderData.finalAmount.toFixed(2) %></td>
@@ -387,31 +384,35 @@
 
                 <!-- Update Status -->
 
-                <div class="card">
-                    <% if (orderData.status !== 'Cancelled' && orderData.status !== 'Returned' && orderData.status !== "Payment Failed" && !orderData.orderedItems.some(item => item.returnStatus === 'Return Requested') ) { %>
-                    <div class="card-header">
-                        <h3>Update Order Status</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex gap-3 align-items-center">
-                            <select class="form-select w-25" id="updateStatus">
-                                <option value="Pending" <%= orderData.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                <option value="Processing" <%= orderData.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                <option value="Shipped" <%= orderData.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                <option value="Out for Delivery" <%= orderData.status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
-                                <option value="Delivered" <%= orderData.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                <option value="Cancelled" <%= orderData.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                <option value="Return Request" <%= orderData.status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
-                                <option value="Returned" <%= orderData.status === 'Returned' ? 'selected' : '' %>>Returned</option>
-                                <option value="Return Rejected" <%= orderData.status === 'Return Rejected' ? 'selected' : '' %>>Return Rejected</option>
-                            </select>
-                            <button class="btn btn-primary" onclick="return updateOrderStatus('<%= orderData._id %>')">
-                                <i class="bi bi-arrow-repeat me-2"></i>Update Status
-                            </button>
+                <% if (
+                    orderData.status !== 'Delivered' &&
+                    orderData.status !== 'Cancelled' &&
+                    orderData.status !== 'Returned' &&
+                    orderData.status !== 'Payment Failed' &&
+                    !orderData.orderedItems.some(item => item.returnStatus === 'Return Requested')
+                ) { %>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Update Order Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex gap-3 align-items-center">
+                                <select class="form-select w-25" id="updateStatus">
+                                    <option value="Pending" <%= orderData.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                    <option value="Processing" <%= orderData.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                    <option value="Shipped" <%= orderData.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                    <option value="Out for Delivery" <%= orderData.status === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                                    <option value="Delivered" <%= orderData.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                    <option value="Cancelled" <%= orderData.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="return updateOrderStatus('<%= orderData._id %>')">
+                                    <i class="bi bi-arrow-repeat me-2"></i>Update Status
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <% } %>
+                
             </div>
 
 
@@ -486,3 +487,4 @@
     }
 </script>
 <%- include("../../views/partials/admin/footer.ejs") %>
+z

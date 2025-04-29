@@ -1,325 +1,342 @@
 <%- include('../../views/partials/admin/header.ejs')%>
-<style>
-    .coupon-image {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: var(--purple-light);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-    }
+    <style>
+        .coupon-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--purple-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
 
-    .coupon-actions a, .coupon-actions button {
-        margin-right: 10px;
-    }
+        .coupon-actions a,
+        .coupon-actions button {
+            margin-right: 10px;
+        }
 
-    .add-coupon-btn {
-        background-color: var(--purple-light);
-        color: white;
-    }
+        .add-coupon-btn {
+            background-color: var(--purple-light);
+            color: white;
+        }
 
-    .search-container .search-btn {
-        background-color: var(--purple-light);
-        color: white;
-    }
+        .search-container .search-btn {
+            background-color: var(--purple-light);
+            color: white;
+        }
 
-    .clear-btn {
-        background-color: #d33;
-        color: white;
-        border: none;
-    }
+        .clear-btn {
+            background-color: #d33;
+            color: white;
+            border: none;
+        }
 
-    .table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-    body:not(.light-mode) .table {
-        --bs-table-bg: var(--gray-dark);
-        --bs-table-color: white;
-        --bs-table-hover-bg: #2c2c2c;
-        --bs-table-border-color: rgba(255, 255, 255, 0.1);
-    }
+        body:not(.light-mode) .table {
+            --bs-table-bg: var(--gray-dark);
+            --bs-table-color: white;
+            --bs-table-hover-bg: #2c2c2c;
+            --bs-table-border-color: rgba(255, 255, 255, 0.1);
+        }
 
-    body.light-mode .table {
-        --bs-table-bg: var(--gray-light);
-        --bs-table-color: var(--text-light);
-        --bs-table-hover-bg: #e0e0e0;
-        --bs-table-border-color: rgba(0, 0, 0, 0.1);
-    }
+        body.light-mode .table {
+            --bs-table-bg: var(--gray-light);
+            --bs-table-color: var(--text-light);
+            --bs-table-hover-bg: #e0e0e0;
+            --bs-table-border-color: rgba(0, 0, 0, 0.1);
+        }
 
-    body:not(.light-mode) .table th {
-        background-color: var(--gray-dark);
-        color: white;
-        font-weight: 600;
-        text-transform: uppercase;
-        padding: 12px 15px;
-        border-bottom: 2px solid var(--purple-light);
-    }
+        body:not(.light-mode) .table th {
+            background-color: var(--gray-dark);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--purple-light);
+        }
 
-    body.light-mode .table th {
-        background-color: var(--gray-light);
-        color: var(--text-light);
-        font-weight: 600;
-        text-transform: uppercase;
-        padding: 12px 15px;
-        border-bottom: 2px solid var(--purple-light);
-    }
+        body.light-mode .table th {
+            background-color: var(--gray-light);
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--purple-light);
+        }
 
-    .table td {
-        padding: 12px 15px;
-        vertical-align: middle;
-        border-bottom: 1px solid var(--bs-table-border-color);
-    }
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--bs-table-border-color);
+        }
 
-    .table tbody tr:hover {
-        background-color: var(--bs-table-hover-bg);
-    }
+        .table tbody tr:hover {
+            background-color: var(--bs-table-hover-bg);
+        }
 
-    body.light-mode .table-hover tbody tr:hover {
-        background-color: #e0e0e0 !important;
-        color: var(--text-light) !important;
-    }
+        body.light-mode .table-hover tbody tr:hover {
+            background-color: #e0e0e0 !important;
+            color: var(--text-light) !important;
+        }
 
-    body.light-mode .table-hover tbody tr:hover td {
-        background-color: #e0e0e0 !important; 
-        color: var(--text-light) !important;
-    }
+        body.light-mode .table-hover tbody tr:hover td {
+            background-color: #e0e0e0 !important;
+            color: var(--text-light) !important;
+        }
 
-    .table tbody tr {
-        transition: background-color 0.3s ease;
-    }
+        .table tbody tr {
+            transition: background-color 0.3s ease;
+        }
 
-    body.light-mode .table tbody tr:hover td,
-    body.light-mode .table tbody tr:hover th {
-        color: var(--text-light) !important;
-    }
+        body.light-mode .table tbody tr:hover td,
+        body.light-mode .table tbody tr:hover th {
+            color: var(--text-light) !important;
+        }
 
-    body:not(.light-mode) .table tbody tr:hover td,
-    body:not(.light-mode) .table tbody tr:hover th {
-        color: white !important;
-    }
+        body:not(.light-mode) .table tbody tr:hover td,
+        body:not(.light-mode) .table tbody tr:hover th {
+            color: white !important;
+        }
 
-    .pagination .page-item.active .page-link {
-        background-color: var(--purple-light) !important;
-        border-color: var(--purple-light) !important;
-        color: white !important;
-    }
+        .pagination .page-item.active .page-link {
+            background-color: var(--purple-light) !important;
+            border-color: var(--purple-light) !important;
+            color: white !important;
+        }
 
-    .search-container input.form-control {
-        color: rgb(7, 7, 7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+        .search-container input.form-control {
+            color: rgb(7, 7, 7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    body.light-mode .search-container input.form-control {
-        background-color: #ffffff; 
-        color: var(--text-light);
-        border: 1px solid #ced4da; 
-    }
+        body.light-mode .search-container input.form-control {
+            background-color: #ffffff;
+            color: var(--text-light);
+            border: 1px solid #ced4da;
+        }
 
-    body:not(.light-mode) h2 {
-        color: white;
-    }
+        body:not(.light-mode) h2 {
+            color: white;
+        }
 
-    body.light-mode h2 {
-        color: var(--text-light);
-    }
+        body.light-mode h2 {
+            color: var(--text-light);
+        }
 
-    body.light-mode .text-white {
-        color: var(--text-light) !important;
-    }
+        body.light-mode .text-white {
+            color: var(--text-light) !important;
+        }
 
-    .search-container {
-        display: flex;
-        justify-content: flex-start;
-    }
+        .search-container {
+            display: flex;
+            justify-content: flex-start;
+        }
 
-    .search-btn, .clear-btn {
-        margin-left: 10px; 
-        border-radius: 5px; 
-    }
+        .search-btn,
+        .clear-btn {
+            margin-left: 10px;
+            border-radius: 5px;
+        }
 
-    .badge-expired {
-        background-color: #ff9800;
-    }
+        .badge-expired {
+            background-color: #ff9800;
+        }
 
-    .badge-disabled {
-        background-color: #d33;
-    }
+        .badge-disabled {
+            background-color: #d33;
+        }
 
-    .badge-active {
-        background-color: #4caf50;
-    }
+        .badge-active {
+            background-color: #4caf50;
+        }
 
-    .pagination .page-item.active .page-link {
-        background-color: var(--purple-light) !important;
-        border-color: var(--purple-light) !important;
-        color: white !important;
-    }
-</style>
+        .pagination .page-item.active .page-link {
+            background-color: var(--purple-light) !important;
+            border-color: var(--purple-light) !important;
+            color: white !important;
+        }
+    </style>
 
-<div class="container-fluid p-4">
-    <div class="row mb-3 align-items-center">
-        <div class="col-md-6">
-            <h2 class="text-white">Coupons</h2>
+    <div class="container-fluid p-4">
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-6">
+                <h2 class="text-white">Coupons</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="/admin/addCoupon" class="btn add-coupon-btn">
+                    <i class="bi bi-plus"></i> Add Coupon
+                </a>
+            </div>
         </div>
-        <div class="col-md-6 text-end">
-            <a href="/admin/addCoupon" class="btn add-coupon-btn">
-                <i class="bi bi-plus"></i> Add Coupon
-            </a>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="search-container d-flex">
+                    <form action="/admin/coupon" class="d-flex w-100">
+                        <input type="text" id="searchInput" class="form-control" name="search"
+                            placeholder="Search coupons..." value="">
+                        <button type="submit" id="searchButton" class="btn search-btn ms-2">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="/admin/coupon" class="btn clear-btn ms-2">
+                            Clear
+                        </a>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="search-container d-flex">
-                <form action="/admin/coupon" class="d-flex w-100">
-                    <input type="text" id="searchInput" class="form-control" name="search" placeholder="Search coupons..." value="">
-                    <button type="submit" id="searchButton" class="btn search-btn ms-2">
-                        <i class="bi bi-search"></i>
-                    </button>
-                    <a href="/admin/coupon" class="btn clear-btn ms-2">
-                        Clear
-                    </a>
-                </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>COUPON NAME</th>
+                        <th>COUPON CODE</th>
+                        <th>CREATED AT</th>
+                        <th>EXPIRES ON</th>
+                        <th>OFFER PRICE</th>
+                        <th>MINIMUM PURCHASE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="couponTableBody">
+                    <% if (coupons && coupons.length> 0) { %>
+                        <% coupons.forEach((coupon)=> { %>
+                            <tr>
+                                <td>
+                                    <%= coupon.couponName %>
+                                </td>
+                                <td>
+                                    <%= coupon.couponCode %>
+                                </td>
+                                <td>
+                                    <%= coupon.startingDate.toLocaleDateString('en-GB', { day: 'numeric' , month: 'long', year: 'numeric' }) %>
+                                </td>
+                                <td>
+                                    <%= coupon.expireOn.toLocaleDateString('en-GB', { day: 'numeric' , month: 'long' , year: 'numeric' }) %>
+                                </td>
+                                <td>
+                                    ₹<%= coupon.offerPrice %>
+                                </td>
+                                <td>
+                                    ₹<%= coupon.minimumPurchase %>
+                                </td>
+                                <td>
+                                    <% if (coupon.status==='Expired' ) { %>
+                                        <span class="badge badge-expired" style="width: 60px">Expired</span>
+                                    <% } else if (coupon.status==='Active' ) { %>
+                                        <span class="badge badge-active" style="width: 60px">Active</span>
+                                    <% } else { %>
+                                        <span class="badge badge-disabled" style="width: 60px">Disabled</span>
+                                    <% } %>
+                                </td>
+                                <td class="coupon-actions">
+                                    <a href="/admin/editCoupon?couponId=<%=coupon._id%>" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="text-center">No coupons found</td>
+                            </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="container mt-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-20">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>COUPON NAME</th>
-                    <th>COUPON CODE</th>
-                    <th>CREATED AT</th>
-                    <th>EXPIRES ON</th>
-                    <th>OFFER PRICE</th>
-                    <th>MINIMUM PURCHASE</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="couponTableBody">
-                <% if (coupons && coupons.length > 0) { %>
-                    <% coupons.forEach((coupon) => { %>
-                        <tr>
-                            <td><%= coupon.couponName %></td>
-                            <td><%= coupon.couponCode %></td>
-                            <td><%= coupon.startingDate.toLocaleDateString() %></td>
-                            <td><%= coupon.expireOn.toLocaleDateString() %></td>
-                            <td>₹<%= coupon.offerPrice %></td>
-                            <td>₹<%= coupon.minimumPurchase %></td>
-                            <td>
-                                <% if (coupon.status ==='Expired') { %>
-                                    <span class="badge badge-expired" style="width: 60px">Expired</span>
-                                <% } else if (coupon.status === 'Active') { %>
-                                    <span class="badge badge-active" style="width: 60px">Active</span>
-                                <% } else { %>
-                                    <span class="badge badge-disabled" style="width: 60px">Disabled</span>
-                                <% } %>
-                            </td>
-                            <td class="coupon-actions">
-                                <a href="/admin/editCoupon?couponId=<%=coupon._id%>" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    <% }); %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="8" class="text-center">No coupons found</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-        <div class="container mt-3">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mb-20">
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                        </li>
-                    <% } %>
-                </ul>
-            </nav>
-        </div>
-    </div>
-</div>
+    <script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        function deleteCoupon(couponId) {
 
-<script>
+            const isDarkMode = !document.body.classList.contains('light-mode');
 
-function deleteCoupon(couponId) {
-    
-    const isDarkMode = !document.body.classList.contains('light-mode');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this coupon. This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                // Add these properties for dark mode support
+                background: isDarkMode ? '#2c2c2c' : '#fff',
+                color: isDarkMode ? '#ffffff' : '#000000'
 
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You want to delete this coupon. This action cannot be undone!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!',
-        // Add these properties for dark mode support
-        background: isDarkMode ? '#2c2c2c' : '#fff',
-        color: isDarkMode ? '#ffffff' : '#000000'
-        
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/admin/deleteCoupon/${couponId}`,
-                method: 'PATCH',
-                success: (response) => {
-                    if (response.success) {
-                        Swal.fire({
-                            title: 'Deleted!',
-                            text: 'Coupon has been deleted.',
-                            icon: 'success',
-                            background: isDarkMode ? '#2c2c2c' : '#fff',
-                            color: isDarkMode ? '#ffffff' : '#000000',
-                            confirmButtonColor: '#3085d6',
-                            customClass: {
-                                confirmButton: isDarkMode ? 'btn text-white' : 'btn text-dark'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/deleteCoupon/${couponId}`,
+                        method: 'PATCH',
+                        success: (response) => {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Coupon has been deleted.',
+                                    icon: 'success',
+                                    background: isDarkMode ? '#2c2c2c' : '#fff',
+                                    color: isDarkMode ? '#ffffff' : '#000000',
+                                    confirmButtonColor: '#3085d6',
+                                    customClass: {
+                                        confirmButton: isDarkMode ? 'btn text-white' : 'btn text-dark'
+                                    }
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: response.message,
+                                    icon: 'error',
+                                    background: isDarkMode ? '#2c2c2c' : '#fff',
+                                    color: isDarkMode ? '#ffffff' : '#000000',
+                                    confirmButtonColor: '#d33'
+                                });
                             }
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: response.message,
-                            icon: 'error',
-                            background: isDarkMode ? '#2c2c2c' : '#fff',
-                            color: isDarkMode ? '#ffffff' : '#000000',
-                            confirmButtonColor: '#d33'
-                        });
-                    }
-                },
-                error: (err) => {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to delete coupon.',
-                        icon: 'error',
-                        background: isDarkMode ? '#2c2c2c' : '#fff',
-                        color: isDarkMode ? '#ffffff' : '#000000',
-                        confirmButtonColor: '#d33'
+                        },
+                        error: (err) => {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to delete coupon.',
+                                icon: 'error',
+                                background: isDarkMode ? '#2c2c2c' : '#fff',
+                                color: isDarkMode ? '#ffffff' : '#000000',
+                                confirmButtonColor: '#d33'
+                            });
+                            console.log("AJAX error:", err);
+                        }
                     });
-                    console.log("AJAX error:", err);
                 }
             });
         }
-    });
-}
-</script>
+    </script>
 
 <%- include('../../views/partials/admin/footer.ejs')%>

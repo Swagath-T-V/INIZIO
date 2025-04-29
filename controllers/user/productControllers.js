@@ -1,5 +1,4 @@
 const Product = require("../../models/productSchema");
-const Category = require("../../models/categorySchema");
 const User = require("../../models/userSchema");
 const Offer = require("../../models/offerSchema");
 
@@ -16,9 +15,10 @@ const productDetails = async (req, res) => {
         }
 
         const product = await Product.findOne({ _id: productId, isDelete: false, isListed: true })
-            .populate('category', 'name')
-            .populate('subCategory', 'name')
-            .lean();
+        .populate("brand" ,"name")
+        .populate('category', 'name')
+        .populate('subCategory', 'name')
+        .lean();
 
         if (!product) {
             return res.redirect("/shop");
@@ -37,7 +37,8 @@ const productDetails = async (req, res) => {
             const isApplicable = (
                 (item.offerType === 'Category' && offerId === product.category._id.toString()) ||
                 (item.offerType === 'subCategory' && offerId === product.subCategory._id.toString()) ||
-                (item.offerType === 'Product' && offerId === product._id.toString())
+                (item.offerType === 'Product' && offerId === product._id.toString()) ||
+                (item.offerType === 'Brand' && offerId === product.brand._id.toString())
             );
             return isApplicable && !usedOfferIdsForProduct.includes(item._id.toString());
             
@@ -47,16 +48,16 @@ const productDetails = async (req, res) => {
         let discountedPrice = product.salePrice;
 
         if (offers.length > 0) {
-            bestOffer = offers.reduce((best, current) => {
-                const bestDiscount = best ? best.discountType === 'percentage' ? (product.salePrice * best.discountAmount) / 100 : best.discountAmount : 0;
-                const currentDiscount = current.discountType === 'percentage' ? (product.salePrice * current.discountAmount) / 100 : current.discountAmount;
-                return currentDiscount > bestDiscount ? current : best;
-            }, null);
+        bestOffer = offers.reduce((best, current) => {
+            const bestDiscount = best ? (product.salePrice * best.discountAmount) / 100 : 0;
+            const currentDiscount = (product.salePrice * current.discountAmount) / 100;
+            return currentDiscount > bestDiscount ? current : best;
+        }, null);
 
-            if (bestOffer) {
-                const discountAmount = bestOffer.discountType === 'percentage'  ? (product.salePrice * bestOffer.discountAmount / 100) : Math.min(bestOffer.discountAmount, product.salePrice);
-                discountedPrice = Math.max(0, product.salePrice - discountAmount);
-            }
+        if (bestOffer) {
+            const discountAmount = (product.salePrice * bestOffer.discountAmount) / 100;
+            discountedPrice = Math.max(0, product.salePrice - discountAmount);
+        }
         }
 
         const relatedProducts = await Product.find({
@@ -65,10 +66,11 @@ const productDetails = async (req, res) => {
             _id: { $ne: productId },
             quantity: { $gt: 0 }
         })
-            .populate('category', 'name')
-            .populate('subCategory', 'name')
-            .limit(4)
-            .lean();
+        .populate("brand","name")
+        .populate('category', 'name')
+        .populate('subCategory', 'name')
+        .limit(4)
+        .lean();
 
         res.render("productDetails", {
             product,

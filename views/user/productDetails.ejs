@@ -749,15 +749,7 @@
                                                         <span class="save-price font-md color3 ml-15">
                                                             <%= discountPercentage %>% OFF
                                                         </span>
-                                                    <% } %>
-                                                <% } else { %>
-                                                    <span class="old-price font-md ml-15">₹ <%= product.regularPrice %></span>
-                                                    <% const discountPercentage = Math.round((1 - product.salePrice / product.regularPrice) * 100); %>
-                                                    <% if (discountPercentage > 0) { %>
-                                                        <span class="save-price font-md color3 ml-15">
-                                                            <%= discountPercentage %>% OFF
-                                                        </span>
-                                                    <% } %>
+                                                    <% } %>                                                    
                                                 <% } %>
                                             </div>
                                         </div>
@@ -808,25 +800,25 @@
                                                     <div class="spec-item">
                                                         <span class="spec-label">Brand:</span>
                                                         <span class="spec-value">
-                                                            <%= product.brand || "Generic" %>
+                                                            <%= product.brand.name %>
                                                         </span>
                                                     </div>
                                                     <div class="spec-item">
                                                         <span class="spec-label">Material:</span>
                                                         <span class="spec-value">
-                                                            <%= product.material || "N/A" %>
+                                                            <%= product.material %>
                                                         </span>
                                                     </div>
                                                     <div class="spec-item">
                                                         <span class="spec-label">Dimensions:</span>
                                                         <span class="spec-value">
-                                                            <%= product.dimensions || "N/A" %>
+                                                            <%= product.dimensions %> Millemeter
                                                         </span>
                                                     </div>
                                                     <div class="spec-item">
                                                         <span class="spec-label">Weight:</span>
                                                         <span class="spec-value">
-                                                            <%= product.weight || "N/A" %>
+                                                            <%= product.weight %> Grams
                                                         </span>
                                                     </div>
                                                 </div>
@@ -851,7 +843,7 @@
 
                                             <div class="product-additional-info mt-30 pt-30 border-top">
                                                 <div class="product-info-tags mt-10">
-                                                    <span>Category: </span>
+                                                    <span>FOR : </span>
                                                     <a href="#">
                                                         <%= product.category.name || "N/A" %>
                                                     </a>
@@ -871,35 +863,33 @@
                                         <% offers.forEach(offer => { %>
                                             <div class="offer-card <%= bestOffer && bestOffer._id.toString() === offer._id.toString() ? 'best-offer' : '' %>">
                                                 <% if (bestOffer && bestOffer._id.toString() === offer._id.toString()) { %>
-                                                    <div class="offer-applied-badge">
-                                                        <span>Applied</span>
-                                                    </div>
+                                                  <div class="offer-applied-badge">
+                                                    <span>Applied</span>
+                                                  </div>
                                                 <% } %>
                                                 <div class="offer-icon">
-                                                    <i class="fas fa-<%= offer.offerType === 'Category' ? 'tags' : offer.offerType === 'subCategory' ? 'percentage' : 'bolt' %>"></i>
+                                                  <i class="fas fa-<%= offer.offerType === 'Category' ? 'tags' : offer.offerType === 'subCategory' ? 'percentage' : offer.offerType === 'Product' ? 'bolt' : 'star' %>"></i>
                                                 </div>
                                                 <div class="offer-content">
-                                                    <h4 class="offer-title">
-                                                        <%= offer.offerName %>
-                                                        <% if (offer.offerType === 'Category') { %>
-                                                            - <%= product.category.name %>
-                                                        <% } else if (offer.offerType === 'subCategory') { %>
-                                                            - <%= product.subCategory.name %>
-                                                        <% } else if (offer.offerType === 'Product') { %>
-                                                            - <%= product.name %>
-                                                        <% } %>
-                                                    </h4>
-                                                    <p class="offer-description">
-                                                        <% if (offer.discountType === 'percentage') { %>
-                                                            (<%= offer.discountAmount %>% OFF)
-                                                        <% } else { %>
-                                                            (Flat ₹<%= offer.discountAmount %> OFF)
-                                                        <% } %>
-                                                        <br>
-                                                        Valid until <%= new Date(offer.validUpto).toLocaleDateString() %>
-                                                    </p>
+                                                  <h4 class="offer-title">
+                                                    <%= offer.offerName %>
+                                                    <% if (offer.offerType === 'Category') { %>
+                                                      - <%= product.category.name %>
+                                                    <% } else if (offer.offerType === 'subCategory') { %>
+                                                      - <%= product.subCategory.name %>
+                                                    <% } else if (offer.offerType === 'Product') { %>
+                                                      - <%= product.name %>
+                                                    <% } else if (offer.offerType === 'Brand') { %>
+                                                      - <%= product.brand.name %>
+                                                    <% } %>
+                                                  </h4>
+                                                  <p class="offer-description">
+                                                    <%= offer.discountAmount %>% OFF
+                                                    <br>
+                                                    Valid until <%= new Date(offer.validUpto).toLocaleDateString() %>
+                                                  </p>
                                                 </div>
-                                            </div>
+                                              </div>
                                         <% }); %>
                                     <% } else { %>
                                         <div class="offer-card">

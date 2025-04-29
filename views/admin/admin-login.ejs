@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,13 +117,15 @@
                 flex-direction: column;
             }
 
-            .clock-section, .login-section {
+            .clock-section,
+            .login-section {
                 flex: none;
                 height: 50%;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="clock-section">
@@ -187,7 +190,7 @@
                 } else if (passval.length < 8) {
                     error2.style.display = "block";
                     error2.innerHTML = "Password should contain at least 8 characters";
-                } else if (!alpha.test(passval) || !digit.test(passval)) {    
+                } else if (!alpha.test(passval) || !digit.test(passval)) {
                     // || !specialChar.test(passval)  
                     error2.style.display = "block";
                     error2.innerHTML = "Password should contain alphabets and digits";
@@ -230,8 +233,8 @@
                                 icon: "error",
                                 title: "Error in login",
                                 text: response.message,
-                                heightAuto: false, 
-                                scrollbarPadding: false 
+                                heightAuto: false,
+                                scrollbarPadding: false
                             });
                         }
                     },
@@ -245,8 +248,8 @@
                             icon: "error",
                             title: "Error in login",
                             text: errorMessage,
-                            heightAuto: false, 
-                            scrollbarPadding: false 
+                            heightAuto: false,
+                            scrollbarPadding: false
                         });
                     }
                 });
@@ -254,4 +257,5 @@
         });
     </script>
 </body>
+
 </html>

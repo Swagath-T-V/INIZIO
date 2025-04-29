@@ -73,61 +73,47 @@
                     <div class="card-body">
                         <form id="couponForm" onsubmit="return handleFormSubmit(event)" novalidate>
                             <div class="mb-3">
-                                <label for="couponName" class="form-label">Coupon Name <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="couponName" name="couponName"
-                                    value="<%=coupon.couponName%>">
+                                <label for="couponName" class="form-label">Coupon Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="couponName" name="couponName" value="<%=coupon.couponName%>">
                                 <div class="error-message" id="couponName-error" style="display: none;"></div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="couponCode" class="form-label">Coupon Code <span
-                                        class="text-danger">*</span></label>
+                                <label for="couponCode" class="form-label">Coupon Code <span  class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="couponCode" name="couponCode"
-                                        value="<%=coupon.couponCode%>">
-                                    <button class="btn btn-outline-secondary" type="button"
-                                        onclick="generateCouponCode()">Generate</button>
+                                    <input type="text" class="form-control" id="couponCode" name="couponCode"  value="<%=coupon.couponCode%>">
+                                    <button class="btn btn-outline-secondary" type="button"  onclick="generateCouponCode()">Generate</button>
                                 </div>
                                 <div class="error-message" id="couponCode-error" style="display: none;"></div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="startingDate" class="form-label">Starting Date<span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="startingDate" name="startingDate"
-                                        value="<%=new Date(coupon.startingDate).toISOString().split('T')[0];%>">
+                                    <label for="startingDate" class="form-label">Starting Date<span  class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="startingDate" name="startingDate"  value="<%=new Date(coupon.startingDate).toISOString().split('T')[0];%>">
                                     <div class="error-message" id="startingDate-error" style="display: none;"></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="expireOn" class="form-label">Expiry Date <span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="expireOn" name="expireOn"
-                                        value="<%=new Date(coupon.expireOn).toISOString().split('T')[0];%>">
+                                    <label for="expireOn" class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="expireOn" name="expireOn"  value="<%=new Date(coupon.expireOn).toISOString().split('T')[0];%>">
                                     <div class="error-message" id="expireOn-error" style="display: none;"></div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="offerPrice" class="form-label">Discount Amount <span
-                                            class="text-danger">*</span></label>
+                                    <label for="offerPrice" class="form-label">Discount Amount <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text">₹</span>
-                                        <input type="number" class="form-control" id="offerPrice" name="offerPrice"
-                                            min="0" step="0.01" value="<%= coupon.offerPrice %>">
+                                        <input type="number" class="form-control" id="offerPrice" name="offerPrice"  min="0" step="0.01" value="<%= coupon.offerPrice %>">
                                     </div>
                                     <div class="error-message" id="offerPrice-error" style="display: none;"></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="minimumPurchase" class="form-label">Minimum Purchase Amount <span
-                                            class="text-danger">*</span></label>
+                                    <label for="minimumPurchase" class="form-label">Minimum Purchase Amount <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text">₹</span>
-                                        <input type="number" class="form-control" id="minimumPurchase"
-                                            name="minimumPurchase" min="0" step="0.01"
-                                            value="<%= coupon.minimumPurchase %>">
+                                        <input type="number" class="form-control" id="minimumPurchase" name="minimumPurchase" min="0" step="0.01" value="<%= coupon.minimumPurchase %>">
                                     </div>
                                     <div class="error-message" id="minimumPurchase-error" style="display: none;"></div>
                                 </div>
@@ -148,8 +134,7 @@
 
                             <div class="d-flex justify-content-between mt-4">
                                 <a href="/admin/coupon" class="btn btn-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary"
-                                    style="background-color: var(--purple-light);">Update Coupon</button>
+                                <button type="submit" class="btn btn-primary" style="background-color: var(--purple-light);">Update Coupon</button>
                             </div>
                         </form>
                     </div>
@@ -224,15 +209,15 @@
                                 window.location.href = '/admin/coupon';
                             }
                         });
-                    } 
+                    }
                 },
                 error: (xhr, status, error) => {
                     submitButton.innerHTML = originalText;
                     submitButton.disabled = false;
-                    
+
                     let errorMessage = 'An error occurred while editing the coupon';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message; 
+                        errorMessage = xhr.responseJSON.message;
                     }
 
                     Swal.fire({
@@ -257,19 +242,40 @@
             const minimumPurchase = document.getElementById("minimumPurchase").value.trim();
             let isValid = true;
 
-            if (couponName === "") {
+            if (!couponName) {
                 displayErrorMessage("couponName-error", "Please enter a coupon name");
                 isValid = false;
             } else if (couponName.length < 3) {
-                displayErrorMessage("couponName-error", "Coupon name should be at least 3 characters long");
+                displayErrorMessage("couponName-error", "Coupon name must be at least 3 characters long");
+                isValid = false;
+            } else if (couponName.length > 20) {
+                displayErrorMessage("couponName-error", "Coupon name cannot exceed 20 characters");
+                isValid = false;
+            } else if (/^\s|\s$/.test(couponName)) {
+                displayErrorMessage("couponName-error", "Coupon name cannot start or end with spaces");
+                isValid = false;
+            } else if (/\s{2,}/.test(couponName)) {
+                displayErrorMessage("couponName-error", "Coupon name cannot contain multiple consecutive spaces");
+                isValid = false;
+            } else if (/-{2,}/.test(couponName)) {
+                displayErrorMessage("couponName-error", "Coupon name cannot contain multiple consecutive hyphens");
+                isValid = false;
+            } else if (/^-|-$/.test(couponName)) {
+                displayErrorMessage("couponName-error", "Coupon name cannot start or end with a hyphen");
+                isValid = false;
+            } else if (/[^a-zA-Z0-9\s-]/.test(couponName)) {
+                displayErrorMessage("couponName-error", "Coupon name can only contain letters, numbers, spaces, or hyphens");
                 isValid = false;
             }
 
             if (couponCode === "") {
                 displayErrorMessage("couponCode-error", "Please enter a coupon code");
                 isValid = false;
-            } else if (couponCode.length < 4) {
-                displayErrorMessage("couponCode-error", "Coupon code should be at least 4 characters long");
+            } else if (couponCode.length < 8) {
+                displayErrorMessage("couponCode-error", "Coupon code must be at least 8 characters long");
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9]+$/.test(couponCode)) {
+                displayErrorMessage("couponCode-error", "Coupon code can only contain letters and numbers");
                 isValid = false;
             }
 
@@ -314,6 +320,9 @@
             } else if (parseFloat(minimumPurchase) <= 0) {
                 displayErrorMessage("minimumPurchase-error", "Minimum purchase amount must be greater than 0");
                 isValid = false;
+            } else if (parseFloat(minimumPurchase) <= parseFloat(offerPrice)) {
+                displayErrorMessage("minimumPurchase-error", "Minimum purchase amount must be greater than discount amount");
+                isValid = false;
             }
 
             return isValid;
@@ -334,4 +343,4 @@
         }
     </script>
 
-    <%- include("../../views/partials/admin/footer.ejs") %>
+<%- include("../../views/partials/admin/footer.ejs") %>

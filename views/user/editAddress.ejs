@@ -80,70 +80,145 @@
     </div>
 
     <script>
-        document.getElementById('edit-address-form').addEventListener('submit', function (event) {
-            const addressType = document.getElementById('addressType');
-            const name = document.getElementById('name');
-            const city = document.getElementById('city');
-            const landMark = document.getElementById('landMark');
-            const state = document.getElementById('state');
-            const pincode = document.getElementById('pincode');
-            const phone = document.getElementById('phone');
-            const pincodeError = document.getElementById('pincode-error');
-            const phoneError = document.getElementById('phone-error');
-            let hasError = false;
-    
-            // Reset error states
-            [addressType, name, city, landMark, state, pincode, phone].forEach(field => {
-                field.classList.remove('error-input');
-            });
-            pincodeError.textContent = '';
-            phoneError.textContent = '';
-    
-            if (!addressType.value) {
-                addressType.classList.add('error-input');
-                hasError = true;
-            }
-    
-            if (!/^[a-zA-Z\s]{2,}$/.test(name.value)) {
-                name.classList.add('error-input');
-                name.nextElementSibling.textContent = 'Name must be at least 2 characters long and contain only letters and spaces.';
-                hasError = true;
-            }
-    
-            if (!/^[a-zA-Z\s]{2,}$/.test(city.value)) {
-                city.classList.add('error-input');
-                city.nextElementSibling.textContent = 'City must be at least 2 characters long and contain only letters and spaces.';
-                hasError = true;
-            }
-    
-            if (landMark.value.length < 3) {
-                landMark.classList.add('error-input');
-                landMark.nextElementSibling.textContent = 'Landmark must be at least 3 characters long.';
-                hasError = true;
-            }
-    
-            if (!/^[a-zA-Z\s]{2,}$/.test(state.value)) {
-                state.classList.add('error-input');
-                state.nextElementSibling.textContent = 'State must be at least 2 characters long and contain only letters and spaces.';
-                hasError = true;
-            }
-    
-            if (!/^\d{6}$/.test(pincode.value)) {
-                pincode.classList.add('error-input');
-                pincodeError.textContent = 'Pincode must be exactly 6 digits.';
-                hasError = true;
-            }
-    
-            if (!/^\d{10}$/.test(phone.value)) {
-                phone.classList.add('error-input');
-                phoneError.textContent = 'Phone number must be exactly 10 digits.';
-                hasError = true;
-            }
-    
-            if (hasError) {
-                event.preventDefault();
-            }
-        });
+  document.getElementById('edit-address-form').addEventListener('submit', function (event) {
+    const addressType = document.getElementById('addressType');
+    const name = document.getElementById('name');
+    const city = document.getElementById('city');
+    const landMark = document.getElementById('landMark');
+    const state = document.getElementById('state');
+    const pincode = document.getElementById('pincode');
+    const phone = document.getElementById('phone');
+    const pincodeError = document.getElementById('pincode-error');
+    const phoneError = document.getElementById('phone-error');
+    let hasError = false;
+
+    [addressType, name, city, landMark, state, pincode, phone].forEach(field => {
+        field.classList.remove('error-input');
+    });
+    pincodeError.textContent = '';
+    phoneError.textContent = '';
+
+    const hasRepeatingChars = (str) => /(.)\1{2,}/.test(str.replace(/\s/g, ''));
+
+    if (!addressType.value) {
+        addressType.classList.add('error-input');
+        const errorDiv = addressType.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('error-message')) {
+            errorDiv.textContent = 'Please select an address type.';
+        }
+        hasError = true;
+    }
+
+    const nameVal = name.value.trim();
+    if (!nameVal) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Please enter name.';
+        hasError = true;
+    } else if (!/^[A-Za-z]+(?:\s[A-Za-z]+)*$/.test(nameVal)) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Name can only contain letters and single spaces.';
+        hasError = true;
+    } else if (/[-$#@!%^&*()_+={}[\]|\\:;"'<>?,./~`0-9]/.test(nameVal)) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Name cannot contain special characters, quotes, or numbers.';
+        hasError = true;
+    } else if (nameVal.length < 2) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Name must be at least 2 characters long.';
+        hasError = true;
+    } else if (nameVal.length > 25) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Name cannot exceed 25 characters.';
+        hasError = true;
+    } else if (hasRepeatingChars(nameVal)) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Name cannot consist of the same repeating character (e.g., "aaa").';
+        hasError = true;
+    } else if (/^\s|\s$/.test(name.value)) {
+        name.classList.add('error-input');
+        name.nextElementSibling.textContent = 'Name cannot have spaces at the start or end.';
+        hasError = true;
+    }
+
+    const cityVal = city.value.trim();
+    if (!cityVal) {
+        city.classList.add('error-input');
+        city.nextElementSibling.textContent = 'Please enter city.';
+        hasError = true;
+    } else if (!/^[a-za-z\s]{2,}$/i.test(cityVal)) {
+        city.classList.add('error-input');
+        city.nextElementSibling.textContent = 'City must be at least 2 characters long and contain only letters and spaces.';
+        hasError = true;
+    } else if (cityVal.length > 50) {
+        city.classList.add('error-input');
+        city.nextElementSibling.textContent = 'City cannot exceed 50 characters.';
+        hasError = true;
+    }
+
+    const landMarkVal = landMark.value.trim();
+    if (!landMarkVal) {
+        landMark.classList.add('error-input');
+        landMark.nextElementSibling.textContent = 'Please enter a landmark.';
+        hasError = true;
+    } else if (landMarkVal.length < 3) {
+        landMark.classList.add('error-input');
+        landMark.nextElementSibling.textContent = 'Landmark must be at least 3 characters long.';
+        hasError = true;
+    } else if (landMarkVal.length > 100) {
+        landMark.classList.add('error-input');
+        landMark.nextElementSibling.textContent = 'Landmark cannot exceed 100 characters.';
+        hasError = true;
+    }
+
+    const stateVal = state.value.trim();
+    if (!stateVal) {
+        state.classList.add('error-input');
+        state.nextElementSibling.textContent = 'Please enter state.';
+        hasError = true;
+    } else if (!/^[a-za-z\s]{2,}$/i.test(stateVal)) {
+        city.classList.add('error-input');
+        state.nextElementSibling.textContent = 'State must be at least 2 characters long and contain only letters and spaces.';
+        hasError = true;
+    } else if (stateVal.length > 50) {
+        state.classList.add('error-input');
+        state.nextElementSibling.textContent = 'State cannot exceed 50 characters.';
+        hasError = true;
+    }
+
+    const pincodeVal = pincode.value.trim();
+    if (!pincodeVal) {
+        pincode.classList.add('error-input');
+        pincodeError.textContent = 'Please enter pincode.';
+        hasError = true;
+    } else if (!/^\d{6}$/.test(pincodeVal)) {
+        pincode.classList.add('error-input');
+        pincodeError.textContent = 'Pincode must be exactly 6 digits.';
+        hasError = true;
+    }
+
+    const phoneVal = phone.value.trim();
+    if (!phoneVal) {
+        phone.classList.add('error-input');
+        phoneError.textContent = 'Please enter phone number.';
+        hasError = true;
+    } else if (!/^[6-9]\d{9}$/.test(phoneVal)) {
+        phone.classList.add('error-input');
+        phoneError.textContent = 'Phone number must be exactly 10 digits and start with 6, 7, 8, or 9.';
+        hasError = true;
+    } else if (/^(\d)\1{9}$/.test(phoneVal)) {
+        phone.classList.add('error-input');
+        phoneError.textContent = 'Phone number cannot have all repeating digits.';
+        hasError = true;
+    } else if (/^(0123456789|1234567890)$/.test(phoneVal)) {
+        phone.classList.add('error-input');
+        phoneError.textContent = 'Phone number cannot be a sequence like 1234567890.';
+        hasError = true;
+    }
+
+    if (hasError) {
+        event.preventDefault();
+    }
+});
     </script>
    
 <%- include("../../views/partials/userProfile/footer.ejs") %>

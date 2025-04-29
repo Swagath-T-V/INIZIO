@@ -1,186 +1,183 @@
 <%- include("../../views/partials/admin/header.ejs") %>
-<style>
-    
-    .mt-4 {
-        margin-top: 1.5rem !important;
-        margin-bottom: 15px;
-    }
-    .error-message {
-        color: red;
-        font-size: 0.9em;
-    }
-</style>
+    <style>
+        .mt-4 {
+            margin-top: 1.5rem !important;
+            margin-bottom: 15px;
+        }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 mt-60">
-            <form id="editSubCategoryForm" method="post" novalidate>
-                <div class="mb-4 mt-30">
-                    <label for="subCategoryName" class="form-label">Name <span class="text-danger">*</span></label>
-                    <input type="text" name="subCategoryName" id="subCategoryName" value="<%= subCategory.name %>" class="form-control border" required />
-                    <div class="error-message" id="name-error" style="display: none;"></div>
-                </div>
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
 
-                <div class="mb-4">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea name="description" id="description" class="form-control border"><%= subCategory.description %></textarea>
-                    <div class="error-message" id="description-error" style="display: none;"></div>
-                </div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 mt-60">
+                <form id="editSubCategoryForm" method="post" novalidate>
+                    <div class="mb-4 mt-30">
+                        <label for="subCategoryName" class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" name="subCategoryName" id="subCategoryName" value="<%= subCategory.name %>"  class="form-control border" required />
+                        <div class="error-message" id="name-error" style="display: none;"></div>
+                    </div>
 
-                <div class="d-flex justify-content-between mt-4">
-                    <button class="btn btn-primary" type="submit">Update SubCategory</button>
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="description" id="description"  class="form-control border"><%= subCategory.description %></textarea>
+                        <div class="error-message" id="description-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-primary" type="submit">Update SubCategory</button>
+                    </div>
+                </form>
+                <div>
+                    <a href="/admin/subCategory" class="btn btn-secondary">Cancel</a>
                 </div>
-            </form>
-            <div>
-                <a href="/admin/subCategory" class="btn btn-secondary">Cancel</a>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-<script>
-    
-    $(document).ready(function () {
-        $('#editSubCategoryForm').on('submit', function (e) {
-            e.preventDefault();
+    <script>
 
-            clearErrorMessages();
+        $(document).ready(function () {
+            $('#editSubCategoryForm').on('submit', function (e) {
+                e.preventDefault();
 
-            if (!validateForm()) {
-                return false;
-            }
+                clearErrorMessages();
 
-            var subCategoryName = $("#subCategoryName").val().trim();
-            var description = $("#description").val().trim();
+                if (!validateForm()) {
+                    return false;
+                }
 
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.innerHTML;
-            submitButton.innerHTML = 'Updating...';
-            submitButton.disabled = true;
+                var subCategoryName = $("#subCategoryName").val().trim();
+                var description = $("#description").val().trim();
 
-            $.ajax({
-                method: "POST",
-                url: "/admin/editSubCategory/<%= subCategory._id %>",
-                data: {
-                    subCategoryName: subCategoryName,
-                    description: description
-                },
-                success: function (response) {
-                    submitButton.innerHTML = originalText;
-                    submitButton.disabled = false;
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = 'Updating...';
+                submitButton.disabled = true;
 
-                    if (response.success) {
-                        Swal.fire({
-                            icon: "success",
-                            title: response.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            window.location.href = response.redirectUrl;
-                        });
-                    } else {
+                $.ajax({
+                    method: "POST",
+                    url: "/admin/editSubCategory/<%= subCategory._id %>",
+                    data: {
+                        subCategoryName: subCategoryName,
+                        description: description
+                    },
+                    success: function (response) {
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+
+                        if (response.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: response.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = response.redirectUrl;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: response.message,
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+
+                        let errorMessage = "Please try again.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
                         Swal.fire({
                             icon: "error",
                             title: "Error",
-                            text: response.message,
+                            text: errorMessage,
                         });
                     }
-                },
-                error: function (xhr) {
-                    submitButton.innerHTML = originalText;
-                    submitButton.disabled = false;
+                });
+            });
 
-                    let errorMessage = "Please try again.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
+            function validateForm() {
+                const name = document.getElementById("subCategoryName").value.trim();
+                const description = document.getElementById("description").value.trim();
+                let isValid = true;
 
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: errorMessage,
-                    });
+                if (!name) {
+                    displayErrorMessage("name-error", "Subcategory name is required");
+                    isValid = false;
+                } else if (name.length < 3) {
+                    displayErrorMessage("name-error", "Subcategory name must be at least 3 characters long");
+                    isValid = false;
+                } else if (name.length > 20) {
+                    displayErrorMessage("name-error", "Subcategory name cannot exceed 20 characters");
+                    isValid = false;
+                } else if (/^\s|\s$/.test(name)) {
+                    displayErrorMessage("name-error", "Subcategory name cannot start or end with spaces");
+                    isValid = false;
+                } else if (/\s{2,}/.test(name)) {
+                    displayErrorMessage("name-error", "Subcategory name cannot contain multiple consecutive spaces");
+                    isValid = false;
+                } else if (/-{2,}/.test(name)) {
+                    displayErrorMessage("name-error", "Subcategory name cannot contain multiple consecutive hyphens");
+                    isValid = false;
+                } else if (/^-|-$/.test(name)) {
+                    displayErrorMessage("name-error", "Subcategory name cannot start or end with a hyphen");
+                    isValid = false;
+                } else if (/[^a-zA-Z0-9\s-]/.test(name)) {
+                    displayErrorMessage("name-error", "Subcategory name can only contain letters, numbers, spaces, or hyphens");
+                    isValid = false;
                 }
-            });
+
+                if (!description) {
+                    displayErrorMessage("description-error", "Description is required");
+                    isValid = false;
+                } else if (description.length < 5) {
+                    displayErrorMessage("description-error", "Description must be at least 5 characters long");
+                    isValid = false;
+                } else if (description.length > 100) {
+                    displayErrorMessage("description-error", "Description cannot exceed 100 characters");
+                    isValid = false;
+                } else if (/^\s|\s$/.test(description)) {
+                    displayErrorMessage("description-error", "Description cannot start or end with spaces");
+                    isValid = false;
+                } else if (/^-|-$/.test(description)) {
+                    displayErrorMessage("description-error", "Description cannot start or end with a hyphen");
+                    isValid = false;
+                } else if (/-{2,}/.test(description)) {
+                    displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
+                    isValid = false;
+                } else if (/[^a-zA-Z0-9\s.,!?'"():;-]/.test(description) || /[.,!?'"():;-]{2,}/.test(description)) {
+                    displayErrorMessage("description-error", "Description can only contain letters, numbers, spaces and basic punctuation");
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function displayErrorMessage(elementId, message) {
+                const errorElement = document.getElementById(elementId);
+                errorElement.innerText = message;
+                errorElement.style.display = "block";
+            }
+
+            function clearErrorMessages() {
+                const errorElements = document.getElementsByClassName("error-message");
+                Array.from(errorElements).forEach((element) => {
+                    element.innerText = "";
+                    element.style.display = "none";
+                });
+            }
         });
-
-        // Validation function
-        function validateForm() {
-            const name = document.getElementById("subCategoryName").value.trim();
-            const description = document.getElementById("description").value.trim();
-            let isValid = true;
-
-            // Name validation
-            if (!name) {
-                displayErrorMessage("name-error", "Category name is required");
-                isValid = false;
-            } else if (name.length < 3) {
-                displayErrorMessage("name-error", "Category name must be at least 3 characters long");
-                isValid = false;
-            } else if (name.length > 20) {
-                displayErrorMessage("name-error", "Category name cannot exceed 20 characters");
-                isValid = false;
-            } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s-]*[a-zA-Z0-9]+)*$/.test(name)) {
-                displayErrorMessage("name-error", "Category name can only contain letters, numbers, single spaces, or single hyphens between alphanumeric characters");
-                isValid = false;
-            } else if (/^\s|\s$/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot start or end with spaces");
-                isValid = false;
-            } else if (/\s{2,}/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot contain multiple consecutive spaces");
-                isValid = false;
-            } else if (/-{2,}/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot contain multiple consecutive hyphens");
-                isValid = false;
-            } else if (/^-|-$/.test(name)) {
-                displayErrorMessage("name-error", "Category name cannot start or end with a hyphen");
-                isValid = false;
-            }
-
-            // Description validation
-            if (!description) {
-                displayErrorMessage("description-error", "Description is required");
-                isValid = false;
-            } else if (description.length < 5) {
-                displayErrorMessage("description-error", "Description must be at least 5 characters long");
-                isValid = false;
-            } else if (description.length > 100) {
-                displayErrorMessage("description-error", "Description cannot exceed 100 characters");
-                isValid = false;
-            } else if (!/^[a-zA-Z0-9]+([a-zA-Z0-9\s.,!?-]*[a-zA-Z0-9]+)*$/.test(description)) {
-                displayErrorMessage("description-error", "Description can only contain letters, numbers, single spaces, or basic punctuation between alphanumeric characters");
-                isValid = false;
-            } else if (/^\s|\s$/.test(description)) {
-                displayErrorMessage("description-error", "Description cannot start or end with spaces");
-                isValid = false;
-            } else if (/-{2,}/.test(description)) {
-                displayErrorMessage("description-error", "Description cannot contain multiple consecutive hyphens");
-                isValid = false;
-            } else if (/^-|-$/.test(description)) {
-                displayErrorMessage("description-error", "Description cannot start or end with a hyphen");
-                isValid = false;
-            }
-
-            return isValid;
-        }
-
-        function displayErrorMessage(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            errorElement.innerText = message;
-            errorElement.style.display = "block";
-        }
-
-        function clearErrorMessages() {
-            const errorElements = document.getElementsByClassName("error-message");
-            Array.from(errorElements).forEach((element) => {
-                element.innerText = "";
-                element.style.display = "none";
-            });
-        }
-    });
-</script>
+    </script>
 
 <%- include("../../views/partials/admin/footer.ejs") %>

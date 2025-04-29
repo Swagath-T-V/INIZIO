@@ -306,7 +306,7 @@
                                     <%= transaction.transactionId %>
                                 </td>
                                 <td>
-                                    <%= new Date(transaction.date).toLocaleDateString() %>
+                                    <%= new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %>
                                 </td>
                                 <td>
                                     <% if (transaction.type.toLowerCase() === 'credit') { %>
@@ -321,7 +321,7 @@
                                     <%= transaction.method %>
                                 </td>
                                 <td>
-                                    <%= transaction.amount %>
+                                    <%= transaction.amount.toFixed(2) %>
                                 </td>
                                 <% if(transaction.method !== 'Referral') { %>
                                 <td class="transaction-actions">
@@ -362,4 +362,4 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-    <%- include("../../views/partials/admin/footer.ejs") %>
+<%- include("../../views/partials/admin/footer.ejs") %>

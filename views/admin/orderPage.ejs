@@ -267,7 +267,7 @@
                         <div style="font-size: 12px; color: #888;"><%= order.userId.email %></div>
                     </td>
                     <td><%= order.orderId %></td>
-                    <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                    <td><%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %></td>
                     <td>₹ <%= order.finalAmount %></td>
                     <td>
                         <span class="order-status order-status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">

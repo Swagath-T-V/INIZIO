@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const {Schema} = mongoose
+const { Schema } = mongoose
 
 const walletSchema = new Schema({
 
@@ -16,8 +16,8 @@ const walletSchema = new Schema({
     },
     currency: {
         type: String,
-        default: "INR" 
-    }, 
+        default: "INR"
+    },
     transactions: [{
         transactionId: {
             type: String,
@@ -26,7 +26,7 @@ const walletSchema = new Schema({
         },
         amount: {
             type: Number,
-            required: true         
+            required: true
         },
         type: {
             type: String,
@@ -35,7 +35,7 @@ const walletSchema = new Schema({
         },
         method: {
             type: String,
-            enum: ["Razorpay", "Cashback", "Refund","OrderPayment","Referral"],
+            enum: ["Razorpay", "Cashback", "Refund", "OrderPayment", "Referral"],
             required: true
         },
         status: {
@@ -53,15 +53,15 @@ const walletSchema = new Schema({
         },
         orderId: {
             type: String,
-            default: null 
+            default: null
         }
     }],
     lastUpdated: {
         type: Date,
         default: Date.now
     }
-    
+
 }, { timestamps: true })
 
-const Wallet =mongoose.model("Wallet",walletSchema)
+const Wallet = mongoose.model("Wallet", walletSchema)
 module.exports = Wallet
