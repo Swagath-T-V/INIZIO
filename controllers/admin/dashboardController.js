@@ -23,10 +23,11 @@ const loadDashboard = async (req, res) => {
         const limit = 4;
         const skip = (page - 1) * limit;
 
-        const allOrdersForMetrics = await Order.find({
+        const fullOrders = await Order.find({
             status: { $nin: ["Payment Failed"] },
             $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
         }).lean();
+        // console.log(fullOrders)
 
         let totalAmount = 0;
         let offerDiscount = 0;
@@ -34,7 +35,7 @@ const loadDashboard = async (req, res) => {
         let returnedAmount = 0;
         let cancelledAmount = 0;
 
-        allOrdersForMetrics.forEach((order) => {
+        fullOrders.forEach((order) => {
             totalAmount += order.totalPrice || 0;
             offerDiscount += order.offerDiscount || 0;
             couponDiscount += order.couponDiscount || 0;
@@ -221,17 +222,17 @@ const getSalesReport = async (req, res) => {
                 $lte: new Date(now.setHours(23, 59, 59, 999)),
             };
         } else if (period === "weekly") {
-            const today = new Date(); // keep the real now
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay());
-            startOfWeek.setHours(0, 0, 0, 0);
+            const today = new Date();
+            const startOfPeriod = new Date(today);
+            startOfPeriod.setDate(today.getDate() - 6);
+            startOfPeriod.setHours(0, 0, 0, 0);
         
-            const endOfNow = new Date(today);
-            endOfNow.setHours(23, 59, 59, 999);
+            const endOfPeriod = new Date(today);
+            endOfPeriod.setHours(23, 59, 59, 999);
         
             dateFilter = {
-                $gte: startOfWeek,
-                $lte: endOfNow,
+                $gte: startOfPeriod,
+                $lte: endOfPeriod,
             };
         }
          else if (period === "yearly") {
@@ -243,7 +244,7 @@ const getSalesReport = async (req, res) => {
             };
         }
 
-        const allOrdersForMetrics = await Order.find({
+        const fullOrders = await Order.find({
             createdAt: dateFilter,
             status: { $nin: ["Payment Failed"] },
             $nor: [{ $and: [{ paymentStatus: "Pending" }, { paymentMethod: "Razorpay" }] }],
@@ -255,7 +256,7 @@ const getSalesReport = async (req, res) => {
         let returnedAmount = 0;
         let cancelledAmount = 0;
 
-        allOrdersForMetrics.forEach((order) => {
+        fullOrders.forEach((order) => {
             totalAmount += order.totalPrice || 0;
             offerDiscount += order.offerDiscount || 0;
             couponDiscount += order.couponDiscount || 0;
@@ -415,10 +416,17 @@ const getSalesReportExcel = async (req, res) => {
                 $lte: new Date(now.setHours(23, 59, 59, 999)),
             };
         } else if (period === "weekly") {
-            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            const today = new Date();
+            const startOfPeriod = new Date(today);
+            startOfPeriod.setDate(today.getDate() - 6); 
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            const endOfPeriod = new Date(today);
+            endOfPeriod.setHours(23, 59, 59, 999);
+
             dateFilter = {
-                $gte: new Date(startOfWeek.setHours(0, 0, 0, 0)),
-                $lte: new Date(now.setHours(23, 59, 59, 999)),
+                $gte: startOfPeriod,
+                $lte: endOfPeriod,
             };
         } else if (period === "yearly") {
             dateFilter = { $gte: new Date(now.getFullYear(), 0, 1) };
@@ -483,8 +491,8 @@ const getSalesReportExcel = async (req, res) => {
             worksheet.addRow({
                 date: new Date(order.createdAt).toLocaleDateString(),
                 orderId: order.orderId,
-                amount: order.totalPrice.toFixed(2),
-                discount: order.discount.toFixed(2),
+                amount: order.totalPrice ? order.totalPrice.toFixed(2) : "0.00",
+                discount: order.discount ? order.discount.toFixed(2) : "0.00",
                 couponApplied: order.couponApplied ? "Applied" : "Not Applied",
             });
         });
@@ -512,19 +520,23 @@ const getSalesReportExcel = async (req, res) => {
         }
 
         const buffer = await workbook.xlsx.writeBuffer();
+
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader(
             "Content-Disposition",
             `attachment; filename=sales_report_${new Date().toISOString().split("T")[0]}.xlsx`
         );
+        res.setHeader("Content-Length", buffer.length);
         res.send(buffer);
 
     } catch (error) {
-        
+
         console.error("Error in getSalesReportExcel:", error);
-        return res.redirect("/admin/pageerror");
+        res.status(500).json({ error: "Failed to generate Excel report: " + error.message });
+        
     }
 };
+
 
 module.exports = {
     loadDashboard,

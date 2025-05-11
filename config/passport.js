@@ -1,40 +1,38 @@
 const User = require("../models/userSchema");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-require("dotenv").config();
 const { v4: uuidv4 } = require("uuid");
 const Wallet = require("../models/walletSchema");
-
+ 
 passport.use(
     new GoogleStrategy(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_SECRET_ID,
             callbackURL: "/auth/google/callback",
-            passReqToCallback: true, 
+            passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {
 
             try {
-
-                if (!profile || !profile.id) {
-                    console.error("Profile object is invalid or missing id:", profile);
-                    return done(new Error("Invalid profile data from Google"), null);
-                }
-
+                // console.log("profile",profile)
                 let user = await User.findOne({ googleId: profile.id });
+                // console.log("user",user)
 
                 if (user) {
+
                     if (!user.isBlocked) {
-                        return done(null, user);
+                        return done(null, user );
                     } else {
-                        return done(null, false, { message: "User is blocked by the Admin" });
+                        return done(null, false );
                     }
+
                 } else {
+
                     const referralToken = uuidv4().replace(/-/g, "").slice(0, 10);
                     user = new User({
-                        name: profile.displayName || "Google User",
-                        email: profile.emails && profile.emails[0] ? profile.emails[0].value : "",
+                        name: profile.displayName,
+                        email: profile.emails[0].value ,
                         googleId: profile.id,
                         referralToken: referralToken,
                     });
@@ -50,10 +48,11 @@ passport.use(
 
                     await newWallet.save();
 
-                    const referralTokenFromUrl = req.session && req.session.referralToken;
+                    const token = req.session.referralToken;
 
-                    if (referralTokenFromUrl) {
-                        const referrer = await User.findOne({ referralToken: referralTokenFromUrl });
+                    if (token) {
+                        
+                        const referrer = await User.findOne({ referralToken: token });
 
                         if (referrer && referrer._id.toString() !== user._id.toString()) {
                             await Wallet.findOneAndUpdate(
@@ -96,7 +95,7 @@ passport.use(
                         }
                     }
 
-                    if (req.session && req.session.referralToken) {
+                    if ( req.session.referralToken) {
                         delete req.session.referralToken;
                     }
 
@@ -105,7 +104,7 @@ passport.use(
 
             } catch (error) {
 
-                console.error("Error in GoogleStrategy:", error);
+                console.log("Error in GoogleStrategy:", error);
                 return done(error, null);
 
             }
@@ -114,20 +113,27 @@ passport.use(
 );
 
 
-// Serialize user to session
 passport.serializeUser((user, done) => {
+
     done(null, user.id);
+
 });
 
 
-// Deserialize user from session
 passport.deserializeUser(async (id, done) => {
+
     try {
+
         const user = await User.findById(id);
         done(null, user);
+
     } catch (err) {
+
         done(err, null);
+
     }
 });
+
+
 
 module.exports = passport;

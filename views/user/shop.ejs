@@ -61,7 +61,7 @@
                 <form action="/shop" method="GET" class="search-form d-flex">
                     <input type="hidden" name="category" value="<%= selectedCategory || 'all' %>">
                     <input type="hidden" name="subCategory" value="<%= selectedSubCategory || 'all' %>">
-                    <input type="hidden" name="brand" value="<%= selectedBrand || 'all' %>"> <!-- Add brand -->
+                    <input type="hidden" name="brand" value="<%= selectedBrand || 'all' %>"> 
                     <input type="hidden" name="priceFrom" value="<%= priceFrom || '' %>">
                     <input type="hidden" name="priceTo" value="<%= priceTo || '' %>">
                     <input type="hidden" name="sort" value="<%= sort || '' %>">
@@ -101,7 +101,7 @@
                                         <div class="d-flex">
                                             <div class="cat">
                                                 <span><%= product.category.name %></span>
-                                            </div>
+                                            </div> 
                                             <div class="rating">
                                                 <p class="text-right mb-0">
                                                     <a href="#"><span class="ion-ios-star-outline"></span></a>
@@ -279,10 +279,10 @@
                                         <div id="price-range-slider" class="mb-3"></div>
                                         <div class="price-range-display d-flex justify-content-between mb-3">
                                             <span>₹<span id="priceFromDisplay"><%= priceFrom || '0' %></span></span>
-                                            <span>₹<span id="priceToDisplay"><%= priceTo || '10000' %></span></span>
+                                            <span>₹<span id="priceToDisplay"><%= priceTo || '100000' %></span></span>
                                         </div>
                                         <input type="hidden" name="priceFrom" id="priceFromInput" value="<%= priceFrom || '0' %>">
-                                        <input type="hidden" name="priceTo" id="priceToInput" value="<%= priceTo || '10000' %>">
+                                        <input type="hidden" name="priceTo" id="priceToInput" value="<%= priceTo || '100000' %>">
                                         <div class="text-center mt-3">
                                             <button type="button" class="btn fill btn-primary" id="applyPriceFilter">Apply Filter</button>
                                         </div>

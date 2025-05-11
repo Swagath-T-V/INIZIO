@@ -40,7 +40,7 @@ const cartSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Coupons',
         default: null,
-    },
+    }, 
     totalAmount: {
         type: Number,
         default: 0,
@@ -60,7 +60,7 @@ const cartSchema = new Schema({
         type: Number,
         default: 0,
         min: 0,
-    },
+    }, 
 }, { timestamps: true });
 
 const Cart = mongoose.model('Cart', cartSchema);

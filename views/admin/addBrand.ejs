@@ -120,44 +120,36 @@
             submitButton.innerHTML = 'Saving...';
             submitButton.disabled = true;
 
-            fetch("/admin/addBrand", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ name, description })
-            })
-                .then(response => {
-                    return response.json().then(data => {
-                        if (!response.ok) {
-                            throw new Error(data.message || "Failed to add brand");
-                        }
-                        return data;
-                    });
-                })
-                .then(data => {
+            $.ajax({
+            url: "/admin/addBrand",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ name, description }),
+            success: function(response) {
+                if(response.success){
                     Swal.fire({
-                        icon: "success",
-                        title: "Success!",
-                        text: data.message || "Brand added successfully",
+                    icon: "success",
+                    title: "Success!",
+                    text: response.message || "Brand added successfully",
                     }).then(() => {
-                        window.location.href = data.redirectUrl || "/admin/brand";
+                        window.location.href = response.redirectUrl || "/admin/brand";
                     });
-                })
-                .catch(error => {
-                    console.error("Error:", error);
+                }else{
                     Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: error.message || "An error occurred while adding the brand",
-                    });
-                })
-                .finally(() => {
-                    submitButton.innerHTML = originalText;
-                    submitButton.disabled = false;
-                });
-            return false;
-        }
+                        icon:"error",
+                        title:"Error",
+                        text:response.message || "something went wrong"
+                    })
+                }
+            },
+            complete: function() {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+
+        return false;
+    }
 
         function validateForm() {
             const name = document.getElementById("name").value.trim();
@@ -188,7 +180,7 @@
             } else if (/[^a-zA-Z0-9\s-]/.test(name)) {
                 displayErrorMessage("name-error", "Brand name can only contain letters, numbers, spaces, or hyphens");
                 isValid = false;
-            }
+            } 
 
             if (!description) {
                 displayErrorMessage("description-error", "Description is required");

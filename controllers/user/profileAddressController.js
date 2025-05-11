@@ -2,11 +2,10 @@ const User = require("../../models/userSchema")
 const Address = require("../../models/addressSchema")
 
 
-
 const getAddressPage = async (req, res) => {
 
     try {
-
+ 
         if (req.session.user) {
 
             const userId = req.session.user
@@ -81,12 +80,12 @@ const addAddress = async (req, res) => {
             await userAddress.save();
         }
 
-        res.redirect("/addressPage?success=Address added successfully");
+        return res.json({success:true ,message:"address added successfully"})
 
     } catch (error) {
 
         console.log("error in addAddressPage", error);
-        res.redirect("/addressPage?error=Failed to add address");
+        return res.json({success:false ,message:"Internal server error"})
     }
 };
 
@@ -133,12 +132,11 @@ const postEditAddress = async (req, res) => {
     try {
 
         const addressId = req.body.addressId;
-        const userId = req.session.user;
         const { addressType, name, city, landMark, state, pincode, phone } = req.body;
 
         const findAddress = await Address.findOne({ "address._id": addressId });
         if (!findAddress) {
-            return res.redirect("/addressPage?error=Address not found");
+            return res.json({success:false ,message:"Address not found"});
         }
 
         await Address.updateOne(
@@ -156,12 +154,12 @@ const postEditAddress = async (req, res) => {
             }
         );
 
-        return res.redirect("/addressPage?success=Address updated successfully");
+        return res.json({success:true, message:"Address updated successfully"})
 
     } catch (error) {
 
         console.log("error in the editAddress", error)
-        return res.redirect("/addressPage?error=Failed to update address")
+        return res.json({success:false, message:"Internal server error"})
 
     }
 }
@@ -172,24 +170,23 @@ const deleteAddress = async (req, res) => {
     try {
 
         const userId = req.session.user
-
         const addressId = req.query.id;
         const findAddress = await Address.findOne({ "address._id": addressId, userId: userId });
         if (!findAddress) {
-            return res.redirect("/addressPage?error=Address not found");
+            return res.json({success:false ,message:"Address not found"})
         }
 
         await Address.updateOne(
             { "address._id": addressId },
             { $pull: { address: { _id: addressId } } }
         );
+        return res.json({success:true ,message:"Address deleted successfully "})
 
-        return res.redirect("/addressPage?success=Address deleted successfully");
 
     } catch (error) {
 
         console.log("/error in deleteAddress", error);
-        return res.redirect("/addressPage?error=Failed to delete address")
+        return res.json({success:false ,message:"Internal server error"})
 
     }
 }
@@ -201,16 +198,12 @@ const setDefaultAddress = async (req, res) => {
         const addressId = req.query.id
         const userId = req.session.user
 
-        if (!userId) {
-            return res.redirect("/login")
-        }
-
         const findAddress = await Address.findOne({ "address._id": addressId, userId: userId })
         if (!findAddress) {
-            return res.redirect("/addressPage?error=Address not found")
+            return res.json({success:false ,message:"Address not found"})
         }
 
-        await Address.updateOne(
+        await Address.updateMany(
             { userId },
             { $set: { "address.$[].isDefault": false } }
         );
@@ -220,12 +213,13 @@ const setDefaultAddress = async (req, res) => {
             { $set: { "address.$.isDefault": true } }
         );
 
-        return res.redirect("/addressPage?success=Address set as default successfully");
+        return res.json({success:true ,message:"Address set as default successfully"})
+
 
     } catch (error) {
 
         console.log("error in setDefaultAddress", error);
-        return res.redirect("/addressPage?error=Failed to set address as default");
+        return res.json({success:false,message:"internal server error"});
 
     }
 }

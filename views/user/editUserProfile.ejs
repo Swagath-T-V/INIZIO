@@ -221,7 +221,7 @@
         max-width: 100%;
         position: relative;
     }
-</style>
+</style> 
 
 <div class="up_main-content">
     <div id="edit-profile" class="up_tab-content active">
@@ -240,7 +240,6 @@
                             </div>
                             <img id="profile-image-preview" src="<%= user.profileImage ? user.profileImage : '' %>" style=`<%= user.profileImage ? 'display:block;' : 'display:none;' %>`/>
                             <input type="file" id="profile-image" name="profileImage" accept="image/jpeg,image/jpg,image/png">
-                            <div class="up_change-image-overlay">Change Image</div>
                         </div>
                         <button type="button" id="remove-image-btn" class="up_btn up_btn-danger" style=`<%= user.profileImage ? 'display:block;' : 'display:none;' %>`>Remove Image</button>
                         <div id="image-error" class="up_error-message"></div>

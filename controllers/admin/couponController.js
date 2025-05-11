@@ -2,11 +2,11 @@ const Coupon = require('../../models/couponSchema')
 
 const loadCoupon = async (req, res) => {
 
-    try {
+    try { 
 
         const search = req.query.search || ""
-        const page = parseInt(req.query.page || 1)
-        const limit = 4
+        const page = parseInt(req.query.page) || 1
+        const limit = 6
         const skip = (page - 1) * limit
 
         await Coupon.updateMany(
@@ -74,12 +74,13 @@ const addCoupon = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'Minimum purchase amount must be greater than discount amount'
-            });
+            }); 
         }
 
         const existingCouponName = await Coupon.findOne({
-            couponName: { $regex: new RegExp('^' + couponName + '$', 'i') }
+            couponName: { $regex: couponName ,$options: "i" }
         });
+
         if (existingCouponName && existingCouponName.isDelete === true) {
 
             existingCouponName.isDelete = false;
@@ -175,10 +176,11 @@ const editCoupon = async (req, res) => {
         }
 
         const existingCoupon = await Coupon.findOne({
-            couponName: { $regex: new RegExp('^' + couponName + '$', 'i') },
+            couponName: { $regex: couponName, $options: "i" },
             isDelete: false,
             _id: { $ne: couponId }
         });
+        
         if (existingCoupon) {
             return res.status(400).json({
                 success: false,

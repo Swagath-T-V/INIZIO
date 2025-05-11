@@ -7,7 +7,7 @@ const walletPage = async (req, res) => {
 
         const userId = req.session.user;
         const user = await User.findById(userId)
-        const wallet = await Wallet.findOne({ userId: user }).populate('userId');
+        const wallet = await Wallet.findOne({ userId: user })
 
         if (!wallet) {
             return res.redirect("/pageNotFound");
@@ -37,7 +37,7 @@ const walletViewAll = async (req, res) => {
         const userId = req.session.user;
         const user = await User.findById(userId)
 
-        const wallet = await Wallet.findOne({ userId: user }).populate('userId');
+        const wallet = await Wallet.findOne({ userId: user })
 
         if (!wallet) {
             return res.redirect("/pageNotFound");
@@ -58,47 +58,9 @@ const walletViewAll = async (req, res) => {
     }
 };
 
-const addToWallet = async (req, res) => {
 
-    try {
-
-        const user = req.session.user
-
-        const { amount } = req.body
-        // console.log(amount)
-
-
-        const amountToAdd = parseInt(amount);
-        // console.log("amountToAdda",amountToAdd)
-
-        let wallet = await Wallet.findOne({ userId: user });
-
-        wallet.balance += amountToAdd;
-        wallet.transactions.push({
-            transactionId: Math.random().toString(36).substr(2, 9),
-            amount: amountToAdd,
-            type: "Credit",
-            method: "UserAdded",
-            status: "Completed",
-            description: "Added by the user",
-            date: new Date()
-        });
-        wallet.lastUpdated = new Date();
-
-        await wallet.save();
-
-        return res.status(200).json({ success: true, message: "amount added successfully" })
-
-    } catch (error) {
-
-        console.log("Error in addToWallet", error);
-        return res.status(500).json({ success: false, message: 'internal server error' })
-
-    }
-}
 
 module.exports = {
     walletPage,
     walletViewAll,
-    addToWallet
 };

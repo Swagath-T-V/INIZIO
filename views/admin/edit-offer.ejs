@@ -370,7 +370,7 @@
                                     <div id="validUpto-error" class="error-message"></div>
                                 </div>
                             </div>
-
+ 
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label">Offer Type</label>
@@ -417,7 +417,7 @@
         const categories = <%- JSON.stringify(category) %>;
         const subCategories = <%- JSON.stringify(subCategory) %>;
         const brands = <%- JSON.stringify(brand) %>;
-        const currentApplicableTo = '<%= offer.applicableTo %>'; // Add this line
+        const currentApplicableTo = '<%= offer.applicableTo %>'; 
 
         window.onload = function () {
             updateApplicableTo();

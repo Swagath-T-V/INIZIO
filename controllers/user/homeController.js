@@ -7,7 +7,7 @@ const User = require("../../models/userSchema")
 const loadHome = async (req, res) => {
 
     try {
-
+ 
         const userId = req.session.user
 
         const activeBrands = await Brand.find({ isListed: true, isDelete: false }).select('_id');
@@ -22,8 +22,7 @@ const loadHome = async (req, res) => {
                 req.session.destroy()
                 return res.redirect('/login')
             }
-
-
+            
             let productData = await Product.find({
                 isDelete: false,
                 isListed: true,
@@ -31,9 +30,9 @@ const loadHome = async (req, res) => {
                 brand: { $in: activeBrands.map(b => b._id) },
                 subCategory: { $in: activeSubCategories.map(s => s._id) }
             })
-                .populate("category brand subCategory")
-                .sort({ createdAt: -1 })
-                .limit(4);
+            .populate("category brand subCategory")
+            .sort({ createdAt: -1 })
+            .limit(4);
 
             return res.render("home", {
                 user: userData,
@@ -49,11 +48,13 @@ const loadHome = async (req, res) => {
             brand: { $in: activeBrands.map(b => b._id) },
             subCategory: { $in: activeSubCategories.map(s => s._id) }
         })
-            .populate("category brand subCategory")
-            .sort({ createdAt: -1 })
-            .limit(4);
+        .populate("category brand subCategory")
+        .sort({ createdAt: -1 })
+        .limit(4);
 
-        return res.render("home", { product: productData });
+        return res.render("home", { 
+            product: productData 
+        });
 
     } catch (error) {
 

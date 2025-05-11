@@ -19,7 +19,7 @@
         color: #2d3436;
         margin-bottom: 5px;
     }
-    .order_profile-info p {
+    .order_profile-info p { 
         font-size: 16px;
         color: #636e72;
         margin: 0;
@@ -343,7 +343,7 @@
                         <% orderData.forEach(order => { %>
                             <% if (order.paymentStatus !== "Pending" || order.paymentMethod === "COD") { %> 
                             <tr>
-                                <td><%= order.orderId %></td>
+                                <td><%= order.orderId.slice(0,8).toUpperCase() %></td>
                                 <td>
                                     <div class="order_product-images">
                                         <% if(order.orderedItems && order.orderedItems.length > 0 ) { %>
@@ -364,7 +364,7 @@
                                         <% } %>
                                     </div>
                                 </td>
-                                <td><%= order.createdAt.toISOString().split('T')[0] %></td>
+                                <td><%= order.createdAt.toLocaleDateString('en-GB', { day: 'numeric' , month: 'long', year: 'numeric' }) %></td>
                                 <td>
                                     <span class="order_status order_status-<%= order.status.toLowerCase().replace(/ /g, '-') %>">
                                         <%= order.status %>

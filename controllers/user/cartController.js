@@ -9,7 +9,7 @@ const Coupons = require("../../models/couponSchema")
 const { calculateShippingCharge } = require("../../utils/shippingCharge")
 
 
-
+ 
 const getCartPage = async (req, res) => {
 
     try {
@@ -17,21 +17,27 @@ const getCartPage = async (req, res) => {
         const userId = req.session.user;
         const user = await User.findById(userId);
 
-        if (!user) {
-            return res.redirect("/login");
-        }
-
         const cart = await Cart.findOne({ userId })
-            .populate({
-                path: "items.productId",
-                match: { isDelete: false, isListed: true },
-                populate: [
-                    { path: "category", select: "name" },
-                    { path: "subCategory", select: "name" },
-                    { path: "brand", select: "name" },
-                ],
-            })
-            .populate("appliedCoupon");
+        .populate({
+            path: "items.productId",
+            match: { isDelete: false, isListed: true },
+            populate: [
+                { path: "category", select: "name" },
+                { path: "subCategory", select: "name" },
+                { path: "brand", select: "name" },
+            ],
+        })
+        .populate("appliedCoupon");
+        
+        if (!cart ) {
+
+            return res.render("cart", {
+                user,
+                cartItems: [],
+                coupons: 0,
+                appliedCoupon: null, 
+            });
+        }
 
         const coupons = await Coupons.find({
             status: "Active",
@@ -40,50 +46,19 @@ const getCartPage = async (req, res) => {
             expireOn: { $gte: new Date() },
         }).lean();
 
-        if (!cart || !cart.items.length) {
-            await Cart.updateOne(
-                { userId },
-                {
-                    totalAmount: 0,
-                    offerDiscount: 0,
-                    couponDiscount: 0,
-                    appliedCoupon: null,
-                }
-            );
-
-            return res.render("cart", {
-                user,
-                cartItems: [],
-                total: 0,
-                coupons,
-                appliedCoupon: null,
-                offerDiscount: 0,
-                couponDiscount: 0,
-            });
-        }
-
         const allOffers = await Offer.find({
             isListed: true,
             isDelete: false,
             validUpto: { $gte: new Date() },
         })
-            .populate("applicableTo")
-            .lean();
+        .populate("applicableTo")
+        .lean();
+        // console.log("offer",allOffers)
 
         let total = 0;
         let offerDiscount = 0;
-        const enhancedCartItems = cart.items.map((item) => {
+        const itemsInCart = cart.items.map((item) => {
             const product = item.productId;
-
-            if (!product) {
-                return {
-                    ...item.toObject(),
-                    bestOffer: null,
-                    discountedPrice: item.price,
-                    totalPrice: item.price * item.quantity,
-                    offerAmount: 0,
-                };
-            }
 
             const applicableOffers = allOffers.filter((offer) => {
                 const offerId = offer.applicableTo?._id?.toString();
@@ -100,7 +75,7 @@ const getCartPage = async (req, res) => {
             let offerAmount = 0;
 
             if (applicableOffers.length > 0) {
-                bestOffer = applicableOffers.reduce((best, current) => {
+                bestOffer = applicableOffers.reduce((best, current) => { 
                     const bestDiscount = best ? (item.price * best.discountAmount) / 100 : 0;
                     const currentDiscount = (item.price * current.discountAmount) / 100;
                     return currentDiscount > bestDiscount ? current : best;
@@ -116,7 +91,7 @@ const getCartPage = async (req, res) => {
             const itemTotal = discountedPrice * item.quantity;
             total += itemTotal;
             offerDiscount += offerAmount;
-
+            
             return {
                 ...item.toObject(),
                 product,
@@ -181,7 +156,7 @@ const getCartPage = async (req, res) => {
 
         res.render("cart", {
             user,
-            cartItems: enhancedCartItems,
+            cartItems: itemsInCart,
             total,
             coupons: availableCoupons,
             appliedCoupon,
@@ -204,11 +179,7 @@ const applyCoupon = async (req, res) => {
 
         const userId = req.session.user;
         const { couponCode } = req.body;
-
-        if (!userId) {
-            return res.json({ success: false, message: "Please log in to apply a coupon" });
-        }
-
+ 
         const coupon = await Coupons.findOne({
             couponCode,
             status: "Active",
@@ -217,11 +188,8 @@ const applyCoupon = async (req, res) => {
             expireOn: { $gte: new Date() },
         });
 
-        if (!coupon) {
-            return res.json({ success: false, message: "Invalid or expired coupon" });
-        }
-
         const user = await User.findById(userId);
+
         const cart = await Cart.findOne({ userId }).populate({
             path: "items.productId",
             match: { isDelete: false, isListed: true },
@@ -232,20 +200,13 @@ const applyCoupon = async (req, res) => {
             ],
         });
 
-        if (!cart || !cart.items.length) {
-            return res.json({ success: false, message: "Your cart is empty" });
-        }
-
         for (const item of cart.items) {
             const product = item.productId;
             if (!product) continue;
             const used = user.usedDiscounts.find( (d) => d.productId.toString() === product._id.toString() && d.couponId && d.couponId.toString() === coupon._id.toString() );
 
             if (used) {
-                return res.json({
-                    success: false,
-                    message: `This coupon has already been used for ${product.name}`,
-                });
+                return res.json({ success: false, message: `This coupon has already been used for ${product.name}` });
             }
         }
 
@@ -254,8 +215,8 @@ const applyCoupon = async (req, res) => {
             isDelete: false,
             validUpto: { $gte: new Date() },
         })
-            .populate("applicableTo")
-            .lean();
+        .populate("applicableTo")
+        .lean();
 
         let total = 0;
         let offerDiscount = 0;
@@ -293,10 +254,7 @@ const applyCoupon = async (req, res) => {
         });
 
         if (total < coupon.minimumPurchase) {
-            return res.json({
-                success: false,
-                message: `Minimum purchase of ₹${coupon.minimumPurchase} required to apply this coupon`,
-            });
+            return res.json({ success: false, message: `Minimum purchase of ₹${coupon.minimumPurchase} required to apply this coupon` });
         }
 
         const couponDiscount = coupon.offerPrice;
@@ -312,7 +270,7 @@ const applyCoupon = async (req, res) => {
             }
         );
 
-        return res.status(200).json({
+        return res.json({
             success: true,
             message: `Coupon "${coupon.couponName}" applied successfully! You saved ₹${coupon.offerPrice}.`,
             totalAmount: finalTotal,
@@ -334,11 +292,11 @@ const removeCoupon = async (req, res) => {
         const userId = req.session.user;
         const { couponId } = req.body;
 
-        if (!userId) {
-            return res.json({ success: false, message: "Please log in to remove a coupon" });
+        const user = await User.findById(userId);
+        if(!user){
+           return res.redirect("/login")
         }
 
-        const user = await User.findById(userId);
         const cart = await Cart.findOne({ userId }).populate({
             path: "items.productId",
             match: { isDelete: false, isListed: true },
@@ -349,9 +307,6 @@ const removeCoupon = async (req, res) => {
             ],
         });
 
-        if (!cart) {
-            return res.json({ success: false, message: "Cart not found" });
-        }
 
         if (!cart.appliedCoupon || cart.appliedCoupon.toString() !== couponId) {
             return res.json({ success: false, message: "No coupon applied or invalid coupon ID" });
@@ -362,8 +317,8 @@ const removeCoupon = async (req, res) => {
             isDelete: false,
             validUpto: { $gte: new Date() },
         })
-            .populate("applicableTo")
-            .lean();
+        .populate("applicableTo")
+        .lean();
 
         let total = 0;
         let offerDiscount = 0;
@@ -372,9 +327,8 @@ const removeCoupon = async (req, res) => {
             const product = item.productId;
             if (!product) return;
 
-
-
             let discountedPrice = item.price;
+            
             const applicableOffers = allOffers.filter((offer) => {
                 const offerId = offer.applicableTo?._id?.toString();
                 return (
@@ -412,7 +366,7 @@ const removeCoupon = async (req, res) => {
             }
         );
 
-        return res.status(200).json({
+        return res.json({
             success: true,
             message: "Coupon removed successfully",
             totalAmount: total,
@@ -493,8 +447,8 @@ const addCart = async (req, res) => {
             isDelete: false,
             validUpto: { $gte: new Date() },
         })
-            .populate("applicableTo")
-            .lean();
+        .populate("applicableTo")
+        .lean();
 
         const applicableOffers = allOffers.filter((offer) => {
             const offerId = offer.applicableTo?._id?.toString();
@@ -654,7 +608,8 @@ const cartQuantity = async (req, res) => {
             return res.status(404).json({ message: "Cart not found" });
         }
 
-        const product = await Product.findById(productId).populate([
+        const product = await Product.findById(productId)
+        .populate([
             { path: "category", select: "name" },
             { path: "subCategory", select: "name" },
             { path: "brand", select: "name" },
@@ -773,7 +728,7 @@ const cartQuantity = async (req, res) => {
             ],
         }).populate("appliedCoupon");
 
-        const enhancedCartItems = updatedCart.items.map((item) => {
+        const itemsInCart = updatedCart.items.map((item) => {
             const product = item.productId;
             if (!product) {
                 return {
@@ -822,7 +777,7 @@ const cartQuantity = async (req, res) => {
         });
 
         let originalTotal = 0;
-        enhancedCartItems.forEach((item) => {
+        itemsInCart.forEach((item) => {
             const salePrice = item.price;
             originalTotal += salePrice * item.quantity;
         });
@@ -834,7 +789,7 @@ const cartQuantity = async (req, res) => {
             total: total.toFixed(2),
             originalTotal: originalTotal.toFixed(2),
             totalDiscount: (offerDiscount + couponDiscount).toFixed(2),
-            cartItems: enhancedCartItems,
+            cartItems: itemsInCart,
             appliedCoupon,
             couponRemoved,
             message: couponRemoved ? "Coupon removed due to insufficient cart total" : "Cart updated successfully",
@@ -847,124 +802,39 @@ const cartQuantity = async (req, res) => {
     }
 };
 
+
 const deleteCart = async (req, res) => {
 
     try {
 
-        const userId = req.session.user;
-        const { productId } = req.query;
+    const userId  =  req.session.user 
+    
+    const { productId } = req.query
 
-        if (!userId) {
-            return res.redirect("/login");
-        }
-
-        const cart = await Cart.findOne({ userId });
-        if (!cart) {
-            return res.redirect("/pageNotFound");
-        }
-
-        await Cart.updateOne(
-            { userId },
-            { $pull: { items: { productId } } }
-        );
-
-        const updatedCart = await Cart.findOne({ userId }).populate({
-            path: "items.productId",
-            match: { isDelete: false, isListed: true },
-            populate: [
-                { path: "category", select: "name" },
-                { path: "subCategory", select: "name" },
-                { path: "brand", select: "name" },
-            ],
-        });
-
-        if (!updatedCart || !updatedCart.items.length) {
-            await Cart.updateOne({ userId }, {
-                totalAmount: 0,
-                offerDiscount: 0,
-                couponDiscount: 0,
-                appliedCoupon: null,
-            });
-            return res.redirect("/cart");
-        }
-
-        const allOffers = await Offer.find({
-            isListed: true,
-            isDelete: false,
-            validUpto: { $gte: new Date() },
-        })
-            .populate("applicableTo")
-            .lean();
-
-        let total = 0;
-        let offerDiscount = 0;
-
-        for (const item of updatedCart.items) {
-            const product = item.productId;
-            if (!product) continue;
-
-            let discountedPrice = item.price;
-            const applicableOffers = allOffers.filter((offer) => {
-                const offerId = offer.applicableTo?._id?.toString();
-                return (
-                    (offer.offerType === "Category" &&
-                        offerId === product.category?._id?.toString()) ||
-                    (offer.offerType === "subCategory" &&
-                        offerId === product.subCategory?._id?.toString()) ||
-                    (offer.offerType === "Product" && offerId === product._id.toString()) ||
-                    (offer.offerType === "Brand" && offerId === product.brand._id?.toString())
-                );
-            });
-
-            if (applicableOffers.length > 0) {
-                const bestOffer = applicableOffers.reduce((best, current) => {
-                    const bestDiscount = best ? (item.price * best.discountAmount) / 100 : 0;
-                    const currentDiscount = (item.price * current.discountAmount) / 100;
-                    return currentDiscount > bestDiscount ? current : best;
-                }, null);
-
-                if (bestOffer) {
-                    const discountAmount = (item.price * bestOffer.discountAmount) / 100;
-                    discountedPrice = Math.max(0, item.price - discountAmount);
-                }
-            }
-
-            total += discountedPrice * item.quantity;
-            offerDiscount += (item.price - discountedPrice) * item.quantity;
-        }
-
-        let couponDiscount = 0;
-        if (updatedCart.appliedCoupon) {
-            const coupon = await Coupons.findById(updatedCart.appliedCoupon);
-
-            if (coupon && total >= coupon.minimumPurchase) {
-
-                couponDiscount = coupon.offerPrice;
-                total -= couponDiscount;
-
-            } else {
-
-                updatedCart.appliedCoupon = null;
-
-            }
-        }
-
-        await Cart.updateOne({ userId }, {
-            totalAmount: total,
-            offerDiscount,
-            couponDiscount,
-            appliedCoupon: updatedCart.appliedCoupon,
-        });
-
-        return res.redirect("/cart");
-
-    } catch (error) {
-
-        console.log("Error in deleteCart:", error);
-        res.redirect("/pageNotFound");
-
+    if (!userId) {
+        return res.redirect("/login");
     }
-};
+
+    const cart = await Cart.findOne({ userId })
+    if (!cart) {
+        return res.redirect("/pageNotFound");
+    }
+
+    await Cart.updateOne(
+        { userId },
+        { $pull: { items: { productId } } },
+        { new : true}
+    )
+
+    return res.redirect("/cart");
+        
+    } catch (error) {
+        
+        console.error("Error in deleteCart:", error);
+        return res.redirect("/pageNotFound");
+    }
+}
+
 
 const cartCheckout = async (req, res) => {
 
@@ -983,7 +853,7 @@ const cartCheckout = async (req, res) => {
             })
             .populate("appliedCoupon");
 
-        if (!cart || !cart.items.length) {
+        if (!cart ) {
             return res.status(400).json({ success: false, message: "Cart is empty" });
         }
 
@@ -1014,7 +884,6 @@ const cartCheckout = async (req, res) => {
                 return res.status(400).json({
                     success: false,
                     message: `Coupon minimum purchase requirement of ₹${coupon.minimumPurchase.toFixed(2)} not met. Coupon has been removed.`,
-                    couponRemoved: true,
                 });
             }
         }

@@ -316,7 +316,7 @@
                     <% wallet.transactions.forEach(transaction => { %>
                         <tr>
                             <td><span class="transaction-id"><%= transaction.transactionId %></span></td>
-                            <td><span class="transaction-date"><%= new Date(transaction.date).toLocaleDateString() %></span></td>
+                            <td><span class="transaction-date"><%= new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })  %></span></td>
                             <td>
                                 <span class="transaction-icon"><%= transaction.type === 'Credit' ? '↓' : '↑' %></span>
                                 <span class="transaction-type"><%= transaction.type %></span>

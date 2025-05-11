@@ -1,42 +1,36 @@
 const User = require("../../models/userSchema")
 const nodemailer = require("nodemailer")
 
-
-const customerInfo = async (req, res) => {
+ 
+const loadCustomer = async (req, res) => {
 
     try {
 
         let search = req.query.search || ""
-        let page = parseInt(req.query.page) || ""
-        if (page < 1) page = 1
-
+        let page = parseInt(req.query.page) || 1
         const limit = 6
+        const skip = (page - 1) * limit
 
         const userData = await User.find({
+            name:{ $regex: search , $options: "i" },
             isAdmin: false,
-            $or: [
-                { name: { $regex: ".*" + search + ".*" } },
-                { email: { $regex: ".*" + search + ".*" } }
-            ]
         })
         .sort({ createdOn: -1 })
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
-        .exec()
+        .limit(limit)
+        .skip(skip)
 
-        const count = await User.find({
+        const count = await User.countDocuments({
+            name:{ $regex: search , $options: "i"},
             isAdmin: false,
-            $or: [
-                { name: { $regex: ".*" + search + ".*" } },
-                { email: { $regex: ".*" + search + ".*" } }
-            ]
-        }).countDocuments()
+        })
+
+        const totalPages = Math.ceil(count / limit)
 
         res.render("customers", {
             data: userData,
             search: search,
             currentPage: page,
-            totalPages: Math.ceil(count / limit),
+            totalPages: totalPages,
             totalUsers: count,
             activePage: 'users'
         });
@@ -91,7 +85,6 @@ const customerBlocked = async (req, res) => {
         const user = await User.findById(id)
 
         if (!user) {
-
             return res.json({ success: false, message: "user not found" })
         }
 
@@ -127,9 +120,7 @@ const customerunBlocked = async (req, res) => {
         const user = await User.findById(id)
 
         if (!user) {
-
             return res.json({ success: false, message: "user not found" })
-
         }
 
         await User.updateOne({ _id: id }, { $set: { isBlocked: false } })
@@ -157,7 +148,7 @@ const customerunBlocked = async (req, res) => {
 
 
 module.exports = {
-    customerInfo,
+    loadCustomer,
     customerBlocked,
     customerunBlocked
 }

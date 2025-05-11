@@ -46,31 +46,31 @@ const login = async (req, res) => {
         const { email, password } = req.body
         const admin = await User.findOne({ email, isAdmin: true })
 
-        if (admin) {
+        if (admin) { 
 
             const passwordMatch = await bcrypt.compare(password, admin.password)
 
             if (!passwordMatch) {
 
-                return res.status(400).json({ success: false, message: "Incorrect password" })
+                return res.json({ success: false, message: "Incorrect password" })
 
             } else {
 
                 req.session.admin = admin._id;
-                return res.status(200).json({ success: true, redirectUrl: "/admin" })
+                return res.json({ success: true, redirectUrl: "/admin" })
 
             }
 
         } else {
 
-            return res.status(400).json({ success: false, message: "Admin not found,please login as admin" })
+            return res.json({ success: false, message: "Admin not found,please login as admin" })
 
         }
 
     } catch (error) {
 
         console.error("Login error", error);
-        return res.status(500).json({ success: false, message: "Login failed, Please try again" });
+        return res.json({ success: false, message: "Login failed, Please try again" });
     }
 
 }

@@ -675,7 +675,7 @@
       addModal.style.display = 'none';
     }
   });
-
+ 
   document.getElementById('editAddressForm').addEventListener('submit', function(event) {
     const addressType = document.getElementById('editAddressType');
     const name = document.getElementById('editName');
@@ -1021,7 +1021,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
             key: response.key,
             amount: response.amount,
             currency: response.currency,
-            name: 'Your Company Name',
+            name: 'INIZIO',
             description: 'Order Payment',
             order_id: response.razorpayOrderId,
             

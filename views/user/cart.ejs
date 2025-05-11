@@ -595,7 +595,7 @@
     </div>
   </div>
 </div>
-
+ 
 <section class="ftco-section ftco-cart">
   <div class="container">
     <div class="row">
@@ -726,7 +726,7 @@
             </span>
           </div>
           <% } %>
-          <hr />
+          <hr /> 
           <div class="price-row total">
             <span>Total Amount</span>
             <span id="cart-total">₹<%= total.toFixed(2) %></span>
@@ -783,43 +783,43 @@
 
           <!-- Available Coupons Section -->
           <h5>Available Coupons</h5>
-      <div class="coupon-list">
-        <div class="coupon-apply">
-          <input
-            type="text"
-            class="coupon-input"
-            id="couponCode"
-            placeholder="Enter Coupon Code"
-          />
-          <button class="apply-btn" id="applyCouponBtn">Apply Coupon</button>
+            <div class="coupon-list">
+                <div class="coupon-apply">
+                <input
+                    type="text"
+                    class="coupon-input"
+                    id="couponCode"
+                    placeholder="Enter Coupon Code"
+                />
+                <button class="apply-btn" id="applyCouponBtn">Apply Coupon</button>
+                </div>
+                <% if (coupons && coupons.length > 0) { %>
+                <% coupons.forEach(coupon => { %>
+                <div class="coupon-item">
+                <div class="coupon-details">
+                    <h6><%= coupon.couponName %></h6>
+                    <p>
+                    Save ₹<%= coupon.offerPrice %> on orders above ₹<%= coupon.minimumPurchase %>.
+                    Valid until <%= new Date(coupon.expireOn).toLocaleDateString() %>.
+                    
+                    </p>
+                </div>
+                <div class="coupon-code"><%= coupon.couponCode %></div>
+                <button class="copy-btn" data-code="<%= coupon.couponCode %>">
+                    Copy Code
+                </button>
+                </div>
+                <% }) %>
+                <% } else { %>
+                <div class="coupon-item">
+                <div class="coupon-details">
+                    <p>No applicable coupons available.</p>
+                </div>
+                </div>
+                <% } %>
+            </div>
         </div>
-        <% if (coupons && coupons.length > 0) { %>
-        <% coupons.forEach(coupon => { %>
-        <div class="coupon-item">
-          <div class="coupon-details">
-            <h6><%= coupon.couponName %></h6>
-            <p>
-              Save ₹<%= coupon.offerPrice %> on orders above ₹<%= coupon.minimumPurchase %>.
-              Valid until <%= new Date(coupon.expireOn).toLocaleDateString() %>.
-             
-            </p>
-          </div>
-          <div class="coupon-code"><%= coupon.couponCode %></div>
-          <button class="copy-btn" data-code="<%= coupon.couponCode %>">
-            Copy Code
-          </button>
-        </div>
-        <% }) %>
-        <% } else { %>
-        <div class="coupon-item">
-          <div class="coupon-details">
-            <p>No applicable coupons available.</p>
-          </div>
-        </div>
-        <% } %>
-      </div>
     </div>
-  </div>
 </div>
   </div>
 </section>

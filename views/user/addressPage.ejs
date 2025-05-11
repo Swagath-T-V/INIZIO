@@ -305,9 +305,9 @@
                         <div class="addr_actions">
                             <a href="/editAddress?id=<%= address._id %>" class="addr_edit-btn">Edit</a>
                             <% if (!address.isDefault) { %>
-                                <a href="/setDefaultAddress?id=<%= address._id %>" class="addr_default-btn">Set as Default</a>
+                                <button class="addr_default-btn" data-address-id="<%= address._id %>">Set as Default</button>
                             <% } %>
-                            <a href="/deleteAddress?id=<%= address._id %>" class="addr_delete-btn">Delete</a>
+                            <button class="addr_delete-btn" data-address-id="<%= address._id %>">Delete</button>
                         </div>
                     </div>
                     <% }) %>
@@ -325,37 +325,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const successMessage = urlParams.get('success');
-    const errorMessage = urlParams.get('error');
 
-    if (successMessage) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: successMessage,
-            showConfirmButton: false,
-            timer: 1500
-        }).then(() => {
-            window.history.replaceState({}, document.title, window.location.pathname);
-        });
-    }
-
-    if (errorMessage) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: errorMessage,
-            confirmButtonColor: '#4a6ee0'
-        }).then(() => {
-            window.history.replaceState({}, document.title, window.location.pathname);
-        });
-    }
-
-    document.querySelectorAll('.addr_delete-btn').forEach(button => {
+document.querySelectorAll('.addr_delete-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            const href = this.getAttribute('href');
+            const addressId = this.getAttribute('data-address-id');
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -367,7 +341,29 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = href;
+                    $.ajax({
+                        url: `/deleteAddress?id=${addressId}`,
+                        type: "patch",
+                        success: function(response) {
+                            if(response.success){
+                                Swal.fire({
+                                icon: "success",
+                                title: "Success!",
+                                text: response.message || "Address deleted successfully",
+                                showConfirmButton: false,
+                                timer: 1500
+                                }).then(() => {
+                                    window.location.reload()
+                                });
+                            }else{
+                                Swal.fire({
+                                    icon:"error",
+                                    title:"Error",
+                                    text:response.message || "something went wrong"
+                                })
+                            }
+                        },
+                    })
                 }
             });
         });
@@ -376,7 +372,7 @@
     document.querySelectorAll('.addr_default-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            const href = this.getAttribute('href');
+            const addressId = this.getAttribute('data-address-id');
 
             Swal.fire({
                 title: 'Set as Default?',
@@ -388,11 +384,33 @@
                 confirmButtonText: 'Yes, set it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = href;
+                    $.ajax({
+                        url: `/setDefaultAddress?id=${addressId}`,
+                        type: "patch",
+                        success: function(response) {
+                            if(response.success){
+                                Swal.fire({
+                                icon: "success",
+                                title: "Success!",
+                                text: response.message || "Address set to default",
+                                showConfirmButton: false,
+                                timer: 1500
+                                }).then(() => {
+                                    window.location.reload()
+                                });
+                            }else{
+                                Swal.fire({
+                                    icon:"error",
+                                    title:"Error",
+                                    text:response.message || "something went wrong"
+                                })
+                            }
+                        },
+                    })
                 }
             });
         });
     });
 </script>
 
-<%- include("../../views/partials/userProfile/footer.ejs") %>
+<%- include("../../views/partials/userProfile/footer.ejs") %> 

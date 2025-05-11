@@ -1,7 +1,7 @@
 const SubCategory = require("../../models/subCategorySchema")
 
 
-const subCategoryInfo = async (req, res) => {
+const loadSubCategory = async (req, res) => {
 
     try {
 
@@ -62,7 +62,7 @@ const addSubCategory = async (req, res) => {
         const { name, description } = req.body;
 
         const existingSubCategory = await SubCategory.findOne({
-            name: { $regex: new RegExp('^' + name + '$', 'i') }
+            name: { $regex: name, $options : "i" }
         })
 
         if (existingSubCategory && existingSubCategory.isDelete === true) {
@@ -123,6 +123,7 @@ const getUnlistSubCategory = async (req, res) => {
         res.json({ success: true, message: 'SubCategory has been listed.' });
 
     } catch (error) {
+        console.log("error in getUnlistBrand",error)
 
         res.status(500).json({ success: false, message: 'Failed to list the subCategory.' });
 
@@ -161,7 +162,7 @@ const editSubCategory = async (req, res) => {
         const { subCategoryName, description } = req.body;
 
         const existingSubCategory = await SubCategory.findOne({
-            name: { $regex: new RegExp('^' + subCategoryName + '$', 'i') },
+            name: { $regex: subCategoryName , $options : "i" },
             _id: { $ne: id }
         });
 
@@ -225,7 +226,7 @@ const deleteSubCategory = async (req, res) => {
 
 module.exports = {
 
-    subCategoryInfo,
+    loadSubCategory,
     getAddSubCategory,
     addSubCategory,
     getListSubCategory,

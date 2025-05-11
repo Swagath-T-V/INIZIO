@@ -564,8 +564,7 @@
                             <% orders.forEach(order=> { %>
                                 <tr>
                                     <td>
-                                        <%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric' ,
-                                            month: 'long' , year: 'numeric' }) %>
+                                        <%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric' , month: 'long' , year: 'numeric' }) %>
                                     </td>
                                     <td>
                                         <%= order.orderId %>
@@ -835,15 +834,16 @@
                     data.orders.forEach((order) => {
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                <td>${new Date(order.createdAt).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                        })}</td>
-                <td>${order.orderId}</td>
-                <td>₹ ${order.totalPrice.toFixed(2)}</td>
-                <td>₹ ${order.discount.toFixed(2)}</td>
-                <td>${order.couponApplied ? "Applied" : "Not Applied"}</td>`;
+                        <td>${new Date(order.createdAt).toLocaleDateString("en-GB", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                })}
+                        </td>
+                        <td>${order.orderId}</td>
+                        <td>₹ ${order.totalPrice.toFixed(2)}</td>
+                        <td>₹ ${order.discount.toFixed(2)}</td>
+                        <td>${order.couponApplied ? "Applied" : "Not Applied"}</td>`;
                         salesTableBody.appendChild(row);
                     });
 
@@ -1097,7 +1097,7 @@
                 }
             });
 
-            // Generate Excel
+            // Generate Excel 
             downloadExcel.addEventListener("click", async () => {
                 try {
                     const downloadButton = document.getElementById("downloadExcel");

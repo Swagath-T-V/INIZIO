@@ -1,23 +1,22 @@
 const express = require("express")
 const app = express()
 const path = require("path")
-const dotenv = require("dotenv")
-dotenv.config()
+const env = require("dotenv")
+env.config()
 const session = require("express-session")
-const ejs = require("ejs")
 const db = require("./config/db")
 const passort = require("./config/passport")
 const userRouter =require("./routes/userRouter")
 const adminRouter = require("./routes/adminRouter")
-
 const nocache = require("nocache")
-
+ 
 db()
  
 app.use(nocache())
  
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
 app.use(session({
     secret:process.env.SESSION_SECRET,
     resave:false,

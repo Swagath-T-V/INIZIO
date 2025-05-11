@@ -242,7 +242,7 @@
             const minimumPurchase = document.getElementById("minimumPurchase").value.trim();
             let isValid = true;
 
-            if (!couponName) {
+            if (!couponName) { 
                 displayErrorMessage("couponName-error", "Please enter a coupon name");
                 isValid = false;
             } else if (couponName.length < 3) {

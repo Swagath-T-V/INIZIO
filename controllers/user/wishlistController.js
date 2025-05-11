@@ -3,12 +3,9 @@ const User = require("../../models/userSchema")
 const Wishlist = require("../../models/wishlistSchema")
 
 
-
-
-
 const getWishlist = async (req, res) => {
 
-    try {
+    try { 
 
         const userId = req.session.user
         const user = await User.findById(userId)
@@ -19,7 +16,10 @@ const getWishlist = async (req, res) => {
         const wishlist = await Wishlist.findOne({ userId }).populate("products.productId")
         const wishlistItems = wishlist ? wishlist.products : []
 
-        res.render("wishlist", { user, wishlistItems })
+        res.render("wishlist", { 
+            user, 
+            wishlistItems 
+        })
 
     } catch (error) {
 
@@ -44,8 +44,8 @@ const addWishlist = async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
+                message: "Please log in to add items to your wishlist",
                 redirectUrl: "/login",
-                message: "Please log in to add items to your wishlist"
             });
         }
 
@@ -56,7 +56,11 @@ const addWishlist = async (req, res) => {
 
         let wishlist = await Wishlist.findOne({ userId })
         if (!wishlist) {
-            wishlist = new Wishlist({ userId, products: [] })
+            
+            wishlist = new Wishlist({ 
+                userId, 
+                products: [] 
+            })
         }
 
         const itemIndex = wishlist.products.findIndex((item) => item.productId.toString() === productId)
@@ -139,7 +143,7 @@ const deleteWishlist = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Wishlist not found' });
         }
 
-        const result = await Wishlist.updateOne(
+        await Wishlist.updateOne(
             { userId },
             { $pull: { products: { productId } } }
         )

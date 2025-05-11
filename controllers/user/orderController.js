@@ -6,7 +6,7 @@ const Wallet = require("../../models/walletSchema")
 const getOrderPage = async (req, res) => {
 
     try {
-
+ 
         const userId = req.session.user;
         const user = await User.findById(userId);
         if (!user) {
@@ -14,8 +14,8 @@ const getOrderPage = async (req, res) => {
         }
 
         let orderData = await Order.find({ userId: userId })
-            .populate('orderedItems.product')
-            .sort({ createdAt: -1 })
+        .populate('orderedItems.product')
+        .sort({ createdAt: -1 })
 
         res.render("order", {
             user,
@@ -68,24 +68,20 @@ const cancelOrder = async (req, res) => {
 
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not found",
-                redirectUrl: "/login"
-            });
+            return res.status(401).json({success: false, message: "User not found", redirectUrl: "/login" });
         }
 
         const orderData = await Order.findOne({ _id: orderId, userId: userId }).populate("orderedItems.product");
         if (!orderData) {
-            return res.status(400).json({
-                success: false,
-                message: "Order not found"
-            });
+            return res.status(400).json({success: false, message: "Order not found" });
         }
+
 
         if (orderData.status === "Cancelled") {
             return res.json({ success: false, message: "Order is already cancelled" });
         }
+
+        let refundAmount = 0; 
 
         if (orderData.paymentMethod === 'COD') {
             refundAmount = orderData.finalAmount - orderData.shippingCharge;
@@ -94,14 +90,13 @@ const cancelOrder = async (req, res) => {
             }
         }
         
-
         if (orderData.paymentMethod === 'Wallet') {
 
             if (orderData.status === 'Pending' || orderData.status === 'Processing') {
 
                 refundAmount = orderData.finalAmount - orderData.shippingCharge;
 
-                const wallet = await Wallet.findOneAndUpdate(
+                await Wallet.findOneAndUpdate(
                     { userId: orderData.userId },
                     {
                         $inc: { balance: refundAmount },
@@ -131,7 +126,7 @@ const cancelOrder = async (req, res) => {
 
                 refundAmount = orderData.finalAmount - orderData.shippingCharge;
 
-                const wallet = await Wallet.findOneAndUpdate(
+                await Wallet.findOneAndUpdate(
                     { userId: orderData.userId },
                     {
                         $inc: { balance: refundAmount },
@@ -155,13 +150,7 @@ const cancelOrder = async (req, res) => {
         }
         await Order.findOneAndUpdate(
             { _id: orderId },
-            { $set: { finalAmount: refundAmount } },
-            { new: true }
-        );
-
-        await Order.findByIdAndUpdate(
-            { _id: orderId },
-            { $set: { status: "Cancelled" } },
+            { $set: { finalAmount: refundAmount,status: "Cancelled" } },
             { new: true }
         );
 
@@ -193,18 +182,22 @@ const returnProduct = async (req, res) => {
         const user = await User.findById(userId)
 
         if (!user) {
-            return res.status(401).json({ success: false, message: "user not found", redirectUrl: "/login" })
+            return res.json({ success: false, message: "user not found", redirectUrl: "/login" })
         }
 
         const { orderId, productId, returnReason, returnDetails } = req.body
 
-        if (!orderId || !returnReason || !productId) {
-            return res.status(400).json({ success: false, message: " orderID,productId and return Reason are require" })
+        if (!orderId || !productId ) {
+            return res.json({ success: false, message: " orderID and productId are require" })
+        }
+
+        if( !returnReason || !returnDetails){
+            return res.json({ success: false, message: " All fields are require" })
         }
 
         const orderData = await Order.findOne({ _id: orderId, userId: userId, 'orderedItems.product': productId })
         if (!orderData) {
-            return res.status(400).json({ success: false, message: "order is not found" })
+            return res.json({ success: false, message: "order is not found" })
         }
 
         if(orderData.status === "Return Request"){
@@ -213,7 +206,7 @@ const returnProduct = async (req, res) => {
 
         const itemIndex = orderData.orderedItems.findIndex(item => item.product.toString() === productId);
         if (itemIndex === -1) {
-            return res.status(400).json({ success: false, message: "Product not found in order" });
+            return res.json({ success: false, message: "Product not found in order" });
         }
 
         orderData.orderedItems[itemIndex].returnStatus = "Return Requested";
@@ -224,12 +217,12 @@ const returnProduct = async (req, res) => {
 
         await orderData.save()
 
-        return res.status(200).json({ success: true, message: "return request submitted successfully" })
+        return res.json({ success: true, message: "return request submitted successfully" })
 
     } catch (error) {
 
         console.log("error in returnOrder", error)
-        return res.status(500).json({ success: false, message: "server error" })
+        return res.json({ success: false, message: "server error" })
 
     }
 }
@@ -264,8 +257,10 @@ const getInvoice = async (req, res) => {
         });
 
     } catch (error) {
+
         console.log("error in getInvoice", error);
         return res.redirect("/pageNotFound");
+        
     }
 };
 

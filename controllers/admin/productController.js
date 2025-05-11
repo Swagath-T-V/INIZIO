@@ -2,7 +2,6 @@ const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
 const SubCategory = require("../../models/subCategorySchema")
 const Brand = require("../../models/brandSchema")
-const fs = require("fs")
 const path = require("path")
 const sharp = require("sharp")
 
@@ -27,34 +26,25 @@ const getProductPage = async (req, res) => {
             .exec();
 
         const count = await Product.countDocuments({
+            name: { $regex: search, $options: "i" },
             isDelete: false,
-            $or: [
-                { name: { $regex: search, $options: "i" } },
-            ],
         });
 
         const category = await Category.find({ isListed: true, isDelete: false }).select('name')
         const subCategory = await SubCategory.find({ isListed: true, isDelete: false }).select('name')
         const brand = await Brand.find({ isListed: true, isDelete: false }).select("name")
 
-        if (category && subCategory) {
+        res.render('product', {
+            data: productData,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit),
+            cat: category,
+            subCategory: subCategory,
+            brand: brand,
+            search: search,
+            activePage: "product"
+        })
 
-            res.render('product', {
-                data: productData,
-                currentPage: page,
-                totalPages: Math.ceil(count / limit),
-                cat: category,
-                subCategory: subCategory,
-                brand: brand,
-                search: search,
-                activePage: "product"
-            })
-
-        } else {
-
-            res.render('pageerror')
-
-        }
 
     } catch (error) {
 
@@ -96,7 +86,7 @@ const addProduct = async (req, res) => {
             const { productName, category, subCategory, salePrice, quantity, description, brand, dimensions, material, weight } = req.body;
 
             const existingProduct = await Product.findOne({
-                name: { $regex: new RegExp('^' + productName + '$', 'i') }
+                name: { $regex: productName , $options: "i" }
             });
 
             if (existingProduct && existingProduct.isDelete === true) {
@@ -269,10 +259,11 @@ const editProduct = async (req, res) => {
         const { productName, category, subCategory, salePrice, quantity, description, brand, material, dimensions, weight } = req.body;
 
         const existingProduct = await Product.findOne({
-            name: { $regex: new RegExp('^' + productName + '$', 'i') },
+            name: { $regex: productName , $options : "i"},
             _id: { $ne: id },
             isDelete: false
         });
+        
         if (existingProduct) {
             return res.status(400).json({
                 success: false,
@@ -350,22 +341,18 @@ const getListProduct = async (req, res) => {
     try {
 
         const productId = req.query.id;
-        const product = await Product.findByIdAndUpdate(
+        await Product.findByIdAndUpdate(
             productId,
             { $set: { isListed: true } },
             { new: true }
-        );
-
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found." });
-        }
+        )
 
         res.json({ success: true, message: "Product has been listed." })
 
     } catch (error) {
 
         console.error("Error in getListProduct:", error);
-        res.status(500).json({ success: false, message: "Failed to list the product." })
+        res.json({ success: false, message: "Failed to list the product." })
 
     }
 };
@@ -375,22 +362,18 @@ const getUnlistProduct = async (req, res) => {
     try {
 
         const productId = req.query.id;
-        const product = await Product.findByIdAndUpdate(
+        await Product.findByIdAndUpdate(
             productId,
             { $set: { isListed: false } },
             { new: true }
-        );
-
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found." });
-        }
+        )
 
         res.json({ success: true, message: "Product has been unlisted." })
 
     } catch (error) {
 
         console.error("Error in getUnlistProduct:", error)
-        res.status(500).json({ success: false, message: "Failed to unlist the product." })
+        res.json({ success: false, message: "Failed to unlist the product." })
     }
 };
 

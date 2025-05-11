@@ -15,8 +15,8 @@ const offerController = require('../controllers/admin/offerController')
 const dashboardController = require("../controllers/admin/dashboardController")
 const walletController = require("../controllers/admin/walletController")
 const brandController = require("../controllers/admin/brandController")
-
-
+ 
+ 
 //adminpage error
 router.get("/pageerror", adminController.pageerror)
 
@@ -26,12 +26,12 @@ router.post("/login", adminController.login)
 router.get("/logout", adminController.logout)
 
 //coustomer 
-router.get("/users", adminAuth, customerController.customerInfo)
+router.get("/users", adminAuth, customerController.loadCustomer)
 router.get("/blockCustomer", adminAuth, customerController.customerBlocked)
 router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked)
 
 //category
-router.get("/category", adminAuth, categoryController.categoryInfo)
+router.get("/category", adminAuth, categoryController.loadCategory)
 router.get("/getAddCategory", adminAuth, categoryController.getAddCategory)
 router.post("/addCategory", adminAuth, categoryController.addCategory)
 router.patch("/listCategory", adminAuth, categoryController.getListCategory)
@@ -41,7 +41,7 @@ router.post("/editCategory/:id", adminAuth, categoryController.editCategory)
 router.patch("/deleteCategory/:categoryId", adminAuth, categoryController.deleteCategory)
 
 //subCategory
-router.get("/subCategory", adminAuth, subCategoryController.subCategoryInfo)
+router.get("/subCategory", adminAuth, subCategoryController.loadSubCategory)
 router.get("/getAddSubCategory", adminAuth, subCategoryController.getAddSubCategory)
 router.post("/addSubCategory", adminAuth, subCategoryController.addSubCategory)
 router.patch("/listSubCategory", adminAuth, subCategoryController.getListSubCategory)
@@ -51,7 +51,7 @@ router.post("/editSubCategory/:id", adminAuth, subCategoryController.editSubCate
 router.patch("/deleteSubCategory/:subCategoryId", adminAuth, subCategoryController.deleteSubCategory)
 
 //Brand 
-router.get("/brand", adminAuth, brandController.brandInfo);
+router.get("/brand", adminAuth, brandController.loadBrand);
 router.get("/getAddBrand", adminAuth, brandController.getAddBrand);
 router.post("/addBrand", adminAuth, brandController.addBrand);
 router.patch("/listBrand", adminAuth, brandController.getListBrand);

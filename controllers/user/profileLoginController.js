@@ -42,7 +42,7 @@ async function sendVerificationEmail(email, otp) {
 
         })
 
-        const info = await transporter.sendMail({
+        await transporter.sendMail({
             from: process.env.NODEMAILER_EMAIL,
             to: email,
             subject: "Your OTP for Password Reset",
@@ -65,15 +65,17 @@ const forgotEmail = async (req, res) => {
     try {
 
         const { email } = req.body;
-
-        if (!email) {
-            return res.status(400).json({
-                success: false,
-                message: "Email is required"
-            })
-        }
+        console.log(email)
 
         const findUser = await User.findOne({ email: email });
+
+        if(!findUser) {
+            return res.json({success: false,  message: "User with this email does not exist"});
+        }
+
+        if(findUser.googleId){
+            return res.json({success:false,message:"Can't change the password"})
+        }
 
         if (findUser) {
 
@@ -96,29 +98,16 @@ const forgotEmail = async (req, res) => {
 
             } else {
 
-                return res.status(400).json({
-                    success: false,
-                    message: 'Failed to send OTP. Please try again.'
-                });
+                return res.json({ success: false, message: 'Failed to send OTP. Please try again.' });
             }
 
-        } else {
-
-            return res.status(400).json({
-                success: false,
-                message: "User with this email does not exist",
-                redirectUrl: "/forgot-password"
-            });
-        }
+        } 
 
     } catch (error) {
 
         console.log("Error in forgotEmail", error);
+        return res.json({ success: false, message: "Internal server error" });
 
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
     }
 };
 
@@ -158,7 +147,6 @@ const resentOtp = async (req, res) => {
         if (emailSent) {
 
             console.log("Resend OTP = ", otp)
-
             return res.status(200).json({ success: true, message: "OTP resent successfully" })
 
         } else {
@@ -222,7 +210,7 @@ const getResetPassword = async (req, res) => {
 
     } catch (error) {
 
-        console.log("error in getResetPassword")
+        console.log("error in getResetPassword",error)
         res.redirect("/pageNotFound")
 
     }
@@ -236,9 +224,9 @@ const postnewPassword = async (req, res) => {
         const email = req.session.email
 
         if (newPass1 === newPass2) {
+            
             const passwordHash = await bcrypt.hash(newPass1, 10)
             await User.updateOne({ email: email }, { $set: { password: passwordHash } })
-
             return res.status(200).json({ success: true, redirectUrl: "/login" })
 
         } else {
@@ -251,7 +239,7 @@ const postnewPassword = async (req, res) => {
         console.error("Error in postNewPassword:", error)
         return res.status(500).json({ success: false, message: "Internal server error" })
 
-    }
+    } 
 }
 
 

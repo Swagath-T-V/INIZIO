@@ -183,7 +183,6 @@
                 const passval = passid.value;
                 const alpha = /[a-zA-Z]/;
                 const digit = /\d/;
-                // const specialChar = /[!@#$%^&*(),.?":{}|<>]/;
                 if (passval === "") {
                     error2.style.display = "block";
                     error2.innerHTML = "Please enter password";
@@ -191,7 +190,6 @@
                     error2.style.display = "block";
                     error2.innerHTML = "Password should contain at least 8 characters";
                 } else if (!alpha.test(passval) || !digit.test(passval)) {
-                    // || !specialChar.test(passval)  
                     error2.style.display = "block";
                     error2.innerHTML = "Password should contain alphabets and digits";
                 } else {
@@ -220,11 +218,12 @@
                         if (response.success) {
                             Swal.fire({
                                 icon: "success",
-                                title: "Logged in successfully",
+                                title: "Success",
+                                text:"Logged in successfully",
                                 showConfirmButton: false,
                                 timer: 1500,
-                                heightAuto: false, // Additional prevention of page shift
-                                scrollbarPadding: false // Additional prevention of page shift
+                                heightAuto: false, 
+                                scrollbarPadding: false 
                             }).then(() => {
                                 window.location.href = response.redirectUrl;
                             });
@@ -237,20 +236,6 @@
                                 scrollbarPadding: false
                             });
                         }
-                    },
-                    error: function (xhr) {
-                        let errorMessage = "Please try again.";
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error in login",
-                            text: errorMessage,
-                            heightAuto: false,
-                            scrollbarPadding: false
-                        });
                     }
                 });
             });

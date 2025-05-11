@@ -1,5 +1,3 @@
-
-
 const Product = require("../../models/productSchema")
 const User = require("../../models/userSchema")
 const Cart = require("../../models/cartSchema")
@@ -38,8 +36,6 @@ const checkOut = async (req, res) => {
         });
 
         const totalAmount = cart.items.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0)
-        const Discount = cart.items.reduce((sum, item) => sum + ((item.productId.regularPrice - item.productId.salePrice) * item.quantity), 0)
-
         const defaultAddress = addresses.find((addr) => addr.isDefault) || addresses[0];
         const shippingCharge = defaultAddress ? calculateShippingCharge(defaultAddress.pincode, totalAmount) : 0;
 
@@ -48,7 +44,6 @@ const checkOut = async (req, res) => {
             cart,
             address: addresses,
             totalAmount: totalAmount,
-            Discount: Discount,
             shippingCharge
         })
 
@@ -65,11 +60,15 @@ const editCheckoutAddress = async (req, res) => {
 
     try {
 
-        const addressId = req.body.addressId
         const userId = req.session.user
+
+        const addressId = req.body.addressId
+        // console.log(addressId)
         const { addressType, name, city, landMark, state, pincode, phone, isDefault } = req.body
 
         const findAddress = await Address.findOne({ "address._id": addressId })
+        // console.log(findAddress);
+        
         if (!findAddress) {
             return res.redirect("/pageNotFound")
         }
@@ -143,7 +142,7 @@ const addCheckoutAddress = async (req, res) => {
         } else {
 
             if (isDefaultBool) {
-                await Address.updateOne(
+                await Address.updateMany(
                     { userId: userData._id },
                     { $set: { "address.$[].isDefault": false } }
                 )
@@ -192,18 +191,19 @@ const checkOutSubmit = async (req, res) => {
             return res.redirect("/pageNotFound");
         }
         const selectedAddress = addressDoc.address.id(addressId);
-        const cart = await Cart.findOne({ userId })
-            .populate({
-                path: "items.productId",
-                populate: [
-                    { path: "category", select: "name" },
-                    { path: "subCategory", select: "name" },
-                    { path: "brand", select: "name" },
-                ],
-            })
-            .populate("appliedCoupon");
 
-        if (!cart || !cart.items.length) {
+        const cart = await Cart.findOne({ userId })
+        .populate({
+            path: "items.productId",
+            populate: [
+                { path: "category", select: "name" },
+                { path: "subCategory", select: "name" },
+                { path: "brand", select: "name" },
+            ],
+        })
+        .populate("appliedCoupon");
+
+        if (!cart ) {
             return res.status(400).json({ success: false, message: "Cart is empty" });
         }
 
@@ -247,7 +247,7 @@ const checkOutSubmit = async (req, res) => {
                 if (bestOffer) {
                     const discountAmount = (item.price * bestOffer.discountAmount) / 100;
                     discountedPrice = Math.max(0, item.price - discountAmount);
-                    offerAmount = discountAmount * item.quantity;
+                    offerAmount = (item.price - discountedPrice) * item.quantity;
                 }
             }
 

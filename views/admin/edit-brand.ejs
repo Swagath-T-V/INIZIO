@@ -141,7 +141,7 @@
                 } else if (/[^a-zA-Z0-9\s.,!?'"():;-]/.test(description) || /[.,!?'"():;-]{2,}/.test(description)) {
                     displayErrorMessage("description-error", "Description can only contain letters, numbers, spaces and basic punctuation");
                     isValid = false;
-                }
+                } 
 
                 return isValid;
             }

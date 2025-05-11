@@ -1,11 +1,10 @@
 const User = require("../../models/userSchema")
 const bcrypt = require("bcrypt")
-const Address = require("../../models/addressSchema")
 const nodemailer = require("nodemailer")
-const upload = require("../../helpers/profileMulter")
+const fs = require('fs');
 const path = require('path');
 
-
+ 
 function generateOtp() {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -30,7 +29,7 @@ async function sendVerificationEmail(email, otp) {
 
         })
 
-        const info = await transporter.sendMail({
+        await transporter.sendMail({
             from: process.env.NODEMAILER_EMAIL,
             to: email,
             subject: "Your OTP for Password Reset",
@@ -38,6 +37,7 @@ async function sendVerificationEmail(email, otp) {
             html: `<b>Your OTP: ${otp}</b>`,
 
         })
+
         return true
 
     } catch (error) {
@@ -59,7 +59,6 @@ const userProfile = async (req, res) => {
         }
 
         const userData = await User.findById(userId);
-        const addressData = await Address.findOne({ userId: userId })
 
         if (!userData) {
             return res.redirect("/login")
@@ -67,7 +66,6 @@ const userProfile = async (req, res) => {
 
         res.render("profile", {
             user: userData,
-            address: addressData,
             activePage: "profile"
         });
 
@@ -163,6 +161,7 @@ const changeUserProfile = async (req, res) => {
                     redirectUrl: "/userVerifyOtp"
                 });
             } else {
+
                 return res.status(500).json({ success: false, message: "Failed to send verification email" });
             }
         } else {
@@ -188,6 +187,10 @@ const getUserVerifyOtp = async (req, res) => {
     try {
 
         const email = req.session.tempProfileData?.email || '';
+
+        if(!email){
+            res.redirect("/pageNotFound")
+        }
         res.render("userVerifyOtp")
 
     } catch (error) {
@@ -312,7 +315,9 @@ const getChangePassword = async (req, res) => {
 
 
 const changePassword = async (req, res) => {
+
     try {
+
         const userId = req.session.user;
         if (!userId) {
             return res.json({ success: false, message: "Unauthorized", redirectUrl: "/login" });
@@ -329,13 +334,13 @@ const changePassword = async (req, res) => {
         if (!isMatch) {
             return res.json({ success: false, message: "Current password is incorrect" });
         }
+        
+        if (!newPass1) {
+            return res.json({ success: false, message: "Please enter a new password" });
+        }
 
         if (newPass1 !== newPass2) {
             return res.json({ success: false, message: "New passwords do not match" });
-        }
-
-        if (!newPass1) {
-            return res.json({ success: false, message: "Please enter a new password" });
         }
 
         const passwordHash = await bcrypt.hash(newPass1, 10);

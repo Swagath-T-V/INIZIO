@@ -1,9 +1,9 @@
 const Category = require("../../models/categorySchema")
 
 
-const categoryInfo = async (req, res) => {
+const loadCategory = async (req, res) => {
 
-    try {
+    try { 
 
         let search = req.query.search || ""
         const page = parseInt(req.query.page) || 1
@@ -67,7 +67,7 @@ const addCategory = async (req, res) => {
         const { name, description } = req.body;
 
         const existingCategory = await Category.findOne({
-            name: { $regex: new RegExp('^' + name + '$', 'i') }
+            name: { $regex: name, $options:"i" }
         })
 
         if (existingCategory && existingCategory.isDelete === true) {
@@ -81,7 +81,7 @@ const addCategory = async (req, res) => {
 
         } else if (existingCategory && existingCategory.isDelete === false) {
 
-            return res.status(400).json({ success: false, message: 'Category name already exists' });
+            return res.json({ success: false, message: 'Category name already exists' });
         }
 
         const newCategory = new Category({
@@ -93,14 +93,14 @@ const addCategory = async (req, res) => {
 
         await newCategory.save();
 
-        return res.status(200).json({ success: true, message: "Category added successfully" });
+        return res.json({ success: true, message: "Category added successfully" });
 
 
 
     } catch (error) {
 
         console.log("Error in addCategory", error);
-        res.status(500).json({ error: "Server error occurred" });
+        res.json({ error: "Server error occurred" });
 
     }
 
@@ -117,8 +117,9 @@ const getListCategory = async (req, res) => {
         res.json({ success: true, message: 'Category has been unlisted.' });
 
     } catch (error) {
+        console.log("error in getListBrand",error)
 
-        res.status(500).json({ success: false, message: 'Failed to unlist the category.' });
+        res.json({ success: false, message: 'Failed to unlist the category.' });
 
     }
 };
@@ -133,6 +134,7 @@ const getUnlistCategory = async (req, res) => {
         res.json({ success: true, message: 'Category has been listed.' });
 
     } catch (error) {
+        console.log("error in getUnlistBrand",error)
 
         res.status(500).json({ success: false, message: 'Failed to list the category.' });
 
@@ -170,7 +172,7 @@ const editCategory = async (req, res) => {
         const { categoryName, description } = req.body;
 
         const existingCategory = await Category.findOne({
-            name: { $regex: new RegExp('^' + categoryName + '$', 'i') },
+            name: { $regex: categoryName ,$options:"i" },
             _id: { $ne: id }
         });
 
@@ -212,7 +214,7 @@ const deleteCategory = async (req, res) => {
             categoryId,
             { $set: { isDelete: true } },
             { new: true }
-        );
+        )
 
         if (updatedCategory) {
 
@@ -234,7 +236,7 @@ const deleteCategory = async (req, res) => {
 
 
 module.exports = {
-    categoryInfo,
+    loadCategory,
     getAddCategory,
     addCategory,
     getListCategory,

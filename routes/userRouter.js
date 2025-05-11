@@ -34,7 +34,7 @@ router.get("/login", userController.loadLogin)
 router.post("/login", userController.login)
 router.get("/logout", userController.logout)
 
-
+ 
 //mail 
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }))
 router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/signup" }), (req, res) => {
@@ -42,7 +42,7 @@ router.get("/auth/google/callback", passport.authenticate("google", { failureRed
     res.redirect("/")
 })
 
-
+ 
 //login profile 
 router.get("/forgot-password", profileLoginController.getForgotPage)
 router.post("/forgot-email-validate", profileLoginController.forgotEmail)
@@ -70,8 +70,8 @@ router.get("/addAddress", userAuth, profileAddressController.getAddAddress)
 router.post("/addAddress", userAuth, profileAddressController.addAddress)
 router.get("/editAddress", userAuth, profileAddressController.getEditAddress)
 router.post("/editAddress", userAuth, profileAddressController.postEditAddress)
-router.get("/deleteAddress", userAuth, profileAddressController.deleteAddress)
-router.get("/setDefaultAddress", userAuth, profileAddressController.setDefaultAddress)
+router.patch("/deleteAddress", userAuth, profileAddressController.deleteAddress)
+router.patch("/setDefaultAddress", userAuth, profileAddressController.setDefaultAddress)
 
 
 //shop
@@ -128,7 +128,6 @@ router.get("/trackOrder", userAuth, orderController.trackOrder)
 //wallet
 router.get("/walletPage", userAuth, walletController.walletPage)
 router.get("/walletViewAll", walletController.walletViewAll)
-router.post("/addToWallet", userAuth, walletController.addToWallet)
 
 
 

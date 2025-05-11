@@ -25,6 +25,7 @@ const loadSignup = async (req, res) => {
     try {
 
         const referralToken = req.query.ref;
+        // console.log(referralToken)
         if (referralToken) {
             req.session.referralToken = referralToken;
         }
@@ -90,23 +91,20 @@ const signup = async (req, res) => {
     try {
 
         const { name, email, phone, password } = req.body;
-        console.log(name, email, phone, password);
+        // console.log(name, email, phone, password);
 
         const findUser = await User.findOne({ email });
+
         if (findUser) {
-
-            return res.json({
-                success: false,
-                message: "User already exists"
-
-            });
+            return res.json({success: false, message: "User already exists" });
         }
 
         const { otp, expiryTime } = generateOtp();
+
         const emailSent = await sendVerificationEmail(email, otp);
 
         if (!emailSent) {
-            return res.status(500).json({
+            return res.json({
                 success: false,
                 message: "Failed to send verification email. Please try again."
             });
@@ -118,7 +116,7 @@ const signup = async (req, res) => {
 
         console.log("OTP Sent:", otp);
 
-        return res.status(200).json({
+        return res.json({
             success: true,
             message: "Signup successful! OTP has been sent to your email.",
             redirectUrl: "/verify-otp"
@@ -127,7 +125,7 @@ const signup = async (req, res) => {
     } catch (error) {
 
         console.error("Signup error:", error);
-        return res.status(500).json({
+        return res.json({
             success: false,
             message: "An error occurred. Please try again later."
         });
@@ -143,7 +141,7 @@ const getOptPage = async (req, res) => {
 
     } catch (error) {
 
-        res.status(500).send("An error found while rendering otp page")
+        console.log("error in getOtpPage",error)
         res.redirect("/pageNotFound")
 
     }
@@ -204,6 +202,7 @@ const verifyOtp = async (req, res) => {
         if (otp === userOtp.otp) {
 
             const user = req.session.userData;
+            // console.log("-------",user)
             const passwordHash = await bcrypt.hash(user.password, 10);
             const referralToken = uuidv4().replace(/-/g, '').slice(0, 10);
 
@@ -225,9 +224,9 @@ const verifyOtp = async (req, res) => {
 
             await newWallet.save()
 
-            const referralTokenFromUrl = req.session.referralToken;
-            if (referralTokenFromUrl) {
-                const referrer = await User.findOne({ referralToken: referralTokenFromUrl });
+            const referralCode= req.session.referralToken;
+            if (referralCode) {
+                const referrer = await User.findOne({ referralToken: referralCode });
                 if (referrer && referrer._id.toString() !== saveUserData._id.toString()) {
                     await Wallet.findOneAndUpdate(
                         { userId: referrer._id },
@@ -379,7 +378,7 @@ const logout = async (req, res) => {
 
     }
 }
-
+ 
 
 
 

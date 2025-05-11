@@ -1,5 +1,4 @@
 const Order = require("../../models/orderSchema")
-const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
 const Wallet = require("../../models/walletSchema")
 const Coupon = require("../../models/couponSchema")
@@ -14,22 +13,15 @@ const getOrderPage = async (req, res) => {
             let status = req.query.status || "";
             let date = req.query.date || "";
             const page = parseInt(req.query.page) || 1;
-            const limit = 5;
+            const limit = 6 ;
             const skip = (page - 1) * limit;
 
-            let query = {};
+            let query = {
+                $nor: [{ paymentMethod: "Razorpay", paymentStatus: "Pending" }],
+            };
 
             if (search) {
-                query.$or = [
-                    { orderId: { $regex: search, $options: "i" } },
-                    {
-                        "userId": {
-                            $in: await User.find({
-                                name: { $regex: search, $options: "i" }
-                            })
-                        }
-                    }
-                ];
+               query.orderId = {$regex : search , $options: "i"}
             }
 
             if (status) {
@@ -57,10 +49,6 @@ const getOrderPage = async (req, res) => {
                     query.createdAt = { $gte: startDate };
                 }
             }
-
-            query.$nor = [
-                { paymentMethod: "Razorpay", paymentStatus: "Pending" }
-            ];
 
             const totalOrders = await Order.countDocuments(query);
             const totalPages = Math.ceil(totalOrders / limit);
@@ -121,63 +109,52 @@ const updateOrderStatus = async (req, res) => {
 
     try {
 
-        if (!req.session.admin) {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
-        }
-
         const { orderId, itemId, status } = req.body;
+        // console.log(orderId, itemId, status)
+
         const order = await Order.findOne({ _id: orderId }).populate('orderedItems.product');
 
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.json({ success: false, message: 'Order not found' });
         }
 
         let message = 'Status updated successfully';
         let refundAmount = 0;
 
         if (itemId) {
+
             const item = order.orderedItems.find(i => i._id.toString() === itemId);
+
             if (!item) {
-                return res.status(404).json({ success: false, message: 'Item not found' });
+                return res.json({ success: false, message: 'Item not found' });
             }
 
             if (item.returnStatus === "Return Requested") {
+
                 item.returnStatus = status;
+
                 if (status === "Returned") {
-                    if (!item.product) {
-                        return res.status(400).json({ success: false, message: 'Product data missing' });
-                    }
+                    
                     await Product.findByIdAndUpdate(item.product._id, { $inc: { quantity: item.quantity } });
                     message = 'Return approved';
 
-                    if (!item.price || item.quantity <= 0) {
-                        return res.status(400).json({ success: false, message: 'Invalid item data' });
-                    }
-
-                    const itemBasePrice = Math.max((item.price * item.quantity) - (item.offerAmount || 0), 0);
-                    refundAmount = itemBasePrice;
+                    const itemPrice = Math.max((item.price * item.quantity) - (item.offerAmount || 0), 0);
+                    refundAmount = itemPrice;
 
 
-                    if (order.couponApplied && order.couponDiscount > 0) {
-                        const totalBasePrice = order.orderedItems.reduce(
-                            (sum, i) => sum + Math.max((i.price * i.quantity) - (i.offerAmount || 0), 0),
-                            0
-                        );
+                    if ( order.couponDiscount > 0) {
+                        const totalPrice = order.orderedItems.reduce((sum, i) => sum + Math.max((i.price * i.quantity) - (i.offerAmount || 0), 0), 0);
 
-                        const totalReturnedValue = order.orderedItems
+                        const totalReturned = order.orderedItems
                             .filter((i) => i.returnStatus === "Returned" && i._id.toString() !== itemId)
                             .reduce((sum, i) => sum + Math.max((i.price * i.quantity) - (i.offerAmount || 0), 0), 0);
 
-                        const remainingOrderValue = order.finalAmount - (totalReturnedValue + itemBasePrice);
+                        const remainingPrice = order.finalAmount - (totalReturned + itemPrice);
 
-                        const coupon = await Coupon.findOne({
-                            _id: order.couponId,
-                            status: "Active",
-                            expireOn: { $gte: order.createdAt },
-                        });
+                        const coupon = await Coupon.findOne({_id: order.couponId, status: "Active" });
 
-                        if (coupon && coupon.minimumPurchase && remainingOrderValue < coupon.minimumPurchase) {
-                            const itemCouponShare = totalBasePrice > 0 ? (order.couponDiscount * (itemBasePrice / totalBasePrice)) : 0;
+                        if (remainingPrice < coupon.minimumPurchase) {
+                            const itemCouponShare = totalPrice > 0 ? (order.couponDiscount * (itemPrice / totalPrice)) : 0;
                             refundAmount -= itemCouponShare;
                             message = "Return approved and amount refunded to wallet";
                         }
@@ -185,21 +162,22 @@ const updateOrderStatus = async (req, res) => {
 
                     refundAmount = Math.max(refundAmount, 0);
 
-                    const totalRefundedSoFar = await Wallet.findOne({ userId: order.userId }).then((wallet) =>
-                        wallet?.transactions
-                            ?.filter((t) => t.orderId?.toString() === orderId.toString() && t.type === "Credit" && t.method === "Refund")
-                            ?.reduce((sum, t) => sum + t.amount, 0) || 0
-                    );
+                    const wallet = await Wallet.findOne({ userId: order.userId });
+                    const totalRefunded = wallet?.transactions
+                        ?.filter(t => t.orderId?.toString() === orderId && t.type === "Credit" && t.method === "Refund")
+                        ?.reduce((sum, t) => sum + t.amount, 0) || 0;
 
-                    const maxRefundable = order.finalAmount - totalRefundedSoFar;
-                    refundAmount = Math.min(refundAmount, maxRefundable);
+
+                    const maxRefund = order.finalAmount - totalRefunded;
+                    // console.log(maxRefund)
+                    refundAmount = Math.min(refundAmount, maxRefund);
 
                     item.refundAmount = refundAmount;
 
                     if (refundAmount <= 0) {
                         message = 'Return approved, but no refundable amount available';
                     } else {
-                        const wallet = await Wallet.findOneAndUpdate(
+                        await Wallet.findOneAndUpdate(
                             { userId: order.userId },
                             {
                                 $inc: { balance: refundAmount },
@@ -235,7 +213,7 @@ const updateOrderStatus = async (req, res) => {
 
                     refundAmount = order.finalAmount - order.shippingCharge;
 
-                    const wallet = await Wallet.findOneAndUpdate(
+                    await Wallet.findOneAndUpdate(
                         { userId: order.userId },
                         {
                             $inc: { balance: refundAmount },
@@ -292,7 +270,7 @@ const updateOrderStatus = async (req, res) => {
     } catch (error) {
 
         console.log("Error in updateOrderStatus:", error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.json({ success: false, message: 'Server error' });
 
     }
 };

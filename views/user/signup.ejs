@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Fashion Shopping</title>
@@ -9,6 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -278,7 +280,9 @@
                 margin-bottom: 0.8vh;
             }
         }
+
     </style>
+
 </head>
 
 <body>
@@ -324,14 +328,10 @@
                 <a href="/auth/google" class="google-btn">
                     <span class="google-icon">
                         <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                            <path fill="#EA4335"
-                                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                            <path fill="#4285F4"
-                                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                            <path fill="#FBBC05"
-                                d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                            <path fill="#34A853"
-                                d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
                         </svg>
                     </span>
                     Continue with Google
@@ -353,20 +353,6 @@
     </div>
 
     <script>
-
-        function togglePassword(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(iconId);
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.className = 'fa-regular fa-eye-slash';
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.className = 'fa-regular fa-eye';
-            }
-        }
-
 
         const nameid = document.getElementById("name")
         const emailid = document.getElementById("email")
@@ -464,11 +450,11 @@
 
         function phoneValidateChecking() {
             const phoneval = phoneid.value.trim();
-            const cleaned = phoneval.replace(/\D/g, ""); // Remove all non-digit characters
+            const cleaned = phoneval.replace(/\D/g, "");
 
-            const validIndianMobile = /^[6-9]\d{9}$/;             // Must start with 6-9, and exactly 10 digits
-            const repeatedDigits = /^(\d)\1{9}$/;                 // All same digit repeated 10 times
-            const sequentialDigits = /^(0123456789|1234567890)$/; // Common sequential numbers
+            const validIndianMobile = /^[6-9]\d{9}$/;           
+            const repeatedDigits = /^(\d)\1{9}$/;                
+            const sequentialDigits = /^(0123456789|1234567890)$/; 
 
             if (cleaned === "") {
                 error3.style.display = "block";
@@ -549,11 +535,7 @@
                 phoneValidateChecking();
                 passValidateChecking();
 
-                if (error1.style.display === "block" ||
-                    error2.style.display === "block" ||
-                    error3.style.display === "block" ||
-                    error4.style.display === "block" ||
-                    error5.style.display === "block") {
+                if (error1.style.display === "block" || error2.style.display === "block" || error3.style.display === "block" || error4.style.display === "block" ||  error5.style.display === "block") {
                     return;
                 }
 
@@ -582,7 +564,7 @@
                     success: function (response) {
                         if (response.success) {
                             Swal.fire({
-                                icon: 'success',
+                                icon: 'success', 
                                 title: "Success!",
                                 text: response.message || "Signup successful! OTP has been sent to your email.",
                                 timer: 2000,
@@ -599,24 +581,12 @@
                             });
                         }
                     },
-                    error: function (xhr) {
-                        console.error("AJAX Error:", xhr, status, error); 
-                        let errorMessage = "Something went wrong";
-
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Signup Failed',
-                            text: errorMessage
-                        });
-                    }
                 });
             });
         });
+
     </script>
+
 </body>
 
 </html>

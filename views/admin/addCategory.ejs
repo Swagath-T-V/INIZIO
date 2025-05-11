@@ -132,43 +132,35 @@
             submitButton.innerHTML = 'Saving...';
             submitButton.disabled = true;
 
-            fetch("/admin/addCategory", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+            $.ajax({
+                url:"/admin/addCategory",
+                type:"POST",
+                contentType: "application/json",
+                data: JSON.stringify({ name, description }),
+
+                success:function(response){
+                    if(response.success){
+                        Swal.fire({
+                            icon:"success",
+                            title:"Success",
+                            text: response.message || "Category added successfully",
+                        }).then(()=>{
+                            window.location.href = response.redirectUrl || "/admin/category"
+                        })
+                    }else{
+                        Swal.fire({
+                            icon:"error",
+                            title:"Error",
+                            text: response.message || "An error occurred while adding the category"
+                        })
+                    }
                 },
-                body: JSON.stringify({ name, description })
-            })
-                .then(response => {
-                    return response.json().then(data => {
-                        if (!response.ok) {
-                            throw new Error(data.message || "Failed to add category");
-                        }
-                        return data;
-                    });
-                })
-                .then(data => {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success!",
-                        text: data.message || "Category added successfully",
-                    }).then(() => {
-                        window.location.href = data.redirectUrl || "/admin/category";
-                    });
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: error.message || "An error occurred while adding the category",
-                    });
-                })
-                .finally(() => {
+                complete: function() {
                     submitButton.innerHTML = originalText;
                     submitButton.disabled = false;
-                });
-
+                }
+            })
+            
             return false;
         }
 

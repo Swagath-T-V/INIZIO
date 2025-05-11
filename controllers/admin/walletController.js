@@ -9,26 +9,22 @@ const getWallet = async (req, res) => {
 
         let search = req.query.search || "";
         let page = parseInt(req.query.page) || 1;
-        if (page < 1) page = 1;
-
         const limit = 4;
+        let skip = (page - 1) * limit
 
-        const userSearchQuery = {
+        const userData = await User.find({
+            name: { $regex: search, $options: "i" } ,
             isAdmin: false,
-            $or: [
-                { name: { $regex: search, $options: "i" } },
-                { email: { $regex: search, $options: "i" } },
-            ],
-        };
+        })
+        .sort({ createdOn: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select("name email phone")            
 
-        const userData = await User.find(userSearchQuery)
-            .sort({ createdOn: -1 })
-            .limit(limit)
-            .skip((page - 1) * limit)
-            .select("name email phone")
-            .exec();
-
-        const count = await User.countDocuments(userSearchQuery);
+        const count = await User.countDocuments({
+            name: { $regex: search, $options: "i" } ,
+            isAdmin: false,
+        });
 
         res.render("walletAdmin", {
             data: userData,
@@ -53,14 +49,14 @@ const viewWallet = async (req, res) => {
     try {
 
         const { id } = req.query;
+        // console.log("id",id)
         let search = req.query.search || "";
         let page = parseInt(req.query.page) || 1;
-        if (page < 1) page = 1;
-
         const limit = 5;
 
-        const wallet = await Wallet.findOne({ userId: id }).populate('userId')
+        if (page < 1) page = 1;
 
+        const wallet = await Wallet.findOne({ userId: id })
 
         let transactions = wallet.transactions
             .filter((transaction) => transaction.transactionId.toLowerCase().includes(search.toLowerCase()))
@@ -71,9 +67,9 @@ const viewWallet = async (req, res) => {
 
         if (page > totalPages && totalPages > 0) page = totalPages;
 
-        const paginatedTransactions = transactions.slice((page - 1) * limit, page * limit);
+        const pagination = transactions.slice((page - 1) * limit, page * limit);
 
-        const walletData = [{ transactions: paginatedTransactions }];
+        const walletData = [{ transactions: pagination }];
 
         return res.render("viewWallet", {
             wallet,
@@ -83,7 +79,6 @@ const viewWallet = async (req, res) => {
             activePage: "wallet",
             walletData,
             id,
-
         });
 
     } catch (error) {
@@ -93,6 +88,8 @@ const viewWallet = async (req, res) => {
 
     }
 };
+
+
 
 const viewWalletDetails = async (req, res) => {
 

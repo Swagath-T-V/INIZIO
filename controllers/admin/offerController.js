@@ -15,7 +15,7 @@ const getOffer = async(req,res)=>{
         const skip = (page-1)*limit
 
         const findOffer = await Offer.find({
-            offerName:{$regex:search,$options:'i'},
+            offerName:{ $regex: search, $options: 'i'},
             isDelete:false
         })
         .sort({createdAt:-1})
@@ -82,7 +82,7 @@ const addOffer = async(req,res)=>{
         const {offerName,description,discountType,discountAmount,validFrom,validUpto,offerType,applicableTo} = req.body 
 
         const existingOffer = await Offer.findOne({
-            offerName: { $regex: new RegExp('^' + offerName + '$', 'i') }
+            offerName: { $regex: offerName , $options: "i" },
         });
         
         if(existingOffer && existingOffer.isDelete === true){
@@ -153,8 +153,6 @@ const getEditOffer = async(req,res)=>{
             brand
         }) 
 
-
-        
     } catch (error) {
 
         console.log("error in getEditOffer",error)
@@ -170,16 +168,18 @@ const editOffer = async(req,res)=>{
         const {offerId} = req.body
 
         const {offerName,description,discountType,discountAmount,validFrom,validUpto,offerType,applicableTo} = req.body
+
         const existingOffer = await Offer.findOne({
-            offerName: { $regex: new RegExp('^' + offerName + '$', 'i') },
+            offerName: { $regex: offerName , $options: "i" },
             isDelete: false,
             _id: { $ne: offerId }
-        });
+        })
+
         if (existingOffer ) {
             return res.status(400).json({
                 success: false,
                 message: "Offer name already exists"
-            });
+            })
         }
 
         const updatedOffer = await Offer.findByIdAndUpdate(
@@ -226,8 +226,8 @@ const listOffer = async(req,res)=>{
         const offerId = req.query.id
         const offer = await Offer.findByIdAndUpdate(
             offerId,
-            {$set:{isListed:true}},
-            {new:true}
+            { $set: { isListed:true }},
+            { new: true }
         )
 
         if(!offer){

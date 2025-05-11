@@ -437,6 +437,7 @@
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
+                        title:"Success",
                         text: response.message
                     }).then(() => {
                         window.location.href = '/admin/getOrderPage'
@@ -444,15 +445,10 @@
                 } else {
                     Swal.fire({
                         icon: 'error',
+                        title:"Error",
                         text: response.message
                     });
                 }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    text: 'Failed to update status. Please try again.'
-                });
             }
         });
     }
@@ -466,6 +462,7 @@
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
+                        title:"Success",
                         text: response.message
                     }).then(() => {
                         window.location.reload();
@@ -473,18 +470,12 @@
                 } else {
                     Swal.fire({
                         icon: 'error',
+                        title:"Error",
                         text: response.message
                     });
                 }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    text: 'Failed to update status. Please try again.'
-                });
             }
         });
     }
 </script>
 <%- include("../../views/partials/admin/footer.ejs") %>
-z

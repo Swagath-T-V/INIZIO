@@ -797,7 +797,7 @@
                 key: response.key,
                 amount: response.amount,
                 currency: response.currency,
-                name: 'Your Company Name',
+                name: 'INIZIO',
                 description: 'Order Payment Retry',
                 order_id: response.razorpayOrderId,
                 handler: function (razorpayResponse) {
@@ -839,7 +839,7 @@
                 rzp.open();
             } else {
                 Swal.fire({
-                icon: 'error',
+                icon: 'error', 
                 title: 'Error',
                 text: response.message || 'Failed to initiate retry. Please try again.',
                 });
@@ -876,11 +876,6 @@
         const returnReason = document.getElementById("returnReason").value;
         const returnDetails = document.getElementById("returnDetails").value;
 
-        if (!returnReason) {
-            Swal.fire({ icon: 'error', title: 'Oops...', text: 'Please select a return reason' });
-            return;
-        }
-
         $.ajax({
             url: '/returnProduct',
             method: 'POST',
@@ -903,18 +898,13 @@
                         window.location.reload(true);
                     });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Error', 
+                        text: response.message 
+                    });
                 }
             },
-            error: function(xhr, status, error) {
-                returnModal.style.display = "none";
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to submit return request. Please try again.',
-                    footer: 'Error: ' + error
-                });
-            }
         });
     };
 

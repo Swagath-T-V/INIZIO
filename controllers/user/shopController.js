@@ -8,7 +8,7 @@ const User = require("../../models/userSchema")
 const loadShopPage = async (req, res) => {
 
     try {
-
+ 
         const user = req.session.user;
         let userData = null;
 
@@ -25,9 +25,9 @@ const loadShopPage = async (req, res) => {
         const activeCategories = await Category.find({ isListed: true, isDelete: false }).lean();
         const activeSubCategories = await SubCategory.find({ isListed: true, isDelete: false }).lean();
         const activeBrands = await Brand.find({ isListed: true, isDelete: false }).lean();
-
+        
         const { page = 1, query = '', sort, category, subCategory, priceFrom, priceTo, clear, brand } = req.query;
-        const limit = 9;
+        const limit = 9
         const skip = (page - 1) * limit;
 
         let filter = {
