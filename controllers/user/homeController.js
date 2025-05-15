@@ -64,6 +64,36 @@ const loadHome = async (req, res) => {
     }
 };
 
+const about = async (req,res) =>{
+
+    try {
+
+        let userId = req.session.user
+        let userData = null
+
+        if(userId){
+
+            userData = await User.findOne({ _id: userId })
+
+            if(userData && userData.isBlocked ){
+                req.session.destroy()
+                return res.redirect("/login")
+            }
+        }
+       
+        return res.render("about",{
+            user : userData
+        })
+        
+    } catch (error) {
+
+        console.log("Error in about Page",error)
+        return res.redirect("/pageNotFound")
+        
+    }
+}
+
 module.exports = {
     loadHome,
+    about
 }

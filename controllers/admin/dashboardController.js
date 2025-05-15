@@ -99,6 +99,7 @@ const loadDashboard = async (req, res) => {
                 }
             });
         });
+        // console.log(productSales)
 
         const topProducts = Object.values(productSales)
             .sort((a, b) => b.totalSold - a.totalSold)
@@ -234,8 +235,7 @@ const getSalesReport = async (req, res) => {
                 $gte: startOfPeriod,
                 $lte: endOfPeriod,
             };
-        }
-         else if (period === "yearly") {
+        } else if (period === "yearly") {
             dateFilter = { $gte: new Date(now.getFullYear(), 0, 1) };
         } else if (period === "custom" && startDate && endDate) {
             dateFilter = {

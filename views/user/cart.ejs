@@ -620,18 +620,22 @@
 
               <% let stockStatus='in-stock' ; 
                 let stockMessage=`In Stock (${item.product.quantity} available)`; 
-                if (!item.product.isListed || item.product.isDelete) { 
-                  stockStatus='out-of-stock' ;
-                  stockMessage='Out of Stock' ; 
-                } else if (item.product.quantity <=0) { 
-                  stockStatus='out-of-stock' ; 
-                  stockMessage='Out of Stock' ;
-                } else if (item.product.status==='sold-out' ) {
-                  stockStatus='sold-out' ; stockMessage='Sold Out' ; 
-                } else if (item.product.status==='unavailable' ) { 
-                  stockStatus='unavailable'; 
-                  stockMessage='Currently Unavailable' ; 
-                } 
+                if (!item.product.isListed) { 
+                    stockStatus = 'unavailable';
+                    stockMessage = 'Product Unavailable'; 
+                } else if (item.product.isDelete) { 
+                    stockStatus = 'out-of-stock';
+                    stockMessage = 'Out of Stock'; 
+                } else if (item.product.quantity <= 0) { 
+                    stockStatus = 'out-of-stock'; 
+                    stockMessage = 'Out of Stock';
+                } else if (item.product.status === 'sold-out') {
+                    stockStatus = 'sold-out'; 
+                    stockMessage = 'Sold Out'; 
+                } else if (item.product.status === 'unavailable') { 
+                    stockStatus = 'unavailable'; 
+                    stockMessage = 'Currently Unavailable'; 
+                }
               %>
               <p class="<%= stockStatus === 'in-stock' ? 'text-success' : 'text-danger' %> stock">
                 <%= stockMessage %>
@@ -675,11 +679,13 @@
               <% } %>
 
               <div class="cart-actions">
+                 <% if (item.product.isListed && !item.product.isDelete) { %>
                 <div class="quantity-control">
                   <button class="quantity-btn minus" data-product-id="<%= item.product._id %>"data-max="<%= Math.min(10, item.product.quantity) %>"> -</button>
                   <input type="text" class="quantity-input" value="<%= item.quantity %>" readonly />
                   <button class="quantity-btn plus" data-product-id="<%= item.product._id %>" data-max="<%= Math.min(10, item.product.quantity) %>">  + </button>
                 </div>
+                <% } %>
                 <a href="/deleteCart?productId=<%= item.product._id %>" class="action-link remove" >Remove</a>
               </div>
             </div>

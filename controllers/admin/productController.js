@@ -23,7 +23,6 @@ const getProductPage = async (req, res) => {
             .sort({ createdAt: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit)
-            .exec();
 
         const count = await Product.countDocuments({
             name: { $regex: search, $options: "i" },
@@ -44,7 +43,6 @@ const getProductPage = async (req, res) => {
             search: search,
             activePage: "product"
         })
-
 
     } catch (error) {
 

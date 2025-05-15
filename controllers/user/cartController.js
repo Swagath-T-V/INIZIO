@@ -20,7 +20,7 @@ const getCartPage = async (req, res) => {
         const cart = await Cart.findOne({ userId })
         .populate({
             path: "items.productId",
-            match: { isDelete: false, isListed: true },
+            // match: { isDelete: false, isListed: true },
             populate: [
                 { path: "category", select: "name" },
                 { path: "subCategory", select: "name" },
@@ -844,7 +844,7 @@ const cartCheckout = async (req, res) => {
         const cart = await Cart.findOne({ userId })
             .populate({
                 path: "items.productId",
-                match: { isDelete: false, isListed: true },
+                // match: { isDelete: false, isListed: true },
                 populate: [
                     { path: "category", select: "name" },
                     { path: "subCategory", select: "name" },
@@ -864,6 +864,7 @@ const cartCheckout = async (req, res) => {
                 outOfStock.push(product?.name || "Unknown Product");
             }
         }
+        // console.log(outOfStock)
 
         if (outOfStock.length > 0) {
             return res.status(400).json({

@@ -19,6 +19,8 @@ const upload = require("../helpers/profileMulter")
 //page error
 router.get("/pageNotFound", userController.pageNotFound)
 
+//About 
+router.get("/about",homeController.about)
 
 //Home 
 router.get("/", homeController.loadHome)
