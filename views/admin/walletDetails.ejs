@@ -547,7 +547,7 @@
                         <% if (order.orderedItems && order.orderedItems.length > 0) { %>
                             <% order.orderedItems.forEach(item => { %>
                                 <% if (item.product && item.product.Images && item.product.Images.length > 0) { %>
-                                    <img src="/Uploads/product-image/<%= item.product.Images[0] %>" alt="Product Image" style="margin: 10px;" />
+                                    <img src="/uploads/product-image/<%= item.product.Images[0] %>" alt="Product Image" style="margin: 10px;" />
                                 <% } else { %>
                                     <p style="margin: 10px;">No image available for this product</p>
                                 <% } %>

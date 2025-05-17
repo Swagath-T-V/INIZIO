@@ -350,7 +350,7 @@
                                             <% order.orderedItems.forEach((item, index) => { %>
                                                 <% if(index < 2 && item.product) { %>
                                                     <% if(item.product.Images && item.product.Images.length > 0) { %>
-                                                        <img src="/Uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="<%= item.product.name %>" class="order_product-image">
+                                                        <img src="/uploads/product-image/<%= item.product.Images[0] || '/default-image.jpg' %>" alt="<%= item.product.name %>" class="order_product-image">
                                                     <% } else { %>
                                                         <img src="/img/no-image.png" alt="No Image Available" class="order_product-image">
                                                     <% } %>
