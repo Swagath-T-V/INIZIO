@@ -918,8 +918,6 @@ const cartCheckout = async (req, res) => {
     }
 };
 
-
-
 module.exports = {
 
     getCartPage,
