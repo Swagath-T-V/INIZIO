@@ -121,14 +121,12 @@ const addCoupon = async (req, res) => {
         })
 
         await newCoupon.save()
-
         return res.status(200).json({ success: true, message: "Coupon created successfully" })
 
     } catch (error) {
 
         console.log("error in addCoupon", error)
         return res.status(500).json({ success: false, message: "Server error occurred" });
-
     }
 
 }
@@ -141,7 +139,7 @@ const getEditCoupon = async (req, res) => {
         const { couponId } = req.query
 
         const coupon = await Coupon.findOne({ _id: couponId })
-        return res.render("edit-Coupon", {
+        return res.render("edit-coupon", {
             coupon: coupon,
             activePage: 'coupons'
         })
